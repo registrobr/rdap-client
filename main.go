@@ -10,7 +10,7 @@ import (
 
 	"github.com/codegangsta/cli"
 	"github.com/davecgh/go-spew/spew"
-	rdap "github.com/registrobr/rdap-client"
+	rdap "github.com/registrobr/rdap-client/client"
 	"github.com/registrobr/rdap-client/output"
 )
 
@@ -52,7 +52,7 @@ GLOBAL OPTIONS:
 		},
 		cli.StringFlag{
 			Name:  "bootstrap",
-			Value: rdap.IANARDAPEndpoint,
+			Value: rdap.RDAPBootstrap,
 			Usage: "RDAP bootstrap service URL",
 		},
 		cli.StringFlag{
@@ -68,10 +68,14 @@ GLOBAL OPTIONS:
 		bootstrap = ctx.String("bootstrap")
 		host = ctx.String("host")
 
-		c := rdap.NewClient(cache)
+		client := rdap.NewClient(cache)
+
+		if host != "" {
+			client.Host = host
+		}
 
 		if len(bootstrap) > 0 {
-			c.SetRDAPEndpoint(bootstrap)
+			client.Bootstrap = bootstrap
 		}
 
 		object := strings.Join(ctx.Args(), " ")
@@ -81,7 +85,7 @@ GLOBAL OPTIONS:
 		}
 
 		if asn, err := strconv.ParseUint(object, 10, 32); err == nil {
-			r, err := c.QueryASN(asn)
+			r, err := client.QueryASN(asn)
 
 			if err != nil {
 				fmt.Println(err)
@@ -93,7 +97,7 @@ GLOBAL OPTIONS:
 		}
 
 		if _, cidr, err := net.ParseCIDR(object); err == nil {
-			r, err := c.QueryIPNetwork(cidr)
+			r, err := client.QueryIPNetwork(cidr)
 
 			if err != nil {
 				fmt.Println(err)
@@ -104,7 +108,7 @@ GLOBAL OPTIONS:
 			os.Exit(0)
 		}
 
-		r, err := c.QueryDomain(object)
+		r, err := client.QueryDomain(object)
 
 		if err != nil {
 			fmt.Println(err)
