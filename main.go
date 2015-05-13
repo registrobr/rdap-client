@@ -1,75 +1,123 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"net"
 	"os"
+	"path"
 	"strconv"
 	"strings"
 
+	"github.com/codegangsta/cli"
 	"github.com/davecgh/go-spew/spew"
 	rdap "github.com/registrobr/rdap-client"
 	"github.com/registrobr/rdap-client/output"
 )
 
 var (
-	cache    = flag.String("cache", os.Getenv("HOME")+"/.rdap", "directory for caching bootstrap and RDAP data")
-	endpoint = flag.String("endpoint", rdap.IANARDAPEndpoint, "endpoint for bootstrap data acquisition")
+	cache     string
+	bootstrap string
+	host      string
 )
 
 func main() {
-	flag.Parse()
+	cli.AppHelpTemplate = `
+NAME:
+   {{.Name}} - {{.Usage}}
 
-	if len(flag.Args()) == 0 {
-		flag.Usage()
-		fmt.Println("rdap [options] object")
-		os.Exit(1)
+USAGE:
+   {{.Name}} {{if .Flags}}[global options]{{end}} OBJECT
+
+VERSION:
+   {{.Version}}{{if len .Authors}}
+
+AUTHOR(S): 
+   {{range .Authors}}{{ . }}{{end}}{{end}}
+
+GLOBAL OPTIONS:
+   {{range .Flags}}{{.}}
+   {{end}}
+`
+
+	app := cli.NewApp()
+	app.Name = "rdap"
+	app.Usage = "RDAP client"
+	app.Author = "NIC.br"
+
+	app.Flags = []cli.Flag{
+		cli.StringFlag{
+			Name:  "cache",
+			Value: path.Join(os.Getenv("HOME"), ".rdap"),
+			Usage: "directory for caching bootstrap and RDAP data",
+		},
+		cli.StringFlag{
+			Name:  "bootstrap",
+			Value: rdap.IANARDAPEndpoint,
+			Usage: "RDAP bootstrap service URL",
+		},
+		cli.StringFlag{
+			Name:  "host,H",
+			Value: "",
+			Usage: "Host where to send the query (bypass bootstrap)",
+		},
 	}
+	app.Commands = []cli.Command{}
 
-	object := strings.Join(flag.Args(), " ")
+	app.Action = func(ctx *cli.Context) {
+		cache = ctx.String("cache")
+		bootstrap = ctx.String("bootstrap")
+		host = ctx.String("host")
 
-	c := rdap.NewClient(*cache)
+		c := rdap.NewClient(cache)
 
-	if len(*endpoint) > 0 {
-		c.SetRDAPEndpoint(*endpoint)
-	}
+		if len(bootstrap) > 0 {
+			c.SetRDAPEndpoint(bootstrap)
+		}
 
-	if asn, err := strconv.ParseUint(object, 10, 32); err == nil {
-		r, err := c.QueryASN(asn)
+		object := strings.Join(ctx.Args(), " ")
+		if object == "" {
+			cli.ShowAppHelp(ctx)
+			os.Exit(1)
+		}
+
+		if asn, err := strconv.ParseUint(object, 10, 32); err == nil {
+			r, err := c.QueryASN(asn)
+
+			if err != nil {
+				fmt.Println(err)
+				os.Exit(1)
+			}
+
+			spew.Dump(r)
+			os.Exit(0)
+		}
+
+		if _, cidr, err := net.ParseCIDR(object); err == nil {
+			r, err := c.QueryIPNetwork(cidr)
+
+			if err != nil {
+				fmt.Println(err)
+				os.Exit(1)
+			}
+
+			spew.Dump(r)
+			os.Exit(0)
+		}
+
+		r, err := c.QueryDomain(object)
 
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
 		}
 
-		spew.Dump(r)
-		os.Exit(0)
-	}
-
-	if _, cidr, err := net.ParseCIDR(object); err == nil {
-		r, err := c.QueryIPNetwork(cidr)
-
-		if err != nil {
+		if err := output.PrintDomain(r, os.Stdout); err != nil {
 			fmt.Println(err)
 			os.Exit(1)
 		}
 
-		spew.Dump(r)
 		os.Exit(0)
 	}
 
-	r, err := c.QueryDomain(object)
-
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
-
-	if err := output.PrintDomain(r, os.Stdout); err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
-
-	os.Exit(0)
+	app.Run(os.Args)
 }
