@@ -8,8 +8,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/codegangsta/cli"
-	"github.com/davecgh/go-spew/spew"
+	"github.com/registrobr/rdap-client/Godeps/_workspace/src/github.com/codegangsta/cli"
+	"github.com/registrobr/rdap-client/Godeps/_workspace/src/github.com/davecgh/go-spew/spew"
 	rdap "github.com/registrobr/rdap-client/client"
 	"github.com/registrobr/rdap-client/output"
 )
