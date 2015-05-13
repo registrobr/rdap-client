@@ -10,7 +10,7 @@ import (
 
 	"github.com/codegangsta/cli"
 	"github.com/davecgh/go-spew/spew"
-	rdap "github.com/registrobr/rdap-client"
+	rdap "github.com/registrobr/rdap-client/client"
 	"github.com/registrobr/rdap-client/output"
 )
 
