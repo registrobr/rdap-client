@@ -8,10 +8,10 @@ import (
 	"path"
 	"strings"
 
+	"github.com/registrobr/rdap-client/Godeps/_workspace/src/github.com/codegangsta/cli"
+	"github.com/registrobr/rdap-client/Godeps/_workspace/src/github.com/gregjones/httpcache"
+	"github.com/registrobr/rdap-client/Godeps/_workspace/src/github.com/gregjones/httpcache/diskcache"
 	"github.com/registrobr/rdap-client/bootstrap"
-	"github.com/registrobr/rdap-client/cmd/rdap/Godeps/_workspace/src/github.com/codegangsta/cli"
-	"github.com/registrobr/rdap-client/cmd/rdap/Godeps/_workspace/src/github.com/gregjones/httpcache"
-	"github.com/registrobr/rdap-client/cmd/rdap/Godeps/_workspace/src/github.com/gregjones/httpcache/diskcache"
 )
 
 func main() {
