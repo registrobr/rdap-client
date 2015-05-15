@@ -2,22 +2,16 @@ package main
 
 import (
 	"fmt"
-	"net"
+	"net/http"
+	"net/url"
 	"os"
 	"path"
-	"strconv"
 	"strings"
 
-	"github.com/registrobr/rdap-client/Godeps/_workspace/src/github.com/codegangsta/cli"
-	"github.com/registrobr/rdap-client/Godeps/_workspace/src/github.com/davecgh/go-spew/spew"
-	rdap "github.com/registrobr/rdap-client/client"
-	"github.com/registrobr/rdap-client/output"
-)
-
-var (
-	cache     string
-	bootstrap string
-	host      string
+	"github.com/registrobr/rdap-client/bootstrap"
+	"github.com/registrobr/rdap-client/cmd/rdap/Godeps/_workspace/src/github.com/codegangsta/cli"
+	"github.com/registrobr/rdap-client/cmd/rdap/Godeps/_workspace/src/github.com/gregjones/httpcache"
+	"github.com/registrobr/rdap-client/cmd/rdap/Godeps/_workspace/src/github.com/gregjones/httpcache/diskcache"
 )
 
 func main() {
@@ -52,8 +46,12 @@ GLOBAL OPTIONS:
 		},
 		cli.StringFlag{
 			Name:  "bootstrap",
-			Value: rdap.RDAPBootstrap,
+			Value: bootstrap.RDAPBootstrap,
 			Usage: "RDAP bootstrap service URL",
+		},
+		cli.BoolFlag{
+			Name:  "no-cache",
+			Usage: "Don't cache anything",
 		},
 		cli.StringFlag{
 			Name:  "host,H",
@@ -61,67 +59,73 @@ GLOBAL OPTIONS:
 			Usage: "Host where to send the query (bypass bootstrap)",
 		},
 	}
+
 	app.Commands = []cli.Command{}
-
-	app.Action = func(ctx *cli.Context) {
-		cache = ctx.String("cache")
-		bootstrap = ctx.String("bootstrap")
-		host = ctx.String("host")
-
-		client := rdap.NewClient(cache)
-
-		if host != "" {
-			client.Host = host
-		}
-
-		if len(bootstrap) > 0 {
-			client.Bootstrap = bootstrap
-		}
-
-		object := strings.Join(ctx.Args(), " ")
-		if object == "" {
-			cli.ShowAppHelp(ctx)
-			os.Exit(1)
-		}
-
-		if asn, err := strconv.ParseUint(object, 10, 32); err == nil {
-			r, err := client.QueryASN(asn)
-
-			if err != nil {
-				fmt.Println(err)
-				os.Exit(1)
-			}
-
-			spew.Dump(r)
-			os.Exit(0)
-		}
-
-		if _, cidr, err := net.ParseCIDR(object); err == nil {
-			r, err := client.QueryIPNetwork(cidr)
-
-			if err != nil {
-				fmt.Println(err)
-				os.Exit(1)
-			}
-
-			spew.Dump(r)
-			os.Exit(0)
-		}
-
-		r, err := client.QueryDomain(object)
-
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
-		}
-
-		if err := output.PrintDomain(r, os.Stdout); err != nil {
-			fmt.Println(err)
-			os.Exit(1)
-		}
-
-		os.Exit(0)
-	}
+	app.Action = action
 
 	app.Run(os.Args)
+}
+
+func action(ctx *cli.Context) {
+	var (
+		cache        = ctx.String("cache")
+		bootstrapURI = ctx.String("bootstrap")
+		host         = ctx.String("host")
+		httpClient   = &http.Client{}
+		bs           *bootstrap.Client
+		uris         []string
+	)
+
+	if !ctx.Bool("no-cache") {
+		httpClient.Transport = httpcache.NewTransport(
+			diskcache.New(cache),
+		)
+	}
+
+	if len(host) == 0 {
+		bs = bootstrap.NewClient(httpClient)
+
+		if len(bootstrapURI) > 0 {
+			bs.Bootstrap = bootstrapURI
+		}
+	} else {
+		if _, err := url.Parse(host); err != nil {
+			fmt.Fprint(os.Stderr, err)
+			os.Exit(1)
+		}
+
+		uris = []string{host}
+	}
+
+	object := strings.Join(ctx.Args(), " ")
+	if object == "" {
+		cli.ShowAppHelp(ctx)
+		os.Exit(1)
+	}
+
+	rdapCLI := &CLI{
+		uris:       uris,
+		httpClient: httpClient,
+		bootstrap:  bs,
+		wr:         os.Stdout,
+	}
+
+	handlers := []handler{
+		rdapCLI.asn(),
+		rdapCLI.ipnetwork(),
+		rdapCLI.domain(),
+	}
+
+	for _, handler := range handlers {
+		if ok, err := handler(object); err != nil {
+			fmt.Fprint(os.Stderr, err)
+			os.Exit(1)
+
+			if ok {
+				break
+			}
+		}
+	}
+
+	os.Exit(0)
 }
