@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/registrobr/rdap-client/Godeps/_workspace/src/github.com/davecgh/go-spew/spew"
 	"github.com/registrobr/rdap-client/bootstrap"
 	"github.com/registrobr/rdap-client/client"
 	"github.com/registrobr/rdap-client/output"
@@ -41,7 +40,10 @@ func (c *CLI) asn() handler {
 				return true, err
 			}
 
-			spew.Dump(r)
+			as := output.AS{AS: r}
+			if err := as.ToText(c.wr); err != nil {
+				return true, err
+			}
 
 			return true, nil
 		}
@@ -53,6 +55,29 @@ func (c *CLI) asn() handler {
 func (c *CLI) ipnetwork() handler {
 	return func(object string) (bool, error) {
 		uris := c.uris
+
+		if ip := net.ParseIP(object); ip != nil {
+			if c.bootstrap != nil {
+				var err error
+				uris, err = c.bootstrap.IP(ip)
+
+				if err != nil {
+					return true, err
+				}
+			}
+
+			r, err := client.NewClient(uris, c.httpClient).IP(ip)
+			if err != nil {
+				return true, err
+			}
+
+			ipNetwork := output.IPNetwork{IPNetwork: r}
+			if err := ipNetwork.ToText(c.wr); err != nil {
+				return true, err
+			}
+
+			return true, nil
+		}
 
 		if _, cidr, err := net.ParseCIDR(object); err == nil {
 			if c.bootstrap != nil {
@@ -70,7 +95,10 @@ func (c *CLI) ipnetwork() handler {
 				return true, err
 			}
 
-			spew.Dump(r)
+			ipNetwork := output.IPNetwork{IPNetwork: r}
+			if err := ipNetwork.ToText(c.wr); err != nil {
+				return true, err
+			}
 
 			return true, nil
 		}
