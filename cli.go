@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"io"
 	"net"
 	"net/http"
@@ -49,6 +50,25 @@ func (c *CLI) asn() handler {
 		}
 
 		return false, nil
+	}
+}
+
+func (c *CLI) entity() handler {
+	// Note that there is no bootstrap for entity, see [1]
+	// [1] - https://tools.ietf.org/html/rfc7484#section-6
+	return func(object string) (bool, error) {
+		fmt.Println(c.uris)
+		r, err := client.NewClient(c.uris, c.httpClient).Entity(object)
+		if err != nil {
+			return true, err
+		}
+
+		entity := output.Entity{Entity: r}
+		if err := entity.ToText(c.wr); err != nil {
+			return true, err
+		}
+		return true, nil
+
 	}
 }
 
@@ -124,6 +144,10 @@ func (c *CLI) domain() handler {
 
 		if err != nil {
 			return true, err
+		}
+
+		if r == nil {
+			return false, nil
 		}
 
 		if err := output.PrintDomain(r, c.wr); err != nil {

@@ -116,8 +116,10 @@ func action(ctx *cli.Context) {
 		rdapCLI.domain(),
 	}
 
+	var err error
+	var executed bool
 	for _, handler := range handlers {
-		executed, err := handler(object)
+		executed, err = handler(object)
 		if err != nil {
 			fmt.Fprint(os.Stderr, err)
 			os.Exit(1)
@@ -125,6 +127,14 @@ func action(ctx *cli.Context) {
 
 		if executed {
 			break
+		}
+	}
+
+	if !executed {
+		_, err := rdapCLI.entity()(object)
+		if err != nil {
+			fmt.Fprint(os.Stderr, err)
+			os.Exit(1)
 		}
 	}
 
