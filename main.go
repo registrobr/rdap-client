@@ -117,13 +117,14 @@ func action(ctx *cli.Context) {
 	}
 
 	for _, handler := range handlers {
-		if ok, err := handler(object); err != nil {
+		executed, err := handler(object)
+		if err != nil {
 			fmt.Fprint(os.Stderr, err)
 			os.Exit(1)
+		}
 
-			if ok {
-				break
-			}
+		if executed {
+			break
 		}
 	}
 
