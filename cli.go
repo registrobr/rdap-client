@@ -57,7 +57,6 @@ func (c *CLI) entity() handler {
 	// Note that there is no bootstrap for entity, see [1]
 	// [1] - https://tools.ietf.org/html/rfc7484#section-6
 	return func(object string) (bool, error) {
-		fmt.Println(c.uris)
 		r, err := client.NewClient(c.uris, c.httpClient).Entity(object)
 		if err != nil {
 			return true, err
