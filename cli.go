@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"io"
 	"net"
 	"net/http"
@@ -149,7 +148,8 @@ func (c *CLI) domain() handler {
 			return false, nil
 		}
 
-		if err := output.PrintDomain(r, c.wr); err != nil {
+		domain := output.Domain{Domain: r}
+		if err := domain.ToText(c.wr); err != nil {
 			return true, err
 		}
 
