@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"io"
 	"net"
 	"net/http"
@@ -172,7 +171,6 @@ func (c *cli) ip() handler {
 
 func (c *cli) domain() handler {
 	return func(object string) (bool, error) {
-		fmt.Println(isFQDN.MatchString(object), object)
 		if !isFQDN.MatchString(object) {
 			return false, nil
 		}
