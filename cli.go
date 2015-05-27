@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"io"
 	"net"
 	"net/http"
@@ -22,6 +23,33 @@ type cli struct {
 }
 
 type handler func(object string) (bool, error)
+
+func (c *cli) guess(object string) (bool, error) {
+	handlers := []handler{
+		c.asn(),
+		c.ip(),
+		c.ipnetwork(),
+		c.domain(),
+		c.entity(),
+	}
+
+	ok := false
+
+	for _, handler := range handlers {
+		var err error
+		ok, err = handler(object)
+
+		if err != nil {
+			return ok, err
+		}
+
+		if ok {
+			break
+		}
+	}
+
+	return ok, nil
+}
 
 func (c *cli) asn() handler {
 	return func(object string) (bool, error) {
@@ -144,6 +172,7 @@ func (c *cli) ip() handler {
 
 func (c *cli) domain() handler {
 	return func(object string) (bool, error) {
+		fmt.Println(isFQDN.MatchString(object), object)
 		if !isFQDN.MatchString(object) {
 			return false, nil
 		}

@@ -58,6 +58,26 @@ GLOBAL OPTIONS:
 			Name:  "skip-tls-verification,S",
 			Usage: "Skip TLS verification",
 		},
+		cgcli.BoolFlag{
+			Name:  "domain",
+			Usage: "Force query for a domain object",
+		},
+		cgcli.BoolFlag{
+			Name:  "asn",
+			Usage: "Force query for an ASN object",
+		},
+		cgcli.BoolFlag{
+			Name:  "ip",
+			Usage: "Force query for an IP object",
+		},
+		cgcli.BoolFlag{
+			Name:  "ipnetwork",
+			Usage: "Force query for an IP Network object",
+		},
+		cgcli.BoolFlag{
+			Name:  "entity",
+			Usage: "Force query for an Entity object",
+		},
 		cgcli.StringFlag{
 			Name:  "host,H",
 			Value: "",
@@ -77,6 +97,11 @@ func action(ctx *cgcli.Context) {
 		bootstrapURI        = ctx.String("bootstrap")
 		host                = ctx.String("host")
 		skipTLSVerification = ctx.Bool("skip-tls-verification")
+		forceDomain         = ctx.Bool("domain")
+		forceIP             = ctx.Bool("ip")
+		forceIPNetwork      = ctx.Bool("ipnetwork")
+		forceEntity         = ctx.Bool("entity")
+		forceASN            = ctx.Bool("asn")
 		httpClient          = &http.Client{}
 		bs                  *bootstrap.Client
 		uris                []string
@@ -122,25 +147,51 @@ func action(ctx *cgcli.Context) {
 		wr:         os.Stdout,
 	}
 
-	handlers := []handler{
-		cli.asn(),
-		cli.ip(),
-		cli.ipnetwork(),
-		cli.domain(),
-		cli.entity(),
+	forceCount := 0
+	forceObjects := []bool{
+		forceDomain,
+		forceIP,
+		forceIPNetwork,
+		forceEntity,
+		forceASN,
 	}
 
-	for _, handler := range handlers {
-		ok, err := handler(object)
-
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "%s\n", err)
-			os.Exit(1)
+	for _, force := range forceObjects {
+		if force {
+			if forceCount++; forceCount > 1 {
+				fmt.Fprintln(os.Stderr, "you can't use -asn, -domain, -entity, -ip or -ipnetwork at the same time")
+				os.Exit(1)
+			}
 		}
+	}
 
-		if ok {
-			break
-		}
+	var (
+		ok  bool
+		err error
+	)
+
+	switch {
+	case forceASN:
+		ok, err = cli.asn()(object)
+	case forceDomain:
+		ok, err = cli.domain()(object)
+	case forceEntity:
+		ok, err = cli.entity()(object)
+	case forceIP:
+		ok, err = cli.ip()(object)
+	case forceIPNetwork:
+		ok, err = cli.ipnetwork()(object)
+	default:
+		ok, err = cli.guess(object)
+	}
+
+	if err == nil && !ok {
+		err = fmt.Errorf("the requested object doesn't match the requested object type")
+	}
+
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
 	}
 
 	os.Exit(0)
