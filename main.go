@@ -97,15 +97,33 @@ func action(ctx *cgcli.Context) {
 		bootstrapURI        = ctx.String("bootstrap")
 		host                = ctx.String("host")
 		skipTLSVerification = ctx.Bool("skip-tls-verification")
+		forceASN            = ctx.Bool("asn")
 		forceDomain         = ctx.Bool("domain")
+		forceEntity         = ctx.Bool("entity")
 		forceIP             = ctx.Bool("ip")
 		forceIPNetwork      = ctx.Bool("ipnetwork")
-		forceEntity         = ctx.Bool("entity")
-		forceASN            = ctx.Bool("asn")
 		httpClient          = &http.Client{}
 		bs                  *bootstrap.Client
 		uris                []string
 	)
+
+	forceCount := 0
+	forceObjects := []bool{
+		forceDomain,
+		forceIP,
+		forceIPNetwork,
+		forceEntity,
+		forceASN,
+	}
+
+	for _, force := range forceObjects {
+		if force {
+			if forceCount++; forceCount > 1 {
+				fmt.Fprintln(os.Stderr, "you can't use -asn, -domain, -entity, -ip or -ipnetwork at the same time")
+				os.Exit(1)
+			}
+		}
+	}
 
 	if !ctx.Bool("no-cache") {
 		transport := httpcache.NewTransport(
@@ -140,34 +158,15 @@ func action(ctx *cgcli.Context) {
 		os.Exit(1)
 	}
 
-	cli := &cli{
-		uris:       uris,
-		httpClient: httpClient,
-		bootstrap:  bs,
-		wr:         os.Stdout,
-	}
-
-	forceCount := 0
-	forceObjects := []bool{
-		forceDomain,
-		forceIP,
-		forceIPNetwork,
-		forceEntity,
-		forceASN,
-	}
-
-	for _, force := range forceObjects {
-		if force {
-			if forceCount++; forceCount > 1 {
-				fmt.Fprintln(os.Stderr, "you can't use -asn, -domain, -entity, -ip or -ipnetwork at the same time")
-				os.Exit(1)
-			}
-		}
-	}
-
 	var (
 		ok  bool
 		err error
+		cli = &cli{
+			uris:       uris,
+			httpClient: httpClient,
+			bootstrap:  bs,
+			wr:         os.Stdout,
+		}
 	)
 
 	switch {
