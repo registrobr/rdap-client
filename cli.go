@@ -4,6 +4,7 @@ import (
 	"io"
 	"net"
 	"net/http"
+	"regexp"
 	"strconv"
 
 	"github.com/registrobr/rdap-client/bootstrap"
@@ -11,7 +12,9 @@ import (
 	"github.com/registrobr/rdap-client/output"
 )
 
-type CLI struct {
+var isFQDN = regexp.MustCompile(`^(([[:alnum:]](([[:alnum:]]|\-){0,61}[[:alnum:]])?\.)*[[:alnum:]](([[:alnum:]]|\-){0,61}[[:alnum:]])?)?(\.)?$`)
+
+type cli struct {
 	uris       []string
 	httpClient *http.Client
 	bootstrap  *bootstrap.Client
@@ -20,39 +23,41 @@ type CLI struct {
 
 type handler func(object string) (bool, error)
 
-func (c *CLI) asn() handler {
+func (c *cli) asn() handler {
 	return func(object string) (bool, error) {
+		asn, err := strconv.ParseUint(object, 10, 32)
+
+		if err != nil {
+			return false, nil
+		}
+
 		uris := c.uris
 
-		if asn, err := strconv.ParseUint(object, 10, 32); err == nil {
-			if c.bootstrap != nil {
-				var err error
-				uris, err = c.bootstrap.ASN(asn)
-
-				if err != nil {
-					return true, err
-				}
-			}
-
-			r, err := client.NewClient(uris, c.httpClient).ASN(asn)
+		if c.bootstrap != nil {
+			var err error
+			uris, err = c.bootstrap.ASN(asn)
 
 			if err != nil {
 				return true, err
 			}
-
-			as := output.AS{AS: r}
-			if err := as.ToText(c.wr); err != nil {
-				return true, err
-			}
-
-			return true, nil
 		}
 
-		return false, nil
+		r, err := client.NewClient(uris, c.httpClient).ASN(asn)
+
+		if err != nil {
+			return true, err
+		}
+
+		as := output.AS{AS: r}
+		if err := as.ToText(c.wr); err != nil {
+			return true, err
+		}
+
+		return true, nil
 	}
 }
 
-func (c *CLI) entity() handler {
+func (c *cli) entity() handler {
 	// Note that there is no bootstrap for entity, see [1]
 	// [1] - https://tools.ietf.org/html/rfc7484#section-6
 	return func(object string) (bool, error) {
@@ -70,63 +75,79 @@ func (c *CLI) entity() handler {
 	}
 }
 
-func (c *CLI) ipnetwork() handler {
+func (c *cli) ipnetwork() handler {
 	return func(object string) (bool, error) {
+		_, cidr, err := net.ParseCIDR(object)
+
+		if err != nil {
+			return false, nil
+		}
+
 		uris := c.uris
 
-		if ip := net.ParseIP(object); ip != nil {
-			if c.bootstrap != nil {
-				var err error
-				uris, err = c.bootstrap.IP(ip)
-
-				if err != nil {
-					return true, err
-				}
-			}
-
-			r, err := client.NewClient(uris, c.httpClient).IP(ip)
-			if err != nil {
-				return true, err
-			}
-
-			ipNetwork := output.IPNetwork{IPNetwork: r}
-			if err := ipNetwork.ToText(c.wr); err != nil {
-				return true, err
-			}
-
-			return true, nil
-		}
-
-		if _, cidr, err := net.ParseCIDR(object); err == nil {
-			if c.bootstrap != nil {
-				var err error
-				uris, err = c.bootstrap.IPNetwork(cidr)
-
-				if err != nil {
-					return true, err
-				}
-			}
-
-			r, err := client.NewClient(uris, c.httpClient).IPNetwork(cidr)
+		if c.bootstrap != nil {
+			var err error
+			uris, err = c.bootstrap.IPNetwork(cidr)
 
 			if err != nil {
 				return true, err
 			}
-
-			ipNetwork := output.IPNetwork{IPNetwork: r}
-			if err := ipNetwork.ToText(c.wr); err != nil {
-				return true, err
-			}
-
-			return true, nil
 		}
 
-		return false, nil
+		r, err := client.NewClient(uris, c.httpClient).IPNetwork(cidr)
+
+		if err != nil {
+			return true, err
+		}
+
+		ipNetwork := output.IPNetwork{IPNetwork: r}
+		if err := ipNetwork.ToText(c.wr); err != nil {
+			return true, err
+		}
+
+		return true, nil
 	}
 }
 
-func (c *CLI) domain() handler {
+func (c *cli) ip() handler {
 	return func(object string) (bool, error) {
+		ip := net.ParseIP(object)
+
+		if ip == nil {
+			return false, nil
+		}
+
+		uris := c.uris
+
+		if c.bootstrap != nil {
+			var err error
+			uris, err = c.bootstrap.IP(ip)
+
+			if err != nil {
+				return true, err
+			}
+		}
+
+		r, err := client.NewClient(uris, c.httpClient).IP(ip)
+		if err != nil {
+			return true, err
+		}
+
+		ipNetwork := output.IPNetwork{IPNetwork: r}
+		if err := ipNetwork.ToText(c.wr); err != nil {
+			return true, err
+		}
+
+		return true, nil
+	}
+}
+
+func (c *cli) domain() handler {
+	return func(object string) (bool, error) {
+		if !isFQDN.MatchString(object) {
+			return false, nil
+		}
+
 		uris := c.uris
 
 		if c.bootstrap != nil {
@@ -145,7 +166,7 @@ func (c *CLI) domain() handler {
 		}
 
 		if r == nil {
-			return false, nil
+			return true, nil
 		}
 
 		domain := output.Domain{Domain: r}
@@ -153,6 +174,6 @@ func (c *CLI) domain() handler {
 			return true, err
 		}
 
-		return false, nil
+		return true, nil
 	}
 }
