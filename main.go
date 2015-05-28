@@ -171,15 +171,15 @@ func action(ctx *cgcli.Context) {
 
 	switch {
 	case forceASN:
-		ok, err = cli.asn()(object)
+		ok, err = cli.asn(object)
 	case forceDomain:
-		ok, err = cli.domain()(object)
+		ok, err = cli.domain(object)
 	case forceEntity:
-		ok, err = cli.entity()(object)
+		ok, err = cli.entity(object)
 	case forceIP:
-		ok, err = cli.ip()(object)
+		ok, err = cli.ip(object)
 	case forceIPNetwork:
-		ok, err = cli.ipnetwork()(object)
+		ok, err = cli.ipnetwork(object)
 	default:
 		ok, err = cli.guess(object)
 	}
