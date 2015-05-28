@@ -102,6 +102,7 @@ func action(ctx *cgcli.Context) {
 		forceEntity         = ctx.Bool("entity")
 		forceIP             = ctx.Bool("ip")
 		forceIPNetwork      = ctx.Bool("ipnetwork")
+		force               = forceASN || forceDomain || forceEntity || forceIP || forceIPNetwork
 		httpClient          = &http.Client{}
 		bs                  *bootstrap.Client
 		uris                []string
@@ -185,7 +186,11 @@ func action(ctx *cgcli.Context) {
 	}
 
 	if err == nil && !ok {
-		err = fmt.Errorf("the requested object doesn't match the requested object type")
+		if force {
+			err = fmt.Errorf("the requested object doesn't match the requested object type")
+		} else {
+			err = fmt.Errorf("the requested object doesn't match an ASN, Domain, Entity, IP or IPNetwork")
+		}
 	}
 
 	if err != nil {
