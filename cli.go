@@ -21,10 +21,8 @@ type cli struct {
 	wr         io.Writer
 }
 
-type handler func(object string) (bool, error)
-
 func (c *cli) guess(object string) (bool, error) {
-	handlers := []handler{
+	handlers := []func(object string) (bool, error){
 		c.asn,
 		c.ip,
 		c.ipnetwork,
