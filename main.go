@@ -38,6 +38,7 @@ GLOBAL OPTIONS:
 	app.Name = "rdap"
 	app.Usage = "RDAP cgclient"
 	app.Author = "NIC.br"
+	app.Version = "0.0.1"
 
 	app.Flags = []cgcli.Flag{
 		cgcli.StringFlag{
@@ -52,36 +53,36 @@ GLOBAL OPTIONS:
 		},
 		cgcli.BoolFlag{
 			Name:  "no-cache",
-			Usage: "Don't cache anything",
+			Usage: "don't cache anything",
 		},
 		cgcli.BoolFlag{
 			Name:  "skip-tls-verification,S",
-			Usage: "Skip TLS verification",
+			Usage: "skip TLS verification",
 		},
 		cgcli.BoolFlag{
 			Name:  "domain",
-			Usage: "Force query for a domain object",
+			Usage: "force query for a domain object",
 		},
 		cgcli.BoolFlag{
 			Name:  "asn",
-			Usage: "Force query for an ASN object",
+			Usage: "force query for an ASN object",
 		},
 		cgcli.BoolFlag{
 			Name:  "ip",
-			Usage: "Force query for an IP object",
+			Usage: "force query for an IP object",
 		},
 		cgcli.BoolFlag{
 			Name:  "ipnetwork",
-			Usage: "Force query for an IP Network object",
+			Usage: "force query for an IP Network object",
 		},
 		cgcli.BoolFlag{
 			Name:  "entity",
-			Usage: "Force query for an Entity object",
+			Usage: "force query for an Entity object",
 		},
 		cgcli.StringFlag{
 			Name:  "host,H",
 			Value: "",
-			Usage: "Host where to send the query (bypass bootstrap)",
+			Usage: "host where to send the query (bypass bootstrap)",
 		},
 	}
 
