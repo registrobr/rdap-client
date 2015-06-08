@@ -13,6 +13,7 @@ import (
 	"github.com/registrobr/rdap-client/Godeps/_workspace/src/github.com/gregjones/httpcache"
 	"github.com/registrobr/rdap-client/Godeps/_workspace/src/github.com/gregjones/httpcache/diskcache"
 	"github.com/registrobr/rdap-client/bootstrap"
+	"github.com/registrobr/rdap-client/handler"
 )
 
 func main() {
@@ -163,27 +164,27 @@ func action(ctx *cgcli.Context) {
 	var (
 		ok  bool
 		err error
-		cli = &cli{
-			uris:       uris,
-			httpClient: httpClient,
-			bootstrap:  bs,
-			wr:         os.Stdout,
+		h   = &handler.Handler{
+			URIs:       uris,
+			HTTPClient: httpClient,
+			Bootstrap:  bs,
+			Writer:     os.Stdout,
 		}
 	)
 
 	switch {
 	case forceASN:
-		ok, err = cli.asn(object)
+		ok, err = h.ASN(object)
 	case forceDomain:
-		ok, err = cli.domain(object)
+		ok, err = h.Domain(object)
 	case forceEntity:
-		ok, err = cli.entity(object)
+		ok, err = h.Entity(object)
 	case forceIP:
-		ok, err = cli.ip(object)
+		ok, err = h.IP(object)
 	case forceIPNetwork:
-		ok, err = cli.ipnetwork(object)
+		ok, err = h.IPNetwork(object)
 	default:
-		ok, err = cli.guess(object)
+		ok, err = h.Query(object)
 	}
 
 	if err == nil && !ok {
