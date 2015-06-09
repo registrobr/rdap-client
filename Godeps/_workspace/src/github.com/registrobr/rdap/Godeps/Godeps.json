@@ -10,25 +10,12 @@
 			"Rev": "035af7c09b120b0909dd998c92745b82f61e0b1c"
 		},
 		{
-			"ImportPath": "github.com/codegangsta/cli",
-			"Comment": "1.2.0-106-ga889873",
-			"Rev": "a889873af50a499d060097216dcdbcc26ed09e7c"
-		},
-		{
 			"ImportPath": "github.com/gregjones/httpcache",
 			"Rev": "a2645c9fb8bb4ad1cbad1bef941af9f8a32287de"
 		},
 		{
 			"ImportPath": "github.com/miekg/dns",
 			"Rev": "015384b10e412f5cc44ae408d1a2bd773027474c"
-		},
-		{
-			"ImportPath": "github.com/petar/GoLLRB/llrb",
-			"Rev": "53be0d36a84c2a886ca057d34b6aa4468df9ccb4"
-		},
-		{
-			"ImportPath": "github.com/peterbourgon/diskv",
-			"Rev": "72aa5da9f7d1125b480b83c6dc5ad09a1f04508c"
 		}
 	]
 }
