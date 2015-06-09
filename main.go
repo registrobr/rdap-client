@@ -184,7 +184,8 @@ func action(ctx *cgcli.Context) {
 	case forceIPNetwork:
 		ok, err = h.IPNetwork(object)
 	default:
-		ok, err = h.Query(object)
+		ok = true
+		err = h.Query(object)
 	}
 
 	if err == nil && !ok {
