@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"sort"
 
-	"github.com/registrobr/rdap-client/Godeps/_workspace/src/github.com/gregjones/httpcache"
+	"github.com/registrobr/rdap/Godeps/_workspace/src/github.com/gregjones/httpcache"
 )
 
 type kind string

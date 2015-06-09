@@ -9,7 +9,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/registrobr/rdap-client/Godeps/_workspace/src/github.com/gregjones/httpcache"
+	"github.com/registrobr/rdap/Godeps/_workspace/src/github.com/gregjones/httpcache"
 )
 
 func TestBootstrapFetch(t *testing.T) {

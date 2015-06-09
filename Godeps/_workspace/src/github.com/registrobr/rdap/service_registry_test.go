@@ -31,13 +31,13 @@ var jsonExample = []byte(`{
        ]
    }`)
 
-func TestConformity(t *testing.T) {
+func TestServiceRegistryConformity(t *testing.T) {
 	if err := json.Unmarshal(jsonExample, &serviceRegistry{}); err != nil {
 		t.Fatal(err)
 	}
 }
 
-func TestMatchAS(t *testing.T) {
+func TestServiceRegistryMatchAS(t *testing.T) {
 	tests := []struct {
 		description   string
 		registry      serviceRegistry
@@ -110,7 +110,7 @@ func TestMatchAS(t *testing.T) {
 	}
 }
 
-func TestMatchIPNetwork(t *testing.T) {
+func TestServiceRegistryMatchIPNetwork(t *testing.T) {
 	tests := []struct {
 		description   string
 		registry      serviceRegistry
@@ -194,7 +194,7 @@ func TestMatchIPNetwork(t *testing.T) {
 	}
 }
 
-func TestMatchDomain(t *testing.T) {
+func TestServiceRegistryMatchDomain(t *testing.T) {
 	tests := []struct {
 		description   string
 		registry      serviceRegistry
@@ -255,6 +255,66 @@ func TestMatchDomain(t *testing.T) {
 
 	for i, test := range tests {
 		urls, err := test.registry.matchDomain(test.fqdn)
+
+		if test.expectedError != nil && fmt.Sprintf("%v", test.expectedError) != fmt.Sprintf("%v", err) {
+			t.Fatalf("At index %d (%s): expected error %s, got %s", i, test.description, test.expectedError, err)
+		}
+
+		if !reflect.DeepEqual(test.expected, urls) {
+			t.Fatalf("At index %d (%s): expected %v, got %v", i, test.description, test.expected, urls)
+		}
+	}
+}
+
+func TestServiceRegistryMatchIP(t *testing.T) {
+	tests := []struct {
+		description   string
+		registry      serviceRegistry
+		ip            string
+		expected      []string
+		expectedError error
+	}{
+		{
+			description: "it should match an ipv4",
+			ip:          "192.0.2.1",
+			registry: serviceRegistry{
+				Services: []service{
+					{
+						{"1.0.0.0/8", "192.0.0.0/8"},
+						{"https://rir1.example.com/myrdap/"},
+					},
+					{
+						{"28.2.0.0/16", "192.0.2.0/24"},
+						{"http://example.org/"},
+					},
+					{
+						{"28.3.0.0/16"},
+						{"https://example.net/rdaprir2/", "http://example.net/rdaprir2/"},
+					},
+				},
+			},
+			expected: []string{
+				"http://example.org/",
+			},
+		},
+		{
+			description: "it should not match an ipv4 due to invalid cidr",
+			ip:          "127.0.0.1/32",
+			registry: serviceRegistry{
+				Services: []service{
+					{
+						{"invalid"},
+						{},
+					},
+				},
+			},
+			expectedError: fmt.Errorf("invalid CIDR address: invalid"),
+		},
+	}
+
+	for i, test := range tests {
+		ip := net.ParseIP(test.ip)
+		urls, err := test.registry.matchIP(ip)
 
 		if test.expectedError != nil && fmt.Sprintf("%v", test.expectedError) != fmt.Sprintf("%v", err) {
 			t.Fatalf("At index %d (%s): expected error %s, got %s", i, test.description, test.expectedError, err)

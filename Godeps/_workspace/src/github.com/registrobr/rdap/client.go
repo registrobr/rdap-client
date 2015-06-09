@@ -7,8 +7,8 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/registrobr/rdap-client/Godeps/_workspace/src/github.com/miekg/dns/idn"
-	"github.com/registrobr/rdap-client/Godeps/_workspace/src/github.com/registrobr/rdap/protocol"
+	"github.com/registrobr/rdap/Godeps/_workspace/src/github.com/miekg/dns/idn"
+	"github.com/registrobr/rdap/protocol"
 )
 
 const (

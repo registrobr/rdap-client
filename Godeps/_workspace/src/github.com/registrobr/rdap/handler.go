@@ -7,7 +7,7 @@ import (
 	"regexp"
 	"strconv"
 
-	"github.com/registrobr/rdap-client/Godeps/_workspace/src/github.com/registrobr/rdap/output"
+	"github.com/registrobr/rdap/output"
 )
 
 var isFQDN = regexp.MustCompile(`^(([[:alnum:]](([[:alnum:]]|\-){0,61}[[:alnum:]])?\.)*[[:alnum:]](([[:alnum:]]|\-){0,61}[[:alnum:]])?)?(\.)?$`)
