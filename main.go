@@ -9,10 +9,10 @@ import (
 	"path"
 	"strings"
 
-	"github.com/codegangsta/cli"
-	"github.com/registrobr/rbkp"
+	"github.com/registrobr/rdap-client/Godeps/_workspace/src/github.com/codegangsta/cli"
 	"github.com/registrobr/rdap-client/Godeps/_workspace/src/github.com/gregjones/httpcache"
 	"github.com/registrobr/rdap-client/Godeps/_workspace/src/github.com/gregjones/httpcache/diskcache"
+	"github.com/registrobr/rdap-client/Godeps/_workspace/src/github.com/registrobr/rdap"
 )
 
 func main() {
