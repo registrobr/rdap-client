@@ -9,15 +9,14 @@ import (
 	"path"
 	"strings"
 
-	cgcli "github.com/registrobr/rdap-client/Godeps/_workspace/src/github.com/codegangsta/cli"
+	"github.com/codegangsta/cli"
+	"github.com/registrobr/rbkp"
 	"github.com/registrobr/rdap-client/Godeps/_workspace/src/github.com/gregjones/httpcache"
 	"github.com/registrobr/rdap-client/Godeps/_workspace/src/github.com/gregjones/httpcache/diskcache"
-	"github.com/registrobr/rdap-client/bootstrap"
-	"github.com/registrobr/rdap-client/handler"
 )
 
 func main() {
-	cgcli.AppHelpTemplate = `
+	cli.AppHelpTemplate = `
 NAME:
    {{.Name}} - {{.Usage}}
 
@@ -35,65 +34,65 @@ GLOBAL OPTIONS:
    {{end}}
 `
 
-	app := cgcli.NewApp()
+	app := cli.NewApp()
 	app.Name = "rdap"
-	app.Usage = "RDAP cgclient"
+	app.Usage = "RDAP client"
 	app.Author = "NIC.br"
 	app.Version = "0.0.1"
 
-	app.Flags = []cgcli.Flag{
-		cgcli.StringFlag{
+	app.Flags = []cli.Flag{
+		cli.StringFlag{
 			Name:  "cache",
 			Value: path.Join(os.Getenv("HOME"), ".rdap"),
 			Usage: "directory for caching bootstrap and RDAP data",
 		},
-		cgcli.StringFlag{
+		cli.StringFlag{
 			Name:  "bootstrap",
-			Value: bootstrap.RDAPBootstrap,
+			Value: client.RDAPBootstrap,
 			Usage: "RDAP bootstrap service URL",
 		},
-		cgcli.BoolFlag{
+		cli.BoolFlag{
 			Name:  "no-cache",
 			Usage: "don't cache anything",
 		},
-		cgcli.BoolFlag{
+		cli.BoolFlag{
 			Name:  "skip-tls-verification,S",
 			Usage: "skip TLS verification",
 		},
-		cgcli.BoolFlag{
+		cli.BoolFlag{
 			Name:  "domain",
 			Usage: "force query for a domain object",
 		},
-		cgcli.BoolFlag{
+		cli.BoolFlag{
 			Name:  "asn",
 			Usage: "force query for an ASN object",
 		},
-		cgcli.BoolFlag{
+		cli.BoolFlag{
 			Name:  "ip",
 			Usage: "force query for an IP object",
 		},
-		cgcli.BoolFlag{
+		cli.BoolFlag{
 			Name:  "ipnetwork",
 			Usage: "force query for an IP Network object",
 		},
-		cgcli.BoolFlag{
+		cli.BoolFlag{
 			Name:  "entity",
 			Usage: "force query for an Entity object",
 		},
-		cgcli.StringFlag{
+		cli.StringFlag{
 			Name:  "host,H",
 			Value: "",
 			Usage: "host where to send the query (bypass bootstrap)",
 		},
 	}
 
-	app.Commands = []cgcli.Command{}
+	app.Commands = []cli.Command{}
 	app.Action = action
 
 	app.Run(os.Args)
 }
 
-func action(ctx *cgcli.Context) {
+func action(ctx *cli.Context) {
 	var (
 		cache               = ctx.String("cache")
 		bootstrapURI        = ctx.String("bootstrap")
@@ -106,7 +105,7 @@ func action(ctx *cgcli.Context) {
 		forceIPNetwork      = ctx.Bool("ipnetwork")
 		force               = forceASN || forceDomain || forceEntity || forceIP || forceIPNetwork
 		httpClient          = &http.Client{}
-		bs                  *bootstrap.Client
+		bs                  *client.Bootstrap
 		uris                []string
 	)
 
@@ -141,7 +140,7 @@ func action(ctx *cgcli.Context) {
 	}
 
 	if len(host) == 0 {
-		bs = bootstrap.NewClient(httpClient)
+		bs = client.NewBootstrap(httpClient)
 
 		if len(bootstrapURI) > 0 {
 			bs.Bootstrap = bootstrapURI
@@ -157,14 +156,14 @@ func action(ctx *cgcli.Context) {
 
 	object := strings.Join(ctx.Args(), " ")
 	if object == "" {
-		cgcli.ShowAppHelp(ctx)
+		cli.ShowAppHelp(ctx)
 		os.Exit(1)
 	}
 
 	var (
 		ok  bool
 		err error
-		h   = &handler.Handler{
+		h   = &client.Handler{
 			URIs:       uris,
 			HTTPClient: httpClient,
 			Bootstrap:  bs,
