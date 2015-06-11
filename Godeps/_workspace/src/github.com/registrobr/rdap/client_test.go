@@ -1,4 +1,4 @@
-package client
+package rdap
 
 import (
 	"bytes"
@@ -12,7 +12,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/registrobr/rdap/protocol"
+	"github.com/registrobr/rdap-client/Godeps/_workspace/src/github.com/registrobr/rdap/protocol"
 )
 
 func TestClientHandleHTTPStatusCode(t *testing.T) {
@@ -33,7 +33,7 @@ func TestClientHandleHTTPStatusCode(t *testing.T) {
 		},
 		{
 			description: "it should got a not found error",
-			expectedErr: fmt.Errorf("%s not found.", domain),
+			expectedErr: fmt.Errorf("%s not found", domain),
 			kind:        domain,
 			err: &protocol.Error{
 				ErrorCode: http.StatusNotFound,
@@ -179,7 +179,7 @@ func TestClientQuery(t *testing.T) {
 			identifier:    "example.br",
 			status:        http.StatusNotFound,
 			responseBody:  "{}",
-			expectedError: fmt.Errorf("error(s) fetching RDAP data from example.br:\n  domain not found."),
+			expectedError: fmt.Errorf("error(s) fetching RDAP data from example.br:\n  domain not found"),
 		},
 	}
 

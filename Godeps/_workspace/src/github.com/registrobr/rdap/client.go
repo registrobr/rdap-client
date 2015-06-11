@@ -1,4 +1,4 @@
-package client
+package rdap
 
 import (
 	"encoding/json"
@@ -7,8 +7,8 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/registrobr/rdap/Godeps/_workspace/src/github.com/miekg/dns/idn"
-	"github.com/registrobr/rdap/protocol"
+	"github.com/registrobr/rdap-client/Godeps/_workspace/src/github.com/miekg/dns/idn"
+	"github.com/registrobr/rdap-client/Godeps/_workspace/src/github.com/registrobr/rdap/protocol"
 )
 
 const (
@@ -87,7 +87,7 @@ func (c *Client) handleHTTPStatusCode(kind kind, response *http.Response) error 
 	}
 
 	if response.StatusCode == http.StatusNotFound {
-		return fmt.Errorf("%s not found.", kind)
+		return fmt.Errorf("%s not found", kind)
 	}
 
 	if response.Header.Get("Content-Type") != "application/json" {
@@ -108,7 +108,7 @@ func (c *Client) handleHTTPStatusCode(kind kind, response *http.Response) error 
 }
 
 func (c *Client) query(kind kind, identifier interface{}, object interface{}) (err error) {
-	errors := make([]string, 0)
+	var errors []string
 	for _, uri := range c.uris {
 		uri := fmt.Sprintf("%s/%s/%v", uri, kind, identifier)
 

@@ -1,4 +1,4 @@
-package client
+package rdap
 
 import (
 	"fmt"
@@ -8,8 +8,6 @@ import (
 	"net/http/httptest"
 	"reflect"
 	"testing"
-
-	"github.com/registrobr/rdap/Godeps/_workspace/src/github.com/gregjones/httpcache"
 )
 
 func TestBootstrapFetch(t *testing.T) {
@@ -263,7 +261,6 @@ func TestBootstrapQueriers(t *testing.T) {
 }
 
 func TestBootstrapDomainCache(t *testing.T) {
-	cachedBody := `{"version":"1.0","services":[[["net"], ["rdap-domain.example.net"]]]}`
 	freshBody := `{
 		"version":"1.0",
 		"services":[
@@ -273,26 +270,25 @@ func TestBootstrapDomainCache(t *testing.T) {
 
 	server := httptest.NewServer(
 		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			w.Header().Set("Cache-Control", "max-age=3600")
-
 			if r.Header.Get("Cache-Control") == "max-age=0" {
 				w.Write([]byte(freshBody))
 				return
 			}
 
-			w.Write([]byte(cachedBody))
+			w.WriteHeader(http.StatusInternalServerError)
 		}))
 
-	httpClient := &http.Client{
-		Transport: httpcache.NewMemoryCacheTransport(),
-	}
+	httpClient := &http.Client{}
 
 	c := NewBootstrap(httpClient)
 	c.Bootstrap = server.URL + "/%s"
 
-	uris, err := c.query(dns, "registro.br")
+	c.reloadCache = true
+	c.IsFromCache = func(resp *http.Response) bool {
+		return true
+	}
 
-	uris, err = c.query(dns, "registro.br")
+	uris, err := c.query(dns, "registro.br")
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -1,4 +1,4 @@
-package client
+package rdap
 
 import (
 	"encoding/json"
@@ -7,8 +7,6 @@ import (
 	"net"
 	"net/http"
 	"sort"
-
-	"github.com/registrobr/rdap/Godeps/_workspace/src/github.com/gregjones/httpcache"
 )
 
 type kind string
@@ -26,6 +24,7 @@ type Bootstrap struct {
 	cacheKey    string
 	Bootstrap   string
 	reloadCache bool
+	IsFromCache func(*http.Response) bool
 }
 
 func NewBootstrap(httpClient *http.Client) *Bootstrap {
@@ -172,8 +171,15 @@ func (c *Bootstrap) fetch(uri string) (_ io.ReadCloser, cached bool, err error) 
 		return nil, cached, err
 	}
 
-	if resp.Header.Get(httpcache.XFromCache) == "1" {
-		cached = true
+	if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusNotModified {
+		return nil, false, fmt.Errorf("unexpected status code %d %s",
+			resp.StatusCode,
+			http.StatusText(resp.StatusCode),
+		)
+	}
+
+	if c.IsFromCache != nil {
+		cached = c.IsFromCache(resp)
 	}
 
 	return resp.Body, cached, nil

@@ -1,4 +1,4 @@
-package client
+package rdap
 
 import (
 	"encoding/json"

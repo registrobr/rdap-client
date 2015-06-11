@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/registrobr/rdap-client/Godeps/_workspace/src/github.com/peterbourgon/diskv"
+
 	"testing"
 )
 

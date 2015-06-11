@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/registrobr/rdap/protocol"
+	"github.com/registrobr/rdap-client/Godeps/_workspace/src/github.com/registrobr/rdap/protocol"
 )
 
 var TestDomainToTextOutput = `domain:   example.br
@@ -139,6 +139,6 @@ func TestDomainToText(t *testing.T) {
 		for _, l := range diff(TestDomainToTextOutput, string(w.Content)) {
 			t.Log(l)
 		}
-		t.Fatal()
+		t.Fatal("error")
 	}
 }

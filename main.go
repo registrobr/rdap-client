@@ -48,7 +48,7 @@ GLOBAL OPTIONS:
 		},
 		cli.StringFlag{
 			Name:  "bootstrap",
-			Value: client.RDAPBootstrap,
+			Value: rdap.RDAPBootstrap,
 			Usage: "RDAP bootstrap service URL",
 		},
 		cli.BoolFlag{
@@ -105,7 +105,7 @@ func action(ctx *cli.Context) {
 		forceIPNetwork      = ctx.Bool("ipnetwork")
 		force               = forceASN || forceDomain || forceEntity || forceIP || forceIPNetwork
 		httpClient          = &http.Client{}
-		bs                  *client.Bootstrap
+		bs                  *rdap.Bootstrap
 		uris                []string
 	)
 
@@ -140,7 +140,7 @@ func action(ctx *cli.Context) {
 	}
 
 	if len(host) == 0 {
-		bs = client.NewBootstrap(httpClient)
+		bs = rdap.NewBootstrap(httpClient)
 
 		if len(bootstrapURI) > 0 {
 			bs.Bootstrap = bootstrapURI
@@ -163,7 +163,7 @@ func action(ctx *cli.Context) {
 	var (
 		ok  bool
 		err error
-		h   = &client.Handler{
+		h   = &rdap.Handler{
 			URIs:       uris,
 			HTTPClient: httpClient,
 			Bootstrap:  bs,

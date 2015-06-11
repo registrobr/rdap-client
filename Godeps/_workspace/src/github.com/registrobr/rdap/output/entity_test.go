@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/registrobr/rdap/protocol"
+	"github.com/registrobr/rdap-client/Godeps/_workspace/src/github.com/registrobr/rdap/protocol"
 )
 
 var TestEntityToTextOutput = `handle:   XXXX
@@ -83,6 +83,6 @@ func TestEntityToText(t *testing.T) {
 		for _, l := range diff(TestEntityToTextOutput, string(w.Content)) {
 			t.Log(l)
 		}
-		t.Fatal()
+		t.Fatal("error")
 	}
 }

@@ -16,7 +16,7 @@
 		},
 		{
 			"ImportPath": "github.com/miekg/dns",
-			"Rev": "015384b10e412f5cc44ae408d1a2bd773027474c"
+			"Rev": "e6898c8f30b5d002db962043a62db90552e90bf7"
 		},
 		{
 			"ImportPath": "github.com/petar/GoLLRB/llrb",
@@ -28,7 +28,7 @@
 		},
 		{
 			"ImportPath": "github.com/registrobr/rdap",
-			"Rev": "e5f5a389f34925cbe22851a9fb194f4b473fe147"
+			"Rev": "51f83861209e6bca3b54070eacc72d6f09ae9913"
 		}
 	]
 }

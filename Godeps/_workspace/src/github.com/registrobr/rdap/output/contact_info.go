@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/registrobr/rdap/protocol"
+	"github.com/registrobr/rdap-client/Godeps/_workspace/src/github.com/registrobr/rdap/protocol"
 )
 
 const contactTmpl = `{{range .ContactsInfos}}handle:   {{.Handle}}
@@ -51,7 +51,7 @@ func (c *ContactInfo) setContact(entity protocol.Entity) {
 			case "email":
 				c.Emails = append(c.Emails, v[3].(string))
 			case "adr":
-				address := make([]string, 0)
+				var address []string
 
 				addresses, ok := v[3].([]interface{})
 				if !ok {
