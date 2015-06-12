@@ -145,6 +145,11 @@ func action(ctx *cli.Context) {
 		if len(bootstrapURI) > 0 {
 			bs.Bootstrap = bootstrapURI
 		}
+
+		bs.IsFromCache = func(resp *http.Response) bool {
+			return resp.Header.Get(httpcache.XFromCache) == "1"
+		}
+
 	} else {
 		if _, err := url.Parse(host); err != nil {
 			fmt.Fprintf(os.Stderr, "%s\n", err)
