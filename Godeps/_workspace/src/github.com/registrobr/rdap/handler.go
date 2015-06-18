@@ -1,52 +1,57 @@
 package rdap
 
 import (
-	"io"
+	"errors"
 	"net"
 	"net/http"
+	"reflect"
 	"regexp"
 	"strconv"
 
-	"github.com/registrobr/rdap-client/Godeps/_workspace/src/github.com/registrobr/rdap/output"
+	"github.com/registrobr/rdap/protocol"
 )
 
 var isFQDN = regexp.MustCompile(`^(([[:alnum:]](([[:alnum:]]|\-){0,61}[[:alnum:]])?\.)*[[:alnum:]](([[:alnum:]]|\-){0,61}[[:alnum:]])?)?(\.)?$`)
+
+var ErrInvalidQuery = errors.New("invalid query")
 
 type Handler struct {
 	URIs       []string
 	HTTPClient *http.Client
 	Bootstrap  *Bootstrap
-	Writer     io.Writer
 }
 
-func (h *Handler) Query(object string) error {
-	handlers := []func(object string) (bool, error){
-		h.ASN,
-		h.IP,
-		h.IPNetwork,
-		h.Domain,
-		h.Entity,
+func (h *Handler) Query(object string) (interface{}, error) {
+	generic := genericQuerier{handler: h}
+	handlers := []func(object string) (interface{}, error){
+		generic.ASN,
+		generic.IP,
+		generic.IPNetwork,
+		generic.Domain,
+		generic.Entity,
 	}
 
 	for _, handler := range handlers {
-		ok, err := handler(object)
-		if err != nil {
-			return err
+		resp, err := handler(object)
+
+		if err != nil && err != ErrInvalidQuery {
+			return nil, err
 		}
 
-		if ok {
-			break
+		// interface{} holding nil value...
+		if !reflect.ValueOf(resp).IsNil() {
+			return resp, nil
 		}
 	}
 
-	return nil
+	return nil, ErrInvalidQuery
 }
 
-func (h *Handler) ASN(object string) (bool, error) {
+func (h *Handler) ASN(object string) (*protocol.ASResponse, error) {
 	asn, err := strconv.ParseUint(object, 10, 32)
 
 	if err != nil {
-		return false, nil
+		return nil, ErrInvalidQuery
 	}
 
 	uris := h.URIs
@@ -56,47 +61,25 @@ func (h *Handler) ASN(object string) (bool, error) {
 		uris, err = h.Bootstrap.ASN(asn)
 
 		if err != nil {
-			return true, err
+			return nil, err
 		}
 	}
 
-	r, err := NewClient(uris, h.HTTPClient).ASN(asn)
-
-	if err != nil {
-		return true, err
-	}
-
-	as := output.AS{AS: r}
-	if err := as.ToText(h.Writer); err != nil {
-		return true, err
-	}
-
-	return true, nil
-
+	return NewClient(uris, h.HTTPClient).ASN(asn)
 }
 
-func (h *Handler) Entity(object string) (bool, error) {
+func (h *Handler) Entity(object string) (*protocol.Entity, error) {
 	// Note that there is no bootstrap for entity, see [1]
 	// [1] - https://tools.ietf.org/html/rfc7484#section-6
 
-	r, err := NewClient(h.URIs, h.HTTPClient).Entity(object)
-	if err != nil {
-		return true, err
-	}
-
-	entity := output.Entity{Entity: r}
-	if err := entity.ToText(h.Writer); err != nil {
-		return true, err
-	}
-	return true, nil
-
+	return NewClient(h.URIs, h.HTTPClient).Entity(object)
 }
 
-func (h *Handler) IPNetwork(object string) (bool, error) {
+func (h *Handler) IPNetwork(object string) (*protocol.IPNetwork, error) {
 	_, cidr, err := net.ParseCIDR(object)
 
 	if err != nil {
-		return false, nil
+		return nil, ErrInvalidQuery
 	}
 
 	uris := h.URIs
@@ -106,30 +89,18 @@ func (h *Handler) IPNetwork(object string) (bool, error) {
 		uris, err = h.Bootstrap.IPNetwork(cidr)
 
 		if err != nil {
-			return true, err
+			return nil, err
 		}
 	}
 
-	r, err := NewClient(uris, h.HTTPClient).IPNetwork(cidr)
-
-	if err != nil {
-		return true, err
-	}
-
-	ipNetwork := output.IPNetwork{IPNetwork: r}
-	if err := ipNetwork.ToText(h.Writer); err != nil {
-		return true, err
-	}
-
-	return true, nil
-
+	return NewClient(uris, h.HTTPClient).IPNetwork(cidr)
 }
 
-func (h *Handler) IP(object string) (bool, error) {
+func (h *Handler) IP(object string) (*protocol.IPNetwork, error) {
 	ip := net.ParseIP(object)
 
 	if ip == nil {
-		return false, nil
+		return nil, ErrInvalidQuery
 	}
 
 	uris := h.URIs
@@ -139,27 +110,16 @@ func (h *Handler) IP(object string) (bool, error) {
 		uris, err = h.Bootstrap.IP(ip)
 
 		if err != nil {
-			return true, err
+			return nil, err
 		}
 	}
 
-	r, err := NewClient(uris, h.HTTPClient).IP(ip)
-	if err != nil {
-		return true, err
-	}
-
-	ipNetwork := output.IPNetwork{IPNetwork: r}
-	if err := ipNetwork.ToText(h.Writer); err != nil {
-		return true, err
-	}
-
-	return true, nil
-
+	return NewClient(uris, h.HTTPClient).IP(ip)
 }
 
-func (h *Handler) Domain(object string) (bool, error) {
+func (h *Handler) Domain(object string) (*protocol.DomainResponse, error) {
 	if !isFQDN.MatchString(object) {
-		return false, nil
+		return nil, ErrInvalidQuery
 	}
 
 	uris := h.URIs
@@ -169,24 +129,33 @@ func (h *Handler) Domain(object string) (bool, error) {
 		uris, err = h.Bootstrap.Domain(object)
 
 		if err != nil {
-			return true, err
+			return nil, err
 		}
 	}
 
-	r, err := NewClient(uris, h.HTTPClient).Domain(object)
+	return NewClient(uris, h.HTTPClient).Domain(object)
+}
 
-	if err != nil {
-		return true, err
-	}
+type genericQuerier struct {
+	handler *Handler
+}
 
-	if r == nil {
-		return true, nil
-	}
+func (h *genericQuerier) ASN(object string) (interface{}, error) {
+	return h.handler.ASN(object)
+}
 
-	domain := output.Domain{Domain: r}
-	if err := domain.ToText(h.Writer); err != nil {
-		return true, err
-	}
+func (h *genericQuerier) Entity(object string) (interface{}, error) {
+	return h.handler.Entity(object)
+}
 
-	return true, nil
+func (h *genericQuerier) IPNetwork(object string) (interface{}, error) {
+	return h.handler.IPNetwork(object)
+}
+
+func (h *genericQuerier) IP(object string) (interface{}, error) {
+	return h.handler.IP(object)
+}
+
+func (h *genericQuerier) Domain(object string) (interface{}, error) {
+	return h.handler.Domain(object)
 }

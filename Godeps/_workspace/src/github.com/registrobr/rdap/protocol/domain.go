@@ -6,6 +6,7 @@ type DomainResponse struct {
 	UnicodeName     string                `json:"unicodeName,omitempty"`
 	Nameservers     []Nameserver          `json:"nameservers"`
 	SecureDNS       SecureDNS             `json:"secureDNS,omitempty"`
+	Arbitration     bool                  `json:"nicbr_arbitration,omitempty"`
 	Links           []Link                `json:"links,omitempty"`
 	Entities        []Entity              `json:"entities,omitempty"`
 	Events          []Event               `json:"events,omitempty"`
