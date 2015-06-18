@@ -6,6 +6,10 @@
 	],
 	"Deps": [
 		{
+			"ImportPath": "github.com/aryann/difflib",
+			"Rev": "035af7c09b120b0909dd998c92745b82f61e0b1c"
+		},
+		{
 			"ImportPath": "github.com/codegangsta/cli",
 			"Comment": "1.2.0-95-g9b2bd2b",
 			"Rev": "9b2bd2b3489748d4d0a204fa4eb2ee9e89e0ebc6"

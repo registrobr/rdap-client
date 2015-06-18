@@ -11,7 +11,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/registrobr/rdap/protocol"
+	"github.com/registrobr/rdap-client/Godeps/_workspace/src/github.com/registrobr/rdap/protocol"
 )
 
 func TestClientHandleHTTPStatusCode(t *testing.T) {

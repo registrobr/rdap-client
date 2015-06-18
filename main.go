@@ -13,8 +13,8 @@ import (
 	"github.com/registrobr/rdap-client/Godeps/_workspace/src/github.com/gregjones/httpcache"
 	"github.com/registrobr/rdap-client/Godeps/_workspace/src/github.com/gregjones/httpcache/diskcache"
 	"github.com/registrobr/rdap-client/Godeps/_workspace/src/github.com/registrobr/rdap"
+	"github.com/registrobr/rdap-client/Godeps/_workspace/src/github.com/registrobr/rdap/protocol"
 	"github.com/registrobr/rdap-client/output"
-	"github.com/registrobr/rdap/protocol"
 )
 
 func main() {

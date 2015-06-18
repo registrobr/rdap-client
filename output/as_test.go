@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/registrobr/rdap/protocol"
+	"github.com/registrobr/rdap-client/Godeps/_workspace/src/github.com/registrobr/rdap/protocol"
 )
 
 var expectedASOutput = `aut-num:     a_123456-NICBR

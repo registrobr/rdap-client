@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/registrobr/rdap/Godeps/_workspace/src/github.com/aryann/difflib"
+	"github.com/registrobr/rdap-client/Godeps/_workspace/src/github.com/aryann/difflib"
 )
 
 func diff(a, b interface{}) []difflib.DiffRecord {
