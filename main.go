@@ -13,6 +13,8 @@ import (
 	"github.com/registrobr/rdap-client/Godeps/_workspace/src/github.com/gregjones/httpcache"
 	"github.com/registrobr/rdap-client/Godeps/_workspace/src/github.com/gregjones/httpcache/diskcache"
 	"github.com/registrobr/rdap-client/Godeps/_workspace/src/github.com/registrobr/rdap"
+	"github.com/registrobr/rdap-client/output"
+	"github.com/registrobr/rdap/protocol"
 )
 
 func main() {
@@ -133,7 +135,9 @@ func action(ctx *cli.Context) {
 		)
 
 		transport.Transport = &http.Transport{
-			TLSClientConfig: &tls.Config{InsecureSkipVerify: skipTLSVerification},
+			TLSClientConfig: &tls.Config{
+				InsecureSkipVerify: skipTLSVerification,
+			},
 		}
 
 		httpClient.Transport = transport
@@ -159,40 +163,39 @@ func action(ctx *cli.Context) {
 		uris = []string{host}
 	}
 
-	object := strings.Join(ctx.Args(), " ")
-	if object == "" {
+	identifier := strings.Join(ctx.Args(), " ")
+	if identifier == "" {
 		cli.ShowAppHelp(ctx)
 		os.Exit(1)
 	}
 
 	var (
-		ok  bool
-		err error
-		h   = &rdap.Handler{
+		err     error
+		object  interface{}
+		handler = &rdap.Handler{
 			URIs:       uris,
 			HTTPClient: httpClient,
 			Bootstrap:  bs,
-			Writer:     os.Stdout,
 		}
+		printer output.Printer
 	)
 
 	switch {
 	case forceASN:
-		ok, err = h.ASN(object)
+		object, err = handler.ASN(identifier)
 	case forceDomain:
-		ok, err = h.Domain(object)
+		object, err = handler.Domain(identifier)
 	case forceEntity:
-		ok, err = h.Entity(object)
+		object, err = handler.Entity(identifier)
 	case forceIP:
-		ok, err = h.IP(object)
+		object, err = handler.IP(identifier)
 	case forceIPNetwork:
-		ok, err = h.IPNetwork(object)
+		object, err = handler.IPNetwork(identifier)
 	default:
-		ok = true
-		err = h.Query(object)
+		object, err = handler.Query(identifier)
 	}
 
-	if err == nil && !ok {
+	if err == rdap.ErrInvalidQuery {
 		if force {
 			err = fmt.Errorf("the requested object doesn't match the requested object type")
 		} else {
@@ -201,6 +204,30 @@ func action(ctx *cli.Context) {
 	}
 
 	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
+
+	switch object.(type) {
+	case *protocol.ASResponse:
+		printer = &output.AS{
+			AS: object.(*protocol.ASResponse),
+		}
+	case *protocol.DomainResponse:
+		printer = &output.Domain{
+			Domain: object.(*protocol.DomainResponse),
+		}
+	case *protocol.Entity:
+		printer = &output.Entity{
+			Entity: object.(*protocol.Entity),
+		}
+	case *protocol.IPNetwork:
+		printer = &output.IPNetwork{
+			IPNetwork: object.(*protocol.IPNetwork),
+		}
+	}
+
+	if err := printer.Print(os.Stdout); err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
