@@ -2,6 +2,7 @@ package rdap
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net"
 	"net/http"
@@ -18,6 +19,10 @@ const (
 	entity kind = "entity"
 )
 
+var (
+	ErrNotFound = errors.New("not found")
+)
+
 type Client struct {
 	httpClient *http.Client
 	uris       []string
@@ -31,8 +36,8 @@ func NewClient(uris []string, httpClient *http.Client) *Client {
 	}
 }
 
-func (c *Client) Domain(fqdn string) (*protocol.DomainResponse, error) {
-	r := &protocol.DomainResponse{}
+func (c *Client) Domain(fqdn string) (*protocol.Domain, error) {
+	r := &protocol.Domain{}
 	fqdn = idn.ToPunycode(strings.ToLower(fqdn))
 
 	if err := c.query(domain, fqdn, r); err != nil {
@@ -42,8 +47,8 @@ func (c *Client) Domain(fqdn string) (*protocol.DomainResponse, error) {
 	return r, nil
 }
 
-func (c *Client) ASN(as uint64) (*protocol.ASResponse, error) {
-	r := &protocol.ASResponse{}
+func (c *Client) ASN(as uint64) (*protocol.AS, error) {
+	r := &protocol.AS{}
 
 	if err := c.query(autnum, as, r); err != nil {
 		return nil, err
@@ -88,7 +93,7 @@ func (c *Client) handleHTTPStatusCode(kind kind, response *http.Response) error 
 	}
 
 	if response.StatusCode == http.StatusNotFound {
-		return fmt.Errorf("%s not found", kind)
+		return ErrNotFound
 	}
 
 	if response.Header.Get("Content-Type") != "application/json" {
@@ -108,35 +113,32 @@ func (c *Client) handleHTTPStatusCode(kind kind, response *http.Response) error 
 		strings.Join(responseErr.Description, ", "))
 }
 
-func (c *Client) query(kind kind, identifier interface{}, object interface{}) (err error) {
-	var errors []string
+func (c *Client) query(kind kind, identifier interface{}, object interface{}) error {
+	var lastErr error
 	for _, uri := range c.uris {
 		uri := fmt.Sprintf("%s/%s/%v", uri, kind, identifier)
 
 		res, err := c.fetch(uri)
 		if err != nil {
-			errors = append(errors, err.Error())
+			lastErr = err
 			continue
 		}
 		defer res.Body.Close()
 
 		if err := c.handleHTTPStatusCode(kind, res); err != nil {
-			errors = append(errors, err.Error())
+			lastErr = err
 			continue
 		}
 
 		if err = json.NewDecoder(res.Body).Decode(&object); err != nil {
-			errors = append(errors, err.Error())
+			lastErr = err
 			continue
 		}
 
 		return nil
 	}
 
-	return fmt.Errorf("error(s) fetching RDAP data from %v: %s",
-		identifier,
-		strings.Join(errors, ", "),
-	)
+	return lastErr
 }
 
 func (c *Client) fetch(uri string) (response *http.Response, err error) {

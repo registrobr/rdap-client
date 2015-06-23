@@ -7,13 +7,15 @@ import (
 	"reflect"
 	"regexp"
 	"strconv"
+	"strings"
 
 	"github.com/registrobr/rdap-client/Godeps/_workspace/src/github.com/registrobr/rdap/protocol"
 )
 
-var isFQDN = regexp.MustCompile(`^(([[:alnum:]](([[:alnum:]]|\-){0,61}[[:alnum:]])?\.)*[[:alnum:]](([[:alnum:]]|\-){0,61}[[:alnum:]])?)?(\.)?$`)
-
-var ErrInvalidQuery = errors.New("invalid query")
+var (
+	isFQDN          = regexp.MustCompile(`^(([[:alnum:]](([[:alnum:]]|\-){0,61}[[:alnum:]])?\.)*[[:alnum:]](([[:alnum:]]|\-){0,61}[[:alnum:]])?)?(\.)?$`)
+	ErrInvalidQuery = errors.New("invalid query")
+)
 
 type Handler struct {
 	URIs       []string
@@ -47,7 +49,7 @@ func (h *Handler) Query(object string) (interface{}, error) {
 	return nil, ErrInvalidQuery
 }
 
-func (h *Handler) ASN(object string) (*protocol.ASResponse, error) {
+func (h *Handler) ASN(object string) (*protocol.AS, error) {
 	asn, err := strconv.ParseUint(object, 10, 32)
 
 	if err != nil {
@@ -117,8 +119,8 @@ func (h *Handler) IP(object string) (*protocol.IPNetwork, error) {
 	return NewClient(uris, h.HTTPClient).IP(ip)
 }
 
-func (h *Handler) Domain(object string) (*protocol.DomainResponse, error) {
-	if !isFQDN.MatchString(object) {
+func (h *Handler) Domain(object string) (*protocol.Domain, error) {
+	if !isFQDN.MatchString(object) || !strings.Contains(object, ".") {
 		return nil, ErrInvalidQuery
 	}
 

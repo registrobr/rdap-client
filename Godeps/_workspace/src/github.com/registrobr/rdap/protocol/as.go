@@ -1,6 +1,6 @@
 package protocol
 
-type ASResponse struct {
+type AS struct {
 	ObjectClassName string          `json:"objectClassName"`
 	Handle          string          `json:"handle"`
 	StartAutnum     uint32          `json:"startAutNum"`

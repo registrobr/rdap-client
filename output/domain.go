@@ -8,7 +8,7 @@ import (
 )
 
 type Domain struct {
-	Domain *protocol.DomainResponse
+	Domain *protocol.Domain
 
 	CreatedAt string
 	UpdatedAt string

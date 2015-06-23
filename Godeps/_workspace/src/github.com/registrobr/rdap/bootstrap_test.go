@@ -2,7 +2,6 @@ package rdap
 
 import (
 	"fmt"
-	"io/ioutil"
 	"net"
 	"net/http"
 	"net/http/httptest"
@@ -14,7 +13,6 @@ func TestBootstrapFetch(t *testing.T) {
 	tests := []struct {
 		description   string
 		uri           string
-		expectedBody  string
 		expectedError error
 	}{
 		{
@@ -24,23 +22,12 @@ func TestBootstrapFetch(t *testing.T) {
 		},
 	}
 
-	for _, test := range tests {
-		c := NewBootstrap(nil)
-		body := ""
-		r, _, err := c.fetch(test.uri)
-
-		if err == nil {
-			content, _ := ioutil.ReadAll(r)
-			body = string(content)
-		}
+	for i, test := range tests {
+		_, _, err := NewBootstrap(nil).fetch(test.uri)
 
 		if test.expectedError != nil {
 			if fmt.Sprintf("%v", test.expectedError) != fmt.Sprintf("%v", err) {
-				t.Fatalf("%s: expected error “%s”, got “%s”", test.description, test.expectedError, err)
-			}
-		} else {
-			if !reflect.DeepEqual(test.expectedBody, body) {
-				t.Fatalf("“%s”: expected “%v”, got “%v”", test.description, test.expectedBody, body)
+				t.Fatalf("[%d] “%s“: expected error “%s”, got “%s”", i, test.description, test.expectedError, err)
 			}
 		}
 	}
@@ -131,7 +118,7 @@ func TestBootstrapQuery(t *testing.T) {
 		},
 	}
 
-	for _, test := range tests {
+	for i, test := range tests {
 		c := NewBootstrap(nil)
 
 		if test.bootstrap != "" {
@@ -150,11 +137,11 @@ func TestBootstrapQuery(t *testing.T) {
 
 		if test.expectedError != nil {
 			if fmt.Sprintf("%v", test.expectedError) != fmt.Sprintf("%v", err) {
-				t.Fatalf("%s: expected error “%s”, got “%s”", test.description, test.expectedError, err)
+				t.Fatalf("[%d] “%s“: expected error “%s”, got “%s”", i, test.description, test.expectedError, err)
 			}
 		} else {
 			if !reflect.DeepEqual(test.expectedURIs, uris) {
-				t.Fatalf("“%s”: expected “%v”, got “%v”", test.description, test.expectedURIs, uris)
+				t.Fatalf("[%d] “%s”: expected “%v”, got “%v”", i, test.description, test.expectedURIs, uris)
 			}
 		}
 	}
@@ -220,7 +207,7 @@ func TestBootstrapQueriers(t *testing.T) {
 		},
 	}
 
-	for _, test := range tests {
+	for i, test := range tests {
 		c := NewBootstrap(nil)
 		ts := httptest.NewServer(
 			http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -250,11 +237,11 @@ func TestBootstrapQueriers(t *testing.T) {
 
 		if test.expectedError != nil {
 			if fmt.Sprintf("%v", test.expectedError) != fmt.Sprintf("%v", err) {
-				t.Fatalf("%s: expected error “%s”, got “%s”", test.description, test.expectedError, err)
+				t.Fatalf("[%d] “%s“: expected error “%s”, got “%s”", i, test.description, test.expectedError, err)
 			}
 		} else {
 			if !reflect.DeepEqual(test.expectedURIs, uris) {
-				t.Fatalf("“%s”: expected “%v”, got “%v”", test.description, test.expectedURIs, uris)
+				t.Fatalf("[%d] “%s”: expected “%v”, got “%v”", i, test.description, test.expectedURIs, uris)
 			}
 		}
 	}

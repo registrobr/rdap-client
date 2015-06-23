@@ -80,7 +80,7 @@ func TestServiceRegistryMatchAS(t *testing.T) {
 					},
 				},
 			},
-			expectedError: fmt.Errorf("strconv.ParseUint: parsing \"invalid\": invalid syntax"),
+			expectedError: fmt.Errorf(`strconv.ParseUint: parsing "invalid": invalid syntax`),
 		},
 		{
 			description: "it should not match an as number due to invalid end of as range",
@@ -93,19 +93,19 @@ func TestServiceRegistryMatchAS(t *testing.T) {
 					},
 				},
 			},
-			expectedError: fmt.Errorf("strconv.ParseUint: parsing \"invalid\": invalid syntax"),
+			expectedError: fmt.Errorf(`strconv.ParseUint: parsing "invalid": invalid syntax`),
 		},
 	}
 
 	for i, test := range tests {
 		urls, err := test.registry.matchAS(test.as)
 
-		if test.expectedError != nil && fmt.Sprintf("%v", test.expectedError) != fmt.Sprintf("%v", err) {
-			t.Fatalf("At index %d (%s): expected error %s, got %s", i, test.description, test.expectedError, err)
+		if fmt.Sprintf("%v", test.expectedError) != fmt.Sprintf("%v", err) {
+			t.Fatalf("[%d] “%s“: expected error “%s“, got “%s“", i, test.description, test.expectedError, err)
 		}
 
 		if !reflect.DeepEqual(test.expected, urls) {
-			t.Fatalf("At index %d (%s): expected %v, got %v", i, test.description, test.expected, urls)
+			t.Fatalf("[%d] “%s“: expected “%v“, got “%v“", i, test.description, test.expected, urls)
 		}
 	}
 }
@@ -176,7 +176,7 @@ func TestServiceRegistryMatchIPNetwork(t *testing.T) {
 					},
 				},
 			},
-			expectedError: fmt.Errorf("invalid CIDR address: invalid"),
+			expectedError: fmt.Errorf(`invalid CIDR address: invalid`),
 		},
 	}
 
@@ -184,12 +184,12 @@ func TestServiceRegistryMatchIPNetwork(t *testing.T) {
 		_, ipnet, _ := net.ParseCIDR(test.ipnet)
 		urls, err := test.registry.matchIPNetwork(ipnet)
 
-		if test.expectedError != nil && fmt.Sprintf("%v", test.expectedError) != fmt.Sprintf("%v", err) {
-			t.Fatalf("At index %d (%s): expected error %s, got %s", i, test.description, test.expectedError, err)
+		if fmt.Sprintf("%v", test.expectedError) != fmt.Sprintf("%v", err) {
+			t.Fatalf("[%d] “%s“: expected error “%s“, got “%s“", i, test.description, test.expectedError, err)
 		}
 
 		if !reflect.DeepEqual(test.expected, urls) {
-			t.Fatalf("At index %d (%s): expected %v, got %v", i, test.description, test.expected, urls)
+			t.Fatalf("[%d] “%s“: expected “%v“, got “%v“", i, test.description, test.expected, urls)
 		}
 	}
 }
@@ -256,12 +256,12 @@ func TestServiceRegistryMatchDomain(t *testing.T) {
 	for i, test := range tests {
 		urls, err := test.registry.matchDomain(test.fqdn)
 
-		if test.expectedError != nil && fmt.Sprintf("%v", test.expectedError) != fmt.Sprintf("%v", err) {
-			t.Fatalf("At index %d (%s): expected error %s, got %s", i, test.description, test.expectedError, err)
+		if fmt.Sprintf("%v", test.expectedError) != fmt.Sprintf("%v", err) {
+			t.Fatalf("[%d] “%s“: expected error “%s“, got “%s“", i, test.description, test.expectedError, err)
 		}
 
 		if !reflect.DeepEqual(test.expected, urls) {
-			t.Fatalf("At index %d (%s): expected %v, got %v", i, test.description, test.expected, urls)
+			t.Fatalf("[%d] “%s“: expected “%v“, got “%v“", i, test.description, test.expected, urls)
 		}
 	}
 }
@@ -308,7 +308,7 @@ func TestServiceRegistryMatchIP(t *testing.T) {
 					},
 				},
 			},
-			expectedError: fmt.Errorf("invalid CIDR address: invalid"),
+			expectedError: fmt.Errorf(`invalid CIDR address: invalid`),
 		},
 	}
 
@@ -316,12 +316,12 @@ func TestServiceRegistryMatchIP(t *testing.T) {
 		ip := net.ParseIP(test.ip)
 		urls, err := test.registry.matchIP(ip)
 
-		if test.expectedError != nil && fmt.Sprintf("%v", test.expectedError) != fmt.Sprintf("%v", err) {
-			t.Fatalf("At index %d (%s): expected error %s, got %s", i, test.description, test.expectedError, err)
+		if fmt.Sprintf("%v", test.expectedError) != fmt.Sprintf("%v", err) {
+			t.Fatalf("[%d] “%s“: expected error “%s“, got “%s“", i, test.description, test.expectedError, err)
 		}
 
 		if !reflect.DeepEqual(test.expected, urls) {
-			t.Fatalf("At index %d (%s): expected %v, got %v", i, test.description, test.expected, urls)
+			t.Fatalf("[%d] “%s“: expected “%v“, got “%v“", i, test.description, test.expected, urls)
 		}
 	}
 }

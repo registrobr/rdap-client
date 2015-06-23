@@ -8,7 +8,7 @@ import (
 )
 
 type AS struct {
-	AS *protocol.ASResponse
+	AS *protocol.AS
 
 	CreatedAt string
 	UpdatedAt string

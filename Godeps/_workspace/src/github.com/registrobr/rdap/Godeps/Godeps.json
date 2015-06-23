@@ -10,8 +10,8 @@
 			"Rev": "035af7c09b120b0909dd998c92745b82f61e0b1c"
 		},
 		{
-			"ImportPath": "github.com/gregjones/httpcache",
-			"Rev": "a2645c9fb8bb4ad1cbad1bef941af9f8a32287de"
+			"ImportPath": "github.com/davecgh/go-spew/spew",
+			"Rev": "1aaf839fb07e099361e445273993ccd9adc21b07"
 		},
 		{
 			"ImportPath": "github.com/miekg/dns",

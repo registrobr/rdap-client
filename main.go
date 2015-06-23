@@ -209,13 +209,13 @@ func action(ctx *cli.Context) {
 	}
 
 	switch object.(type) {
-	case *protocol.ASResponse:
+	case *protocol.AS:
 		printer = &output.AS{
-			AS: object.(*protocol.ASResponse),
+			AS: object.(*protocol.AS),
 		}
-	case *protocol.DomainResponse:
+	case *protocol.Domain:
 		printer = &output.Domain{
-			Domain: object.(*protocol.DomainResponse),
+			Domain: object.(*protocol.Domain),
 		}
 	case *protocol.Entity:
 		printer = &output.Entity{

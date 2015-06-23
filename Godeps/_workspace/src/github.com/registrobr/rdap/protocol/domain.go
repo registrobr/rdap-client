@@ -1,6 +1,6 @@
 package protocol
 
-type DomainResponse struct {
+type Domain struct {
 	ObjectClassName string                `json:"objectClassName"`
 	LDHName         string                `json:"ldhName,omitempty"`
 	UnicodeName     string                `json:"unicodeName,omitempty"`

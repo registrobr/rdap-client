@@ -68,20 +68,11 @@ func (c *Bootstrap) checkDomain(fqdn string, cached bool, r serviceRegistry) (ur
 		return
 	}
 
-	if len(uris) > 0 {
+	if len(uris) > 0 || !cached {
 		return
 	}
 
-	if !cached {
-		return
-	}
-
-	nsSet, err := net.LookupNS(fqdn)
-	if err != nil {
-		return nil, nil
-	}
-
-	if len(nsSet) == 0 {
+	if nsSet, err := net.LookupNS(fqdn); err != nil || len(nsSet) == 0 {
 		return nil, nil
 	}
 
