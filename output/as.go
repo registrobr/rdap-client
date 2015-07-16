@@ -16,8 +16,16 @@ type AS struct {
 	ContactsInfos []ContactInfo
 }
 
-func (a *AS) AddContact(c ContactInfo) {
+func (a *AS) addContact(c ContactInfo) {
 	a.ContactsInfos = append(a.ContactsInfos, c)
+}
+
+func (a *AS) getContacts() []ContactInfo {
+	return a.ContactsInfos
+}
+
+func (a *AS) setContacts(c []ContactInfo) {
+	a.ContactsInfos = c
 }
 
 func (a *AS) setDates() {
@@ -35,13 +43,13 @@ func (a *AS) setDates() {
 
 func (a *AS) Print(wr io.Writer) error {
 	a.setDates()
-	AddContacts(a, a.AS.Entities)
+	addContacts(a, a.AS.Entities)
+	filterContacts(a)
 
-	for _, entity := range a.AS.Entities {
-		AddContacts(a, entity.Entities)
-	}
+	t, err := template.New("as template").
+		Funcs(contactInfoFuncMap).
+		Parse(asTmpl)
 
-	t, err := template.New("as template").Parse(asTmpl)
 	if err != nil {
 		return err
 	}

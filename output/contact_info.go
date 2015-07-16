@@ -7,26 +7,14 @@ import (
 	"github.com/registrobr/rdap-client/Godeps/_workspace/src/github.com/registrobr/rdap/protocol"
 )
 
-const contactTmpl = `{{range .ContactsInfos}}handle:   {{.Handle}}
-ids:      {{.Ids}}
-roles:    {{.Roles}}
-{{range .Persons}}person:   {{.}}
-{{end}}{{range .Emails}}e-mail:   {{.}}
-{{end}}{{range .Addresses}}address:  {{.}}
-{{end}}{{range .Phones}}phone:    {{.}}
-{{end}}created:  {{.CreatedAt}}
-changed:  {{.UpdatedAt}}
-
-{{end}}`
-
 type ContactInfo struct {
 	Handle    string
-	Ids       string
+	Ids       []string
 	Persons   []string
 	Emails    []string
 	Addresses []string
 	Phones    []string
-	Roles     string
+	Roles     []string
 	CreatedAt string
 	UpdatedAt string
 }
@@ -84,31 +72,67 @@ func (c *ContactInfo) setContact(entity protocol.Entity) {
 		}
 	}
 
-	c.Roles = strings.Join(entity.Roles, ", ")
+	c.Roles = entity.Roles
 
-	ids := make([]string, len(entity.PublicIds))
-
-	for i, id := range entity.PublicIds {
-		ids[i] = fmt.Sprintf("%s (%s)", id.Identifier, id.Type)
+	for _, id := range entity.PublicIds {
+		c.Ids = append(c.Ids, fmt.Sprintf("%s (%s)", id.Identifier, id.Type))
 	}
-
-	c.Ids = strings.Join(ids, ", ")
 }
 
-type ContactList interface {
-	AddContact(ContactInfo)
+type contactList interface {
+	addContact(ContactInfo)
+	getContacts() []ContactInfo
+	setContacts(c []ContactInfo)
 }
 
-func AddContacts(c ContactList, entities []protocol.Entity) {
-	contacts := make(map[string]bool)
+func addContacts(c contactList, entities []protocol.Entity) {
 	for _, entity := range entities {
-		if contacts[entity.Handle] {
-			continue
-		}
-		contacts[entity.Handle] = true
-
 		var contactInfo ContactInfo
 		contactInfo.setContact(entity)
-		c.AddContact(contactInfo)
+		c.addContact(contactInfo)
+
+		for _, entity := range entities {
+			addContacts(c, entity.Entities)
+		}
 	}
+}
+
+func filterContacts(c contactList) {
+	contacts := make(map[string]*ContactInfo)
+
+	for _, contactInfo := range c.getContacts() {
+		contactInfo := contactInfo
+
+		if _, ok := contacts[contactInfo.Handle]; !ok {
+			contacts[contactInfo.Handle] = &contactInfo
+			continue
+		}
+
+		contacts[contactInfo.Handle].Roles = append(contacts[contactInfo.Handle].Roles,
+			contactInfo.Roles...)
+	}
+
+	for _, contactInfo := range contacts {
+		found := make(map[string]bool)
+		roles := make([]string, 0)
+
+		for _, role := range contactInfo.Roles {
+			if _, ok := found[role]; ok {
+				continue
+			}
+
+			roles = append(roles, role)
+			found[role] = true
+		}
+
+		contactInfo.Roles = roles
+	}
+
+	filteredContacts := make([]ContactInfo, 0)
+
+	for _, contact := range contacts {
+		filteredContacts = append(filteredContacts, *contact)
+	}
+
+	c.setContacts(filteredContacts)
 }

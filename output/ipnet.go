@@ -18,8 +18,16 @@ type IPNetwork struct {
 	ContactsInfos []ContactInfo
 }
 
-func (i *IPNetwork) AddContact(c ContactInfo) {
+func (i *IPNetwork) addContact(c ContactInfo) {
 	i.ContactsInfos = append(i.ContactsInfos, c)
+}
+
+func (i *IPNetwork) getContacts() []ContactInfo {
+	return i.ContactsInfos
+}
+
+func (i *IPNetwork) setContacts(c []ContactInfo) {
+	i.ContactsInfos = c
 }
 
 func (i *IPNetwork) setDates() {
@@ -44,7 +52,7 @@ func (i *IPNetwork) setInetnum() {
 		mask[j] = start[j] | ^end[j]
 	}
 
-	cidr := net.IPNet{start, mask}
+	cidr := net.IPNet{IP: start, Mask: mask}
 
 	i.Inetnum = cidr.String()
 }
@@ -52,13 +60,13 @@ func (i *IPNetwork) setInetnum() {
 func (i *IPNetwork) Print(wr io.Writer) error {
 	i.setDates()
 	i.setInetnum()
-	AddContacts(i, i.IPNetwork.Entities)
+	addContacts(i, i.IPNetwork.Entities)
+	filterContacts(i)
 
-	for _, entity := range i.IPNetwork.Entities {
-		AddContacts(i, entity.Entities)
-	}
+	t, err := template.New("ipnetwork template").
+		Funcs(contactInfoFuncMap).
+		Parse(ipnetTmpl)
 
-	t, err := template.New("ipnetwork template").Parse(ipnetTmpl)
 	if err != nil {
 		return err
 	}

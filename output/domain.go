@@ -24,8 +24,16 @@ type ds struct {
 	CreatedAt string
 }
 
-func (d *Domain) AddContact(c ContactInfo) {
+func (d *Domain) addContact(c ContactInfo) {
 	d.ContactsInfos = append(d.ContactsInfos, c)
+}
+
+func (d *Domain) getContacts() []ContactInfo {
+	return d.ContactsInfos
+}
+
+func (d *Domain) setContacts(c []ContactInfo) {
+	d.ContactsInfos = c
 }
 
 func (d *Domain) setDates() {
@@ -62,18 +70,17 @@ func (d *Domain) setDS() {
 func (d *Domain) Print(wr io.Writer) error {
 	d.setDates()
 	d.setDS()
+	addContacts(d, d.Domain.Entities)
+	filterContacts(d)
 
-	AddContacts(d, d.Domain.Entities)
-
-	for _, entity := range d.Domain.Entities {
-		AddContacts(d, entity.Entities)
-	}
-
-	t, err := template.New("domain").Funcs(domainFuncMap).Parse(domainTmpl)
+	t, err := template.New("domain template").
+		Funcs(contactInfoFuncMap).
+		Funcs(domainFuncMap).
+		Parse(domainTmpl)
 
 	if err != nil {
 		return err
 	}
 
-	return t.ExecuteTemplate(wr, "domain", d)
+	return t.ExecuteTemplate(wr, "domain template", d)
 }
