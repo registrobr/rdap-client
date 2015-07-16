@@ -8,8 +8,6 @@ import (
 )
 
 var expectedEntityOutput = `handle:   XXXX
-ids:      
-roles:    
 person:   Joe User
 e-mail:   joe.user@example.com
 address:  Av Naçoes Unidas, 11541, 7 andar, Sao Paulo, SP, 04578-000, BR

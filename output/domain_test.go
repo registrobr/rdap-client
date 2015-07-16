@@ -16,8 +16,6 @@ changed:  20150310
 status:   active
 
 handle:   XXXX
-ids:      
-roles:    
 person:   Joe User
 e-mail:   joe.user@example.com
 address:  Av Naçoes Unidas, 11541, 7 andar, Sao Paulo, SP, 04578-000, BR
@@ -26,8 +24,6 @@ created:  20150301
 changed:  20150310
 
 handle:   YYYY
-ids:      
-roles:    
 person:   Joe User 2
 e-mail:   joe.user2@example.com
 address:  Av Naçoes Unidas, 11541, 7 andar, Sao Paulo, SP, 04578-000, BR
@@ -38,7 +34,7 @@ changed:  20150310
 `
 
 func TestDomainPrint(t *testing.T) {
-	domainResponse := protocol.DomainResponse{
+	domainResponse := protocol.Domain{
 		ObjectClassName: "domain",
 		LDHName:         "example.br",
 		Status: []protocol.Status{

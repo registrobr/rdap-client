@@ -16,8 +16,6 @@ changed:     20150310
 inetnum:     (ip networks)
 
 handle:   XXXX
-ids:      
-roles:    
 person:   Joe User
 e-mail:   joe.user@example.com
 address:  Av Naçoes Unidas, 11541, 7 andar, Sao Paulo, SP, 04578-000, BR
@@ -26,8 +24,6 @@ created:  20150301
 changed:  20150310
 
 handle:   YYYY
-ids:      
-roles:    
 person:   Joe User 2
 e-mail:   joe.user2@example.com
 address:  Av Naçoes Unidas, 11541, 7 andar, Sao Paulo, SP, 04578-000, BR
@@ -38,7 +34,7 @@ changed:  20150310
 `
 
 func TestASPrint(t *testing.T) {
-	asResponse := protocol.ASResponse{
+	asResponse := protocol.AS{
 		ObjectClassName: "autnum",
 		Handle:          "a_123456-NICBR",
 		StartAutnum:     123456,
@@ -131,7 +127,7 @@ func TestAsToTextWithErrorOnWriter(t *testing.T) {
 	}
 
 	as := AS{
-		AS: new(protocol.ASResponse),
+		AS: new(protocol.AS),
 	}
 
 	if err := as.Print(w); err == nil {

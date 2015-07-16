@@ -39,7 +39,10 @@ func (e *Entity) Print(wr io.Writer) error {
 	contactInfo.setContact(*e.Entity)
 	e.ContactsInfos = append(e.ContactsInfos, contactInfo)
 
-	t, err := template.New("entity template").Parse(contactTmpl)
+	t, err := template.New("entity template").
+		Funcs(contactInfoFuncMap).
+		Parse(contactTmpl)
+
 	if err != nil {
 		return err
 	}

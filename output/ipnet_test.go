@@ -10,31 +10,29 @@ import (
 var expectedIPNetworkOutput = `inetnum:       200.160.3.0/24
 aut-num:       ip_123456-NICBR
 abuse-c:       (handle)
-owner:         
+owner:
 ownerid:       (CPF/CNPJ)
-responsible:   
-address:     
-address:     
+responsible:
+address:
+address:
 country:       BR
-phone:       
+phone:
 start-address: 200.160.3.0
 end-address:   200.160.3.255
 ip-version:    v4
 type:          DIRECT ALLOCATION
 parent-handle: ip_1-NICBR
 status:        [active]
-owner-c:     
-tech-c:      
-inetrev:     
-nserver:     
-nsstat:      
-nslastaa:    
+owner-c:
+tech-c:
+inetrev:
+nserver:
+nsstat:
+nslastaa:
 created:     20150301
 changed:     20150310
 
 handle:   XXXX
-ids:      
-roles:    
 person:   Joe User
 e-mail:   joe.user@example.com
 address:  Av Naçoes Unidas, 11541, 7 andar, Sao Paulo, SP, 04578-000, BR
