@@ -1,7 +1,7 @@
 package protocol
 
 type Notice struct {
-	Title       string
-	Description []string
-	Links       []Link
+	Title       string   `json:"title,omitempty"`
+	Description []string `json:"description,omitempty"`
+	Links       []Link   `json:"links,omitempty"`
 }

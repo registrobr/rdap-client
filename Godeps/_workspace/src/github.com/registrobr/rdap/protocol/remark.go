@@ -14,5 +14,5 @@ type RemarkType string
 
 type Remark struct {
 	Type        string   `json:"type,omitempty"`
-	Description []string `json:"description"`
+	Description []string `json:"description,omitempty"`
 }

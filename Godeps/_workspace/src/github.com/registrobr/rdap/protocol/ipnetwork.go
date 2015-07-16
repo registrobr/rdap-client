@@ -15,4 +15,7 @@ type IPNetwork struct {
 	Links           []Link   `json:"links"`
 	Events          []Event  `json:"events"`
 	Entities        []Entity `json:"entities"`
+	Notices         []Notice `json:"notices,omitempty"`
+	Remarks         []Remark `json:"remarks,omitempty"`
+	Conformance
 }

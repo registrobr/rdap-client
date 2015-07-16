@@ -1,10 +1,10 @@
 package protocol
 
 type Error struct {
-	RDAPConformance []string `json:"rdapConformance,omitempty"`
-	Notices         []Notice `json:"notices,omitempty"`
-	Lang            string   `json:"lang,omitempty"`
-	ErrorCode       int
-	Title           string
-	Description     []string
+	Notices     []Notice `json:"notices,omitempty"`
+	Lang        string   `json:"lang,omitempty"`
+	ErrorCode   int      `json:"errorCode,omitempty"`
+	Title       string   `json:"title,omitempty"`
+	Description []string `json:"description,omitempty"`
+	Conformance
 }
