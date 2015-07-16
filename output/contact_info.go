@@ -7,7 +7,7 @@ import (
 	"github.com/registrobr/rdap-client/Godeps/_workspace/src/github.com/registrobr/rdap/protocol"
 )
 
-type ContactInfo struct {
+type contactInfo struct {
 	Handle    string
 	Ids       []string
 	Persons   []string
@@ -19,7 +19,7 @@ type ContactInfo struct {
 	UpdatedAt string
 }
 
-func (c *ContactInfo) setContact(entity protocol.Entity) {
+func (c *contactInfo) setContact(entity protocol.Entity) {
 	c.Handle = entity.Handle
 	for _, vCardValues := range entity.VCardArray {
 		vCardValue, ok := vCardValues.([]interface{})
@@ -80,14 +80,14 @@ func (c *ContactInfo) setContact(entity protocol.Entity) {
 }
 
 type contactList interface {
-	addContact(ContactInfo)
-	getContacts() []ContactInfo
-	setContacts(c []ContactInfo)
+	addContact(contactInfo)
+	getContacts() []contactInfo
+	setContacts(c []contactInfo)
 }
 
 func addContacts(c contactList, entities []protocol.Entity) {
 	for _, entity := range entities {
-		var contactInfo ContactInfo
+		var contactInfo contactInfo
 		contactInfo.setContact(entity)
 		c.addContact(contactInfo)
 
@@ -98,7 +98,7 @@ func addContacts(c contactList, entities []protocol.Entity) {
 }
 
 func filterContacts(c contactList) {
-	contacts := make(map[string]*ContactInfo)
+	contacts := make(map[string]*contactInfo)
 
 	for _, contactInfo := range c.getContacts() {
 		contactInfo := contactInfo
@@ -128,7 +128,7 @@ func filterContacts(c contactList) {
 		contactInfo.Roles = roles
 	}
 
-	filteredContacts := make([]ContactInfo, 0)
+	filteredContacts := make([]contactInfo, 0)
 
 	for _, contact := range contacts {
 		filteredContacts = append(filteredContacts, *contact)

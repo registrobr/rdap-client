@@ -13,10 +13,10 @@ type Entity struct {
 	CreatedAt string
 	UpdatedAt string
 
-	ContactsInfos []ContactInfo
+	ContactsInfos []contactInfo
 }
 
-func (e *Entity) AddContact(c ContactInfo) {
+func (e *Entity) AddContact(c contactInfo) {
 	e.ContactsInfos = append(e.ContactsInfos, c)
 }
 
@@ -35,7 +35,7 @@ func (e *Entity) setDates() {
 
 func (e *Entity) Print(wr io.Writer) error {
 	e.setDates()
-	var contactInfo ContactInfo
+	var contactInfo contactInfo
 	contactInfo.setContact(*e.Entity)
 	e.ContactsInfos = append(e.ContactsInfos, contactInfo)
 

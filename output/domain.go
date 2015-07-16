@@ -16,7 +16,7 @@ type Domain struct {
 
 	Handles       map[string]string
 	DS            []ds
-	ContactsInfos []ContactInfo
+	ContactsInfos []contactInfo
 }
 
 type ds struct {
@@ -24,15 +24,15 @@ type ds struct {
 	CreatedAt string
 }
 
-func (d *Domain) addContact(c ContactInfo) {
+func (d *Domain) addContact(c contactInfo) {
 	d.ContactsInfos = append(d.ContactsInfos, c)
 }
 
-func (d *Domain) getContacts() []ContactInfo {
+func (d *Domain) getContacts() []contactInfo {
 	return d.ContactsInfos
 }
 
-func (d *Domain) setContacts(c []ContactInfo) {
+func (d *Domain) setContacts(c []contactInfo) {
 	d.ContactsInfos = c
 }
 

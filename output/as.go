@@ -13,18 +13,18 @@ type AS struct {
 	CreatedAt string
 	UpdatedAt string
 
-	ContactsInfos []ContactInfo
+	ContactsInfos []contactInfo
 }
 
-func (a *AS) addContact(c ContactInfo) {
+func (a *AS) addContact(c contactInfo) {
 	a.ContactsInfos = append(a.ContactsInfos, c)
 }
 
-func (a *AS) getContacts() []ContactInfo {
+func (a *AS) getContacts() []contactInfo {
 	return a.ContactsInfos
 }
 
-func (a *AS) setContacts(c []ContactInfo) {
+func (a *AS) setContacts(c []contactInfo) {
 	a.ContactsInfos = c
 }
 

@@ -15,18 +15,18 @@ type IPNetwork struct {
 	CreatedAt string
 	UpdatedAt string
 
-	ContactsInfos []ContactInfo
+	ContactsInfos []contactInfo
 }
 
-func (i *IPNetwork) addContact(c ContactInfo) {
+func (i *IPNetwork) addContact(c contactInfo) {
 	i.ContactsInfos = append(i.ContactsInfos, c)
 }
 
-func (i *IPNetwork) getContacts() []ContactInfo {
+func (i *IPNetwork) getContacts() []contactInfo {
 	return i.ContactsInfos
 }
 
-func (i *IPNetwork) setContacts(c []ContactInfo) {
+func (i *IPNetwork) setContacts(c []contactInfo) {
 	i.ContactsInfos = c
 }
 
