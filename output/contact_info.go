@@ -91,9 +91,7 @@ func addContacts(c contactList, entities []protocol.Entity) {
 		contactInfo.setContact(entity)
 		c.addContact(contactInfo)
 
-		for _, entity := range entities {
-			addContacts(c, entity.Entities)
-		}
+		addContacts(c, entity.Entities)
 	}
 }
 

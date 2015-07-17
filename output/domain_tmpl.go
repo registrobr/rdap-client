@@ -2,15 +2,20 @@ package output
 
 import "text/template"
 
-const domainTmpl = `domain:   {{.Domain.LDHName}}
-{{range .Domain.Nameservers}}nserver:  {{.LDHName}} {{.HostStatus}}
+const (
+	domainTmpl = `domain:   {{.Domain.LDHName}}
+{{range .Domain.Nameservers}}nserver:  {{.LDHName}}
+nsstat:   {{.LastCheckAt | formatDate}} {{.HostStatus}}
+nslastaa: {{.LastOKAt | formatDate}}
 {{end}}{{range .DS}}dsrecord: {{.KeyTag}} {{.Algorithm | dsAlgorithm}} {{.Digest}}
-dsstatus: {{.CreatedAt}} {{.DSStatus}}
-{{end}}created:  {{.CreatedAt}}
-changed:  {{.UpdatedAt}}
+dsstatus: {{.CreatedAt | formatDate}} {{.DSStatus}}
+{{end}}created:  {{.CreatedAt | formatDate}}
+changed:  {{.UpdatedAt | formatDate}}
 {{range .Domain.Status}}status:   {{.}}
 {{end}}
 ` + contactTmpl
+	dateFormat = "20060102"
+)
 
 var (
 	dsAlgorithms = map[int]string{

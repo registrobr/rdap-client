@@ -3,6 +3,7 @@ package output
 import (
 	"io"
 	"text/template"
+	"time"
 
 	"github.com/registrobr/rdap-client/Godeps/_workspace/src/github.com/registrobr/rdap/protocol"
 )
@@ -10,9 +11,9 @@ import (
 type Domain struct {
 	Domain *protocol.Domain
 
-	CreatedAt string
-	UpdatedAt string
-	ExpiresAt string
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	ExpiresAt time.Time
 
 	Handles       map[string]string
 	DS            []ds
@@ -21,7 +22,7 @@ type Domain struct {
 
 type ds struct {
 	protocol.DS
-	CreatedAt string
+	CreatedAt time.Time
 }
 
 func (d *Domain) addContact(c contactInfo) {
@@ -38,15 +39,13 @@ func (d *Domain) setContacts(c []contactInfo) {
 
 func (d *Domain) setDates() {
 	for _, e := range d.Domain.Events {
-		date := e.Date.Format("20060102")
-
 		switch e.Action {
 		case protocol.EventActionRegistration:
-			d.CreatedAt = date
+			d.CreatedAt = e.Date
 		case protocol.EventActionLastChanged:
-			d.UpdatedAt = date
+			d.UpdatedAt = e.Date
 		case protocol.EventActionExpiration:
-			d.ExpiresAt = date
+			d.ExpiresAt = e.Date
 		}
 	}
 }
@@ -59,7 +58,7 @@ func (d *Domain) setDS() {
 
 		for _, e := range dsdatum.Events {
 			if e.Action == protocol.EventActionRegistration {
-				myds.CreatedAt = e.Date.Format("20060102")
+				myds.CreatedAt = e.Date
 			}
 		}
 
@@ -74,7 +73,7 @@ func (d *Domain) Print(wr io.Writer) error {
 	filterContacts(d)
 
 	t, err := template.New("domain template").
-		Funcs(contactInfoFuncMap).
+		Funcs(genericFuncMap).
 		Funcs(domainFuncMap).
 		Parse(domainTmpl)
 

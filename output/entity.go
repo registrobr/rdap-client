@@ -3,6 +3,7 @@ package output
 import (
 	"io"
 	"text/template"
+	"time"
 
 	"github.com/registrobr/rdap-client/Godeps/_workspace/src/github.com/registrobr/rdap/protocol"
 )
@@ -10,8 +11,8 @@ import (
 type Entity struct {
 	Entity *protocol.Entity
 
-	CreatedAt string
-	UpdatedAt string
+	CreatedAt time.Time
+	UpdatedAt time.Time
 
 	ContactsInfos []contactInfo
 }
@@ -21,14 +22,12 @@ func (e *Entity) AddContact(c contactInfo) {
 }
 
 func (e *Entity) setDates() {
-	for _, event := range e.Entity.Events {
-		date := event.Date.Format("20060102")
-
-		switch event.Action {
+	for _, ev := range e.Entity.Events {
+		switch ev.Action {
 		case protocol.EventActionRegistration:
-			e.CreatedAt = date
+			e.CreatedAt = ev.Date
 		case protocol.EventActionLastChanged:
-			e.UpdatedAt = date
+			e.UpdatedAt = ev.Date
 		}
 	}
 }
@@ -40,7 +39,7 @@ func (e *Entity) Print(wr io.Writer) error {
 	e.ContactsInfos = append(e.ContactsInfos, contactInfo)
 
 	t, err := template.New("entity template").
-		Funcs(contactInfoFuncMap).
+		Funcs(genericFuncMap).
 		Parse(contactTmpl)
 
 	if err != nil {

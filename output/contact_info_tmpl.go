@@ -1,10 +1,5 @@
 package output
 
-import (
-	"strings"
-	"text/template"
-)
-
 const contactTmpl = `{{range .ContactsInfos}}handle:   {{.Handle}}
 {{if len .Ids}}ids:      {{.Ids | join}}
 {{end}}{{if len .Roles}}roles:    {{.Roles | join}}
@@ -16,11 +11,3 @@ const contactTmpl = `{{range .ContactsInfos}}handle:   {{.Handle}}
 changed:  {{.UpdatedAt}}
 
 {{end}}`
-
-var (
-	contactInfoFuncMap = template.FuncMap{
-		"join": func(in []string) string {
-			return strings.Join(in, ", ")
-		},
-	}
-)

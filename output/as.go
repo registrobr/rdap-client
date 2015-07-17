@@ -3,6 +3,7 @@ package output
 import (
 	"io"
 	"text/template"
+	"time"
 
 	"github.com/registrobr/rdap-client/Godeps/_workspace/src/github.com/registrobr/rdap/protocol"
 )
@@ -10,8 +11,8 @@ import (
 type AS struct {
 	AS *protocol.AS
 
-	CreatedAt string
-	UpdatedAt string
+	CreatedAt time.Time
+	UpdatedAt time.Time
 
 	ContactsInfos []contactInfo
 }
@@ -30,13 +31,11 @@ func (a *AS) setContacts(c []contactInfo) {
 
 func (a *AS) setDates() {
 	for _, e := range a.AS.Events {
-		date := e.Date.Format("20060102")
-
 		switch e.Action {
 		case protocol.EventActionRegistration:
-			a.CreatedAt = date
+			a.CreatedAt = e.Date
 		case protocol.EventActionLastChanged:
-			a.UpdatedAt = date
+			a.UpdatedAt = e.Date
 		}
 	}
 }
@@ -47,7 +46,7 @@ func (a *AS) Print(wr io.Writer) error {
 	filterContacts(a)
 
 	t, err := template.New("as template").
-		Funcs(contactInfoFuncMap).
+		Funcs(genericFuncMap).
 		Parse(asTmpl)
 
 	if err != nil {

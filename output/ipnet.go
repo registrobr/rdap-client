@@ -4,6 +4,7 @@ import (
 	"io"
 	"net"
 	"text/template"
+	"time"
 
 	"github.com/registrobr/rdap-client/Godeps/_workspace/src/github.com/registrobr/rdap/protocol"
 )
@@ -12,8 +13,8 @@ type IPNetwork struct {
 	IPNetwork *protocol.IPNetwork
 	Inetnum   string
 
-	CreatedAt string
-	UpdatedAt string
+	CreatedAt time.Time
+	UpdatedAt time.Time
 
 	ContactsInfos []contactInfo
 }
@@ -32,13 +33,11 @@ func (i *IPNetwork) setContacts(c []contactInfo) {
 
 func (i *IPNetwork) setDates() {
 	for _, e := range i.IPNetwork.Events {
-		date := e.Date.Format("20060102")
-
 		switch e.Action {
 		case protocol.EventActionRegistration:
-			i.CreatedAt = date
+			i.CreatedAt = e.Date
 		case protocol.EventActionLastChanged:
-			i.UpdatedAt = date
+			i.UpdatedAt = e.Date
 		}
 	}
 }
@@ -64,7 +63,7 @@ func (i *IPNetwork) Print(wr io.Writer) error {
 	filterContacts(i)
 
 	t, err := template.New("ipnetwork template").
-		Funcs(contactInfoFuncMap).
+		Funcs(genericFuncMap).
 		Parse(ipnetTmpl)
 
 	if err != nil {
