@@ -6,7 +6,7 @@ type Domain struct {
 	LDHName         string                `json:"ldhName,omitempty"`
 	UnicodeName     string                `json:"unicodeName,omitempty"`
 	Nameservers     []Nameserver          `json:"nameservers,omitempty"`
-	SecureDNS       SecureDNS             `json:"secureDNS,omitempty"`
+	SecureDNS       *SecureDNS            `json:"secureDNS,omitempty"`
 	Arbitration     bool                  `json:"nicbr_arbitration,omitempty"`
 	Links           []Link                `json:"links,omitempty"`
 	Entities        []Entity              `json:"entities,omitempty"`

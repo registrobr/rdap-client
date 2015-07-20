@@ -46,22 +46,34 @@ func (s serviceRegistry) matchAS(asn uint64) (uris []string, err error) {
 
 	for _, service := range s.Services {
 		for _, entry := range service.entries() {
-			asRange := strings.Split(entry, "-")
-			begin, err := strconv.ParseUint(asRange[0], 10, 32)
+			if strings.Contains(entry, "-") {
+				asRange := strings.Split(entry, "-")
+				begin, err := strconv.ParseUint(asRange[0], 10, 32)
 
-			if err != nil {
-				return nil, err
-			}
+				if err != nil {
+					return nil, err
+				}
 
-			end, err := strconv.ParseUint(asRange[1], 10, 32)
+				end, err := strconv.ParseUint(asRange[1], 10, 32)
 
-			if err != nil {
-				return nil, err
-			}
+				if err != nil {
+					return nil, err
+				}
 
-			if diff := end - begin; asn >= begin && asn <= end && diff < size {
-				size = diff
-				uris = service.uris()
+				if diff := end - begin; asn >= begin && asn <= end && diff < size {
+					size = diff
+					uris = service.uris()
+				}
+			} else {
+				number, err := strconv.ParseUint(entry, 10, 32)
+
+				if err != nil {
+					return nil, err
+				}
+
+				if number == asn {
+					return service.uris(), nil
+				}
 			}
 		}
 	}

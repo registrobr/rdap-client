@@ -95,6 +95,34 @@ func TestServiceRegistryMatchAS(t *testing.T) {
 			},
 			expectedError: fmt.Errorf(`strconv.ParseUint: parsing "invalid": invalid syntax`),
 		},
+		{
+			description: "it should match an as number when the entry is a simple number",
+			as:          123,
+			registry: serviceRegistry{
+				Services: []service{
+					{
+						{"123"},
+						{"https://example.net/rdaprir2/"},
+					},
+				},
+			},
+			expected: []string{
+				"https://example.net/rdaprir2/",
+			},
+		},
+		{
+			description: "it should not match an as number due to an invalid number",
+			as:          1,
+			registry: serviceRegistry{
+				Services: []service{
+					{
+						{"invalid"},
+						{},
+					},
+				},
+			},
+			expectedError: fmt.Errorf(`strconv.ParseUint: parsing "invalid": invalid syntax`),
+		},
 	}
 
 	for i, test := range tests {
