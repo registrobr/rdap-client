@@ -61,7 +61,7 @@ func TestClientHandleHTTPStatusCode(t *testing.T) {
 				Title:       "Request error",
 				Description: []string{"Error 1", "Error 2", "Error 3"},
 			},
-			header: map[string]string{"Content-Type": "application/json"},
+			header: map[string]string{"Content-Type": "application/rdap+json"},
 		},
 	}
 

@@ -34,7 +34,13 @@ func (s service) entries() []string {
 
 // uris is a helper that returns the list of URIs of a service
 func (s service) uris() []string {
-	return s[1]
+	uris := s[1]
+	for i, uri := range uris {
+		if strings.HasSuffix(uri, "/") {
+			uris[i] = strings.TrimRight(uri, "/")
+		}
+	}
+	return uris
 }
 
 // MatchAS iterates through a list of services looking for the more

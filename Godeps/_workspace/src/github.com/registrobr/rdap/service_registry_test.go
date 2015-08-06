@@ -65,8 +65,8 @@ func TestServiceRegistryMatchAS(t *testing.T) {
 				},
 			},
 			expected: []string{
-				"http://example.net/rdaprir2/",
-				"https://example.net/rdaprir2/",
+				"http://example.net/rdaprir2",
+				"https://example.net/rdaprir2",
 			},
 		},
 		{
@@ -107,7 +107,7 @@ func TestServiceRegistryMatchAS(t *testing.T) {
 				},
 			},
 			expected: []string{
-				"https://example.net/rdaprir2/",
+				"https://example.net/rdaprir2",
 			},
 		},
 		{
@@ -166,8 +166,8 @@ func TestServiceRegistryMatchIPNetwork(t *testing.T) {
 				},
 			},
 			expected: []string{
-				"https://example.net/rdaprir2/",
-				"http://example.net/rdaprir2/",
+				"https://example.net/rdaprir2",
+				"http://example.net/rdaprir2",
 			},
 		},
 		{
@@ -190,7 +190,7 @@ func TestServiceRegistryMatchIPNetwork(t *testing.T) {
 				},
 			},
 			expected: []string{
-				"http://example.org/",
+				"http://example.org",
 			},
 		},
 		{
@@ -250,7 +250,7 @@ func TestServiceRegistryMatchDomain(t *testing.T) {
 				},
 			},
 			expected: []string{
-				"https://registry.example.com/myrdap/",
+				"https://registry.example.com/myrdap",
 			},
 		},
 		{
@@ -264,7 +264,7 @@ func TestServiceRegistryMatchDomain(t *testing.T) {
 					},
 				},
 			},
-			expected: []string{"https://example.com/myrdap/"},
+			expected: []string{"https://example.com/myrdap"},
 		},
 		{
 			description: "it should match no fqdn",
@@ -322,7 +322,7 @@ func TestServiceRegistryMatchIP(t *testing.T) {
 				},
 			},
 			expected: []string{
-				"http://example.org/",
+				"http://example.org",
 			},
 		},
 		{

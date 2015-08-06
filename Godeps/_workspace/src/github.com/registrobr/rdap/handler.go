@@ -18,9 +18,10 @@ var (
 )
 
 type Handler struct {
-	URIs       []string
-	HTTPClient *http.Client
-	Bootstrap  *Bootstrap
+	URIs          []string
+	HTTPClient    *http.Client
+	Bootstrap     *Bootstrap
+	XForwardedFor string
 }
 
 func (h *Handler) Query(object string) (interface{}, error) {
@@ -67,14 +68,24 @@ func (h *Handler) ASN(object string) (*protocol.AS, error) {
 		}
 	}
 
-	return NewClient(uris, h.HTTPClient).ASN(asn)
+	cli := NewClient(uris, h.HTTPClient)
+	if h.XForwardedFor != "" {
+		cli.XForwardedFor = h.XForwardedFor
+	}
+
+	return cli.ASN(asn)
 }
 
 func (h *Handler) Entity(object string) (*protocol.Entity, error) {
 	// Note that there is no bootstrap for entity, see [1]
 	// [1] - https://tools.ietf.org/html/rfc7484#section-6
 
-	return NewClient(h.URIs, h.HTTPClient).Entity(object)
+	cli := NewClient(h.URIs, h.HTTPClient)
+	if h.XForwardedFor != "" {
+		cli.XForwardedFor = h.XForwardedFor
+	}
+
+	return cli.Entity(object)
 }
 
 func (h *Handler) IPNetwork(object string) (*protocol.IPNetwork, error) {
@@ -95,7 +106,12 @@ func (h *Handler) IPNetwork(object string) (*protocol.IPNetwork, error) {
 		}
 	}
 
-	return NewClient(uris, h.HTTPClient).IPNetwork(cidr)
+	cli := NewClient(uris, h.HTTPClient)
+	if h.XForwardedFor != "" {
+		cli.XForwardedFor = h.XForwardedFor
+	}
+
+	return cli.IPNetwork(cidr)
 }
 
 func (h *Handler) IP(object string) (*protocol.IPNetwork, error) {
@@ -116,7 +132,12 @@ func (h *Handler) IP(object string) (*protocol.IPNetwork, error) {
 		}
 	}
 
-	return NewClient(uris, h.HTTPClient).IP(ip)
+	cli := NewClient(uris, h.HTTPClient)
+	if h.XForwardedFor != "" {
+		cli.XForwardedFor = h.XForwardedFor
+	}
+
+	return cli.IP(ip)
 }
 
 func (h *Handler) Domain(object string) (*protocol.Domain, error) {
@@ -135,7 +156,12 @@ func (h *Handler) Domain(object string) (*protocol.Domain, error) {
 		}
 	}
 
-	return NewClient(uris, h.HTTPClient).Domain(object)
+	cli := NewClient(uris, h.HTTPClient)
+	if h.XForwardedFor != "" {
+		cli.XForwardedFor = h.XForwardedFor
+	}
+
+	return cli.Domain(object)
 }
 
 type genericQuerier struct {

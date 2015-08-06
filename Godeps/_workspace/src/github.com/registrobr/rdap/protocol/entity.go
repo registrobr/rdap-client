@@ -29,3 +29,17 @@ type Entity struct {
 	AutnumCount            int                     `json:"nicbr_autnumCount,omitempty"`
 	Conformance
 }
+
+func (e *Entity) GetEntity(role string) (entity Entity, found bool) {
+	for _, v := range e.Entities {
+		for _, r := range v.Roles {
+			if r == role {
+				entity = v
+				found = true
+				return
+			}
+		}
+	}
+
+	return
+}
