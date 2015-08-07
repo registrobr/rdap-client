@@ -107,7 +107,6 @@ func action(ctx *cli.Context) {
 		forceIPNetwork      = ctx.Bool("ipnetwork")
 		force               = forceASN || forceDomain || forceEntity || forceIP || forceIPNetwork
 		httpClient          = &http.Client{}
-		bs                  *rdap.Bootstrap
 		uris                []string
 	)
 
@@ -143,18 +142,7 @@ func action(ctx *cli.Context) {
 		httpClient.Transport = transport
 	}
 
-	if len(host) == 0 {
-		bs = rdap.NewBootstrap(httpClient)
-
-		if len(bootstrapURI) > 0 {
-			bs.Bootstrap = bootstrapURI
-		}
-
-		bs.IsFromCache = func(resp *http.Response) bool {
-			return resp.Header.Get(httpcache.XFromCache) == "1"
-		}
-
-	} else {
+	if len(host) > 0 {
 		if _, err := url.Parse(host); err != nil {
 			fmt.Fprintf(os.Stderr, "%s\n", err)
 			os.Exit(1)
@@ -172,27 +160,29 @@ func action(ctx *cli.Context) {
 	var (
 		err     error
 		object  interface{}
-		handler = &rdap.Handler{
-			URIs:       uris,
-			HTTPClient: httpClient,
-			Bootstrap:  bs,
-		}
+		client  = rdap.NewBootstrapClient(uris, httpClient, bootstrapURI)
 		printer output.Printer
 	)
 
+	if len(host) == 0 {
+		client.SetCacheDetector(func(resp *http.Response) bool {
+			return resp.Header.Get(httpcache.XFromCache) == "1"
+		})
+	}
+
 	switch {
 	case forceASN:
-		object, err = handler.ASN(identifier)
+		object, err = client.ASN(identifier)
 	case forceDomain:
-		object, err = handler.Domain(identifier)
+		object, err = client.Domain(identifier)
 	case forceEntity:
-		object, err = handler.Entity(identifier)
+		object, err = client.Entity(identifier)
 	case forceIP:
-		object, err = handler.IP(identifier)
+		object, err = client.IP(identifier)
 	case forceIPNetwork:
-		object, err = handler.IPNetwork(identifier)
+		object, err = client.IPNetwork(identifier)
 	default:
-		object, err = handler.Query(identifier)
+		object, err = client.Query(identifier)
 	}
 
 	if err == rdap.ErrInvalidQuery {

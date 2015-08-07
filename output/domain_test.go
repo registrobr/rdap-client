@@ -8,7 +8,9 @@ import (
 )
 
 var expectedDomainOutput = `domain:   example.br
-nserver:  a.dns.br aa
+nserver:  a.dns.br
+nsstat:   00010101 aa
+nslastaa: 00010101
 dsrecord: 12345 RSASHA1 0123456789ABCDEF0123456789ABCDEF01234567
 dsstatus: 20150301 ok
 created:  20150301
@@ -109,7 +111,7 @@ func TestDomainPrint(t *testing.T) {
 				HostStatus:      "aa",
 			},
 		},
-		SecureDNS: protocol.SecureDNS{
+		SecureDNS: &protocol.SecureDNS{
 			DSData: []protocol.DS{
 				{
 					KeyTag:    12345,

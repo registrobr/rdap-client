@@ -2,8 +2,8 @@ package output
 
 const asTmpl = `aut-num:     {{.AS.Handle}}
 country:     {{.AS.Country}}
-created:     {{.CreatedAt}}
-changed:     {{.UpdatedAt}}
+created:     {{formatDate .CreatedAt}}
+changed:     {{formatDate .UpdatedAt}}
 
 inetnum:     (ip networks)
 
