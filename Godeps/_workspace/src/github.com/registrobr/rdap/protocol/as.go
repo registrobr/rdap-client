@@ -1,5 +1,7 @@
 package protocol
 
+// AS describes the Autonomous System Number Entity Object Class as it is in
+// RFC 7483, section 5.5
 type AS struct {
 	ObjectClassName string          `json:"objectClassName"`
 	Handle          string          `json:"handle"`
@@ -17,6 +19,8 @@ type AS struct {
 	Conformance
 }
 
+// RoutingPolicy is a NIC.br extension that stores the information of network
+// announces
 type RoutingPolicy struct {
 	Autnum  uint32 `json:"nicbr_autnum"`
 	Traffic int    `json:"nicbr_traffic"`

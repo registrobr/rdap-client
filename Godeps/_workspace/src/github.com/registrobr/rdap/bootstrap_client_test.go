@@ -25,15 +25,7 @@ func TestHandlerDomain(t *testing.T) {
 			expectedError: ErrInvalidQuery,
 		},
 		{
-			description: "Domain handler should return a valid RDAP response",
-			identifier:  "example.br",
-			expectedObject: protocol.Domain{
-				ObjectClassName: "domain",
-				LDHName:         "example.br",
-			},
-		},
-		{
-			description:    "Domain handler should return a valid RDAP response (bootstrapped)",
+			description:    "Domain handler should return a valid RDAP response",
 			identifier:     "example.br",
 			bootstrapEntry: "br",
 			expectedObject: protocol.Domain{
@@ -58,29 +50,27 @@ func TestHandlerDomain(t *testing.T) {
 			0,
 		)
 
-		h := Handler{
-			URIs: []string{ts.URL},
-		}
-
+		var bootstrap string
 		if len(test.bootstrapEntry) > 0 {
-			h.Bootstrap = &Bootstrap{Bootstrap: bs.URL + "/%v"}
+			bootstrap = bs.URL + "/%v"
 		}
 
+		h := NewBootstrapClient([]string{ts.URL}, nil, bootstrap)
 		object, err := h.Domain(test.identifier)
 
-		if test.expectedError != nil {
-			if fmt.Sprintf("%v", test.expectedError) != fmt.Sprintf("%v", err) {
-				t.Fatalf("[%d] “%s“: expected error “%s”, got “%s”", i, test.description, test.expectedError, err)
-			}
-		} else {
-			if object != nil && !reflect.DeepEqual(test.expectedObject, *object) {
-				for _, l := range diff(test.expectedObject, *object) {
-					t.Log(l)
-				}
+		if fmt.Sprintf("%v", test.expectedError) != fmt.Sprintf("%v", err) {
+			t.Fatalf("[%d] “%s“: expected error “%v”, got “%v”", i, test.description, test.expectedError, err)
 
-				t.Fatalf("[%d] “%s”", i, test.description)
+		} else if object != nil && !reflect.DeepEqual(test.expectedObject, *object) {
+			for _, l := range diff(test.expectedObject, *object) {
+				t.Log(l)
 			}
+
+			t.Fatalf("[%d] “%s”", i, test.description)
 		}
+
+		bs.Close()
+		ts.Close()
 	}
 }
 
@@ -99,16 +89,7 @@ func TestHandlerASN(t *testing.T) {
 			expectedError: ErrInvalidQuery,
 		},
 		{
-			description: "ASN handler should return a valid RDAP response",
-			identifier:  "1",
-			expectedObject: protocol.AS{
-				ObjectClassName: "as",
-				StartAutnum:     1,
-				EndAutnum:       16,
-			},
-		},
-		{
-			description:    "ASN handler should return a valid RDAP response (bootstrapped)",
+			description:    "ASN handler should return a valid RDAP response",
 			identifier:     "1",
 			bootstrapEntry: "1-16",
 			expectedObject: protocol.AS{
@@ -134,29 +115,27 @@ func TestHandlerASN(t *testing.T) {
 			0,
 		)
 
-		h := Handler{
-			URIs: []string{ts.URL},
-		}
-
+		var bootstrap string
 		if len(test.bootstrapEntry) > 0 {
-			h.Bootstrap = &Bootstrap{Bootstrap: bs.URL + "/%v"}
+			bootstrap = bs.URL + "/%v"
 		}
 
+		h := NewBootstrapClient([]string{ts.URL}, nil, bootstrap)
 		object, err := h.ASN(test.identifier)
 
-		if test.expectedError != nil {
-			if fmt.Sprintf("%v", test.expectedError) != fmt.Sprintf("%v", err) {
-				t.Fatalf("[%d] “%s“: expected error “%s”, got “%s”", i, test.description, test.expectedError, err)
-			}
-		} else {
-			if object != nil && !reflect.DeepEqual(test.expectedObject, *object) {
-				for _, l := range diff(test.expectedObject, *object) {
-					t.Log(l)
-				}
+		if fmt.Sprintf("%v", test.expectedError) != fmt.Sprintf("%v", err) {
+			t.Fatalf("[%d] “%s“: expected error “%v”, got “%v”", i, test.description, test.expectedError, err)
 
-				t.Fatalf("[%d] “%s”", i, test.description)
+		} else if object != nil && !reflect.DeepEqual(test.expectedObject, *object) {
+			for _, l := range diff(test.expectedObject, *object) {
+				t.Log(l)
 			}
+
+			t.Fatalf("[%d] “%s”", i, test.description)
 		}
+
+		bs.Close()
+		ts.Close()
 	}
 }
 
@@ -175,16 +154,7 @@ func TestHandlerIP(t *testing.T) {
 			expectedError: ErrInvalidQuery,
 		},
 		{
-			description: "IP handler should return a valid RDAP response",
-			identifier:  "192.168.0.1",
-			expectedObject: protocol.IPNetwork{
-				ObjectClassName: "ipnetwork",
-				StartAddress:    "192.168.0.0",
-				EndAddress:      "192.168.0.255",
-			},
-		},
-		{
-			description:    "IP handler should return a valid RDAP response (bootstrapped)",
+			description:    "IP handler should return a valid RDAP response",
 			identifier:     "192.168.0.1",
 			bootstrapEntry: "192.168.0.0/24",
 			expectedObject: protocol.IPNetwork{
@@ -210,29 +180,27 @@ func TestHandlerIP(t *testing.T) {
 			0,
 		)
 
-		h := Handler{
-			URIs: []string{ts.URL},
-		}
-
+		var bootstrap string
 		if len(test.bootstrapEntry) > 0 {
-			h.Bootstrap = &Bootstrap{Bootstrap: bs.URL + "/%v"}
+			bootstrap = bs.URL + "/%v"
 		}
 
+		h := NewBootstrapClient([]string{ts.URL}, nil, bootstrap)
 		object, err := h.IP(test.identifier)
 
-		if test.expectedError != nil {
-			if fmt.Sprintf("%v", test.expectedError) != fmt.Sprintf("%v", err) {
-				t.Fatalf("[%d] “%s“: expected error “%s”, got “%s”", i, test.description, test.expectedError, err)
-			}
-		} else {
-			if object != nil && !reflect.DeepEqual(test.expectedObject, *object) {
-				for _, l := range diff(test.expectedObject, *object) {
-					t.Log(l)
-				}
+		if fmt.Sprintf("%v", test.expectedError) != fmt.Sprintf("%v", err) {
+			t.Fatalf("[%d] “%s“: expected error “%v”, got “%v”", i, test.description, test.expectedError, err)
 
-				t.Fatalf("[%d] “%s”", i, test.description)
+		} else if object != nil && !reflect.DeepEqual(test.expectedObject, *object) {
+			for _, l := range diff(test.expectedObject, *object) {
+				t.Log(l)
 			}
+
+			t.Fatalf("[%d] “%s”", i, test.description)
 		}
+
+		bs.Close()
+		ts.Close()
 	}
 }
 
@@ -251,16 +219,7 @@ func TestHandlerIPNetwork(t *testing.T) {
 			expectedError: ErrInvalidQuery,
 		},
 		{
-			description: "IP handler should return a valid RDAP response",
-			identifier:  "192.168.0.0/24",
-			expectedObject: protocol.IPNetwork{
-				ObjectClassName: "ipnetwork",
-				StartAddress:    "192.168.0.0",
-				EndAddress:      "192.168.0.255",
-			},
-		},
-		{
-			description:    "IP handler should return a valid RDAP response (bootstrapped)",
+			description:    "IP handler should return a valid RDAP response",
 			identifier:     "192.168.0.0/24",
 			bootstrapEntry: "192.168.0.0/16",
 			expectedObject: protocol.IPNetwork{
@@ -285,29 +244,27 @@ func TestHandlerIPNetwork(t *testing.T) {
 			0,
 		)
 
-		h := Handler{
-			URIs: []string{ts.URL},
-		}
-
+		var bootstrap string
 		if len(test.bootstrapEntry) > 0 {
-			h.Bootstrap = &Bootstrap{Bootstrap: bs.URL + "/%v"}
+			bootstrap = bs.URL + "/%v"
 		}
 
+		h := NewBootstrapClient([]string{ts.URL}, nil, bootstrap)
 		object, err := h.IPNetwork(test.identifier)
 
-		if test.expectedError != nil {
-			if fmt.Sprintf("%v", test.expectedError) != fmt.Sprintf("%v", err) {
-				t.Fatalf("[%d] “%s“: expected error “%s”, got “%s”", i, test.description, test.expectedError, err)
-			}
-		} else {
-			if object != nil && !reflect.DeepEqual(test.expectedObject, *object) {
-				for _, l := range diff(test.expectedObject, *object) {
-					t.Log(l)
-				}
+		if fmt.Sprintf("%v", test.expectedError) != fmt.Sprintf("%v", err) {
+			t.Fatalf("[%d] “%s“: expected error “%v”, got “%v”", i, test.description, test.expectedError, err)
 
-				t.Fatalf("[%d] “%s”", i, test.description)
+		} else if object != nil && !reflect.DeepEqual(test.expectedObject, *object) {
+			for _, l := range diff(test.expectedObject, *object) {
+				t.Log(l)
 			}
+
+			t.Fatalf("[%d] “%s”", i, test.description)
 		}
+
+		bs.Close()
+		ts.Close()
 	}
 }
 
@@ -337,14 +294,12 @@ func TestHandlerEntity(t *testing.T) {
 			0,
 		)
 
-		h := Handler{
-			URIs: []string{ts.URL},
-		}
-
+		var bootstrap string
 		if len(test.bootstrapEntry) > 0 {
-			h.Bootstrap = &Bootstrap{Bootstrap: bs.URL + "/%v"}
+			bootstrap = bs.URL + "/%v"
 		}
 
+		h := NewBootstrapClient([]string{ts.URL}, nil, bootstrap)
 		object, err := h.Entity(test.identifier)
 
 		if err != nil {
@@ -358,35 +313,44 @@ func TestHandlerEntity(t *testing.T) {
 
 			t.Fatalf("[%d] “%s”", i, test.description)
 		}
+
+		bs.Close()
+		ts.Close()
 	}
 }
 
 func TestHandlerQuery(t *testing.T) {
 	tests := []struct {
-		description    string
-		identifier     string
-		rdapStatus     int
-		expectedObject interface{}
-		expectedError  error
+		description     string
+		identifier      string
+		rdapStatus      int
+		bootstrapEntry  string
+		bootstrapStatus int
+		expectedObject  interface{}
+		expectedError   error
 	}{
 		{
 			description:    "Generic handler should return an object of type protocol.AS",
 			identifier:     "1",
+			bootstrapEntry: "1-16",
 			expectedObject: protocol.AS{},
 		},
 		{
 			description:    "Generic handler should return an object of type protocol.IPNetwork",
 			identifier:     "192.168.0.1",
+			bootstrapEntry: "192.168.0.0/16",
 			expectedObject: protocol.IPNetwork{},
 		},
 		{
 			description:    "Generic handler should return an object of type protocol.IPNetwork",
 			identifier:     "192.168.0.0/24",
+			bootstrapEntry: "192.168.0.0/16",
 			expectedObject: protocol.IPNetwork{},
 		},
 		{
 			description:    "Generic handler should return an object of type protocol.Domain",
 			identifier:     "example.br",
+			bootstrapEntry: "br",
 			expectedObject: protocol.Domain{},
 		},
 		{
@@ -403,19 +367,20 @@ func TestHandlerQuery(t *testing.T) {
 	}
 
 	for i, test := range tests {
-		ts, _ := createTestServers(test.expectedObject, "", 0, test.rdapStatus)
+		ts, bs := createTestServers(
+			test.expectedObject,
+			test.bootstrapEntry,
+			test.bootstrapStatus,
+			test.rdapStatus,
+		)
 
-		h := Handler{
-			URIs: []string{ts.URL},
-		}
-
+		h := NewBootstrapClient([]string{ts.URL}, nil, bs.URL+"/%v")
 		object, err := h.Query(test.identifier)
 
-		if test.expectedError != nil {
-			if fmt.Sprintf("%v", test.expectedError) != fmt.Sprintf("%v", err) {
-				t.Fatalf("[%d] “%s“: expected error “%s”, got “%s”", i, test.description, test.expectedError, err)
-			}
-		} else {
+		if fmt.Sprintf("%v", test.expectedError) != fmt.Sprintf("%v", err) {
+			t.Fatalf("[%d] “%s“: expected error “%v”, got “%v”", i, test.description, test.expectedError, err)
+
+		} else if test.expectedObject != nil {
 			expectedObjType := objType(test.expectedObject)
 			objType := objType(object)
 
@@ -423,5 +388,8 @@ func TestHandlerQuery(t *testing.T) {
 				t.Fatalf("[%d] “%s” expected type “%s”, got “%s” ", i, test.description, expectedObjType, objType)
 			}
 		}
+
+		bs.Close()
+		ts.Close()
 	}
 }

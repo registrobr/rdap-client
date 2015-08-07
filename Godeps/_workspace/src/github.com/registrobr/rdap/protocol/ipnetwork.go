@@ -1,5 +1,7 @@
 package protocol
 
+// IPNetwork describes the IP Network Object Class as it is in RFC 7483,
+// section 5.4
 type IPNetwork struct {
 	ObjectClassName string   `json:"objectClassName"`
 	Handle          string   `json:"handle"`

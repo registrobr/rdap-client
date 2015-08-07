@@ -15,7 +15,7 @@
 		},
 		{
 			"ImportPath": "github.com/miekg/dns",
-			"Rev": "015384b10e412f5cc44ae408d1a2bd773027474c"
+			"Rev": "1897a2a983df410a57ff88f8bfe647164b49e373"
 		}
 	]
 }

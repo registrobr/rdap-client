@@ -1,16 +1,20 @@
 package protocol
 
+// PublicID describes Public IDs as it is in RFC 7483, section 4.8
 type PublicID struct {
 	Type       string `json:"type"`
 	Identifier string `json:"identifier"`
 }
 
+// CustomerSupportService is a NIC.br extension to store some extra contact
+// information for an entity
 type CustomerSupportService struct {
 	Email   string `json:"nicbr_email,omitempty"`
 	Website string `json:"nicbr_website,omitempty"`
 	Phone   string `json:"nicbr_phone,omitempty"`
 }
 
+// Entity describes the Entity Object Class as it is in RFC 7483, section 5.1
 type Entity struct {
 	ObjectClassName        string                  `json:"objectClassName"`
 	Handle                 string                  `json:"handle"`
@@ -30,6 +34,8 @@ type Entity struct {
 	Conformance
 }
 
+// GetEntity is an easy way to find an entity with a given role. If more than
+// one entity has the same role, the last one is returned
 func (e *Entity) GetEntity(role string) (entity Entity, found bool) {
 	for _, v := range e.Entities {
 		for _, r := range v.Roles {

@@ -20,23 +20,45 @@ const (
 )
 
 var (
+	// ErrNotFound is used when the RDAP server doesn't contain any
+	// information of the requested object
 	ErrNotFound = errors.New("not found")
 )
 
-type Client struct {
-	httpClient    *http.Client
-	uris          []string
-	XForwardedFor string
+// Client queries a RDAP server to retrieve information of desired objects.
+// You can also set the X-Forwarded-For HTTP header to work as a proxy
+type Client interface {
+	Domain(fqdn string) (*protocol.Domain, error)
+	ASN(as uint64) (*protocol.AS, error)
+	Entity(identifier string) (*protocol.Entity, error)
+	IPNetwork(ipnet *net.IPNet) (*protocol.IPNetwork, error)
+	IP(netIP net.IP) (*protocol.IPNetwork, error)
+	SetURIs(uris []string)
+	SetXForwardedFor(addr string)
 }
 
-func NewClient(uris []string, httpClient *http.Client) *Client {
-	return &Client{
+// NewClient returns a client with the injected RDAP servers and HTTP client
+var NewClient = func(uris []string, httpClient *http.Client) Client {
+	return &client{
 		uris:       uris,
 		httpClient: httpClient,
 	}
 }
 
-func (c *Client) Domain(fqdn string) (*protocol.Domain, error) {
+// client stores the HTTP client and the RDAP servers to query for retrieving
+// the desired information. You can also set the X-Forward-For to work as a
+// proxy
+type client struct {
+	httpClient    *http.Client
+	uris          []string
+	xForwardedFor string
+}
+
+// Domain will query each RDAP server to retrieve the desired information and
+// will parse and store the response into a protocol Domain object. If
+// something goes wrong an error will be returned, and if nothing is found
+// the error ErrNotFound will be returned
+func (c *client) Domain(fqdn string) (*protocol.Domain, error) {
 	r := &protocol.Domain{}
 	fqdn = idn.ToPunycode(strings.ToLower(fqdn))
 
@@ -47,7 +69,11 @@ func (c *Client) Domain(fqdn string) (*protocol.Domain, error) {
 	return r, nil
 }
 
-func (c *Client) ASN(as uint64) (*protocol.AS, error) {
+// ASN will query each RDAP server to retrieve the desired information and
+// will parse and store the response into a protocol AS object. If
+// something goes wrong an error will be returned, and if nothing is found
+// the error ErrNotFound will be returned
+func (c *client) ASN(as uint64) (*protocol.AS, error) {
 	r := &protocol.AS{}
 
 	if err := c.query(autnum, as, r); err != nil {
@@ -57,7 +83,11 @@ func (c *Client) ASN(as uint64) (*protocol.AS, error) {
 	return r, nil
 }
 
-func (c *Client) Entity(identifier string) (*protocol.Entity, error) {
+// Entity will query each RDAP server to retrieve the desired information and
+// will parse and store the response into a protocol Entity object. If
+// something goes wrong an error will be returned, and if nothing is found
+// the error ErrNotFound will be returned
+func (c *client) Entity(identifier string) (*protocol.Entity, error) {
 	r := &protocol.Entity{}
 
 	if err := c.query(entity, identifier, r); err != nil {
@@ -67,7 +97,11 @@ func (c *Client) Entity(identifier string) (*protocol.Entity, error) {
 	return r, nil
 }
 
-func (c *Client) IPNetwork(ipnet *net.IPNet) (*protocol.IPNetwork, error) {
+// IPNetwork will query each RDAP server to retrieve the desired information and
+// will parse and store the response into a protocol IPNetwork object. If
+// something goes wrong an error will be returned, and if nothing is found
+// the error ErrNotFound will be returned
+func (c *client) IPNetwork(ipnet *net.IPNet) (*protocol.IPNetwork, error) {
 	r := &protocol.IPNetwork{}
 
 	if err := c.query(ip, ipnet, r); err != nil {
@@ -77,7 +111,11 @@ func (c *Client) IPNetwork(ipnet *net.IPNet) (*protocol.IPNetwork, error) {
 	return r, nil
 }
 
-func (c *Client) IP(netIP net.IP) (*protocol.IPNetwork, error) {
+// IP will query each RDAP server to retrieve the desired information and
+// will parse and store the response into a protocol IP object. If
+// something goes wrong an error will be returned, and if nothing is found
+// the error ErrNotFound will be returned
+func (c *client) IP(netIP net.IP) (*protocol.IPNetwork, error) {
 	r := &protocol.IPNetwork{}
 
 	if err := c.query(ip, netIP, r); err != nil {
@@ -87,7 +125,68 @@ func (c *Client) IP(netIP net.IP) (*protocol.IPNetwork, error) {
 	return r, nil
 }
 
-func (c *Client) handleHTTPStatusCode(kind kind, response *http.Response) error {
+func (c *client) query(kind kind, identifier interface{}, object interface{}) error {
+	var lastErr error
+	for _, uri := range c.uris {
+		uri := fmt.Sprintf("%s/%s/%v", uri, kind, identifier)
+
+		res, err := c.fetch(uri)
+		if err != nil {
+			lastErr = err
+			continue
+		}
+		defer res.Body.Close()
+
+		if err := handleHTTPStatusCode(kind, res); err != nil {
+			lastErr = err
+			continue
+		}
+
+		if err = json.NewDecoder(res.Body).Decode(&object); err != nil {
+			lastErr = err
+			continue
+		}
+
+		return nil
+	}
+
+	return lastErr
+}
+
+func (c *client) fetch(uri string) (response *http.Response, err error) {
+	req, err := http.NewRequest("GET", uri, nil)
+
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Add("Accept", "application/json")
+
+	if c.xForwardedFor != "" {
+		req.Header.Add("X-Forwarded-For", c.xForwardedFor)
+	}
+
+	if c.httpClient == nil {
+		c.httpClient = &http.Client{}
+	}
+
+	response, err = c.httpClient.Do(req)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return response, nil
+}
+
+func (c *client) SetURIs(uris []string) {
+	c.uris = uris
+}
+
+func (c *client) SetXForwardedFor(addr string) {
+	c.xForwardedFor = addr
+}
+
+func handleHTTPStatusCode(kind kind, response *http.Response) error {
 	if response.StatusCode == http.StatusOK {
 		return nil
 	}
@@ -106,57 +205,4 @@ func (c *Client) handleHTTPStatusCode(kind kind, response *http.Response) error 
 		return err
 	}
 	return responseErr
-}
-
-func (c *Client) query(kind kind, identifier interface{}, object interface{}) error {
-	var lastErr error
-	for _, uri := range c.uris {
-		uri := fmt.Sprintf("%s/%s/%v", uri, kind, identifier)
-
-		res, err := c.fetch(uri)
-		if err != nil {
-			lastErr = err
-			continue
-		}
-		defer res.Body.Close()
-
-		if err := c.handleHTTPStatusCode(kind, res); err != nil {
-			lastErr = err
-			continue
-		}
-
-		if err = json.NewDecoder(res.Body).Decode(&object); err != nil {
-			lastErr = err
-			continue
-		}
-
-		return nil
-	}
-
-	return lastErr
-}
-
-func (c *Client) fetch(uri string) (response *http.Response, err error) {
-	req, err := http.NewRequest("GET", uri, nil)
-
-	if err != nil {
-		return nil, err
-	}
-	req.Header.Add("Accept", "application/json")
-
-	if c.XForwardedFor != "" {
-		req.Header.Add("X-Forwarded-For", c.XForwardedFor)
-	}
-
-	if c.httpClient == nil {
-		c.httpClient = &http.Client{}
-	}
-
-	response, err = c.httpClient.Do(req)
-
-	if err != nil {
-		return nil, err
-	}
-
-	return response, nil
 }

@@ -12,21 +12,29 @@ import (
 type kind string
 
 const (
-	dns           kind = "dns"
-	asn           kind = "asn"
-	ipv4          kind = "ipv4"
-	ipv6          kind = "ipv6"
-	RDAPBootstrap      = "https://data.iana.org/rdap/%s.json"
+	dns  kind = "dns"
+	asn  kind = "asn"
+	ipv4 kind = "ipv4"
+	ipv6 kind = "ipv6"
+
+	// RDAPBootstrap stores the default URL to query to retrieve the RDAP
+	// servers that contain the desired information
+	RDAPBootstrap = "https://data.iana.org/rdap/%s.json"
 )
 
+// Bootstrap stores all necessary information to query IANA and retrieve the
+// RDAP server that contains the desired information
 type Bootstrap struct {
+	Bootstrap   string
+	IsFromCache func(*http.Response) bool
 	httpClient  *http.Client
 	cacheKey    string
-	Bootstrap   string
 	reloadCache bool
-	IsFromCache func(*http.Response) bool
 }
 
+// NewBootstrap returns build a Bootstrap instance that will use the injected
+// http client. By default the bootstrap will query the URI stored in the
+// RDAPBootstrap constant
 func NewBootstrap(httpClient *http.Client) *Bootstrap {
 	return &Bootstrap{
 		Bootstrap:  RDAPBootstrap,
@@ -34,14 +42,20 @@ func NewBootstrap(httpClient *http.Client) *Bootstrap {
 	}
 }
 
+// Domain retrieve the RDAP servers that can contain information about the
+// given domain. If something goes wrong an error is returned
 func (c *Bootstrap) Domain(fqdn string) ([]string, error) {
 	return c.query(dns, fqdn)
 }
 
+// ASN retrieve the RDAP servers that can contain information about the
+// given ASN. If something goes wrong an error is returned
 func (c *Bootstrap) ASN(as uint64) ([]string, error) {
 	return c.query(asn, as)
 }
 
+// IPNetwork retrieve the RDAP servers that can contain information about the
+// given IP network. If something goes wrong an error is returned
 func (c *Bootstrap) IPNetwork(ipnet *net.IPNet) ([]string, error) {
 	kind := ipv4
 
@@ -52,6 +66,8 @@ func (c *Bootstrap) IPNetwork(ipnet *net.IPNet) ([]string, error) {
 	return c.query(kind, ipnet)
 }
 
+// IP retrieve the RDAP servers that can contain information about the
+// given IP. If something goes wrong an error is returned
 func (c *Bootstrap) IP(ip net.IP) ([]string, error) {
 	kind := ipv4
 

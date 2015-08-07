@@ -1,5 +1,6 @@
 package protocol
 
+// Domain describes Domain Object Class as it is in RFC 7483, section 5.3
 type Domain struct {
 	ObjectClassName string                `json:"objectClassName"`
 	Handle          string                `json:"handle,omitempty"`
@@ -20,6 +21,8 @@ type Domain struct {
 	Conformance
 }
 
+// DomainUnavailability is a NIC.br extension used to determinate the reason
+// that a domain name cannot be registered
 type DomainUnavailability struct {
 	Reason     string `json:"nicbr_reason"`
 	INPINumber int    `json:"nicbr_inpiNumber,omitempty"`

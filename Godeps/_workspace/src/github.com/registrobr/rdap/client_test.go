@@ -87,7 +87,7 @@ func TestClientHandleHTTPStatusCode(t *testing.T) {
 			}
 		}
 
-		err := NewClient(nil, nil).handleHTTPStatusCode(test.kind, response)
+		err := handleHTTPStatusCode(test.kind, response)
 
 		if fmt.Sprintf("%v", test.expectedError) != fmt.Sprintf("%v", err) {
 			t.Fatalf("[%d] “%s“: expected error “%s“, got “%s“", i, test.description, test.expectedError, err)
@@ -110,7 +110,7 @@ func TestClientFetch(t *testing.T) {
 	}
 
 	for i, test := range tests {
-		c := NewClient(nil, nil)
+		var c client
 		body := ""
 		r, err := c.fetch(test.uri)
 
@@ -176,7 +176,9 @@ func TestClientQuery(t *testing.T) {
 	for i, test := range tests {
 		var object interface{}
 
-		c := NewClient(test.uris, nil)
+		c := client{
+			uris: test.uris,
+		}
 
 		if len(test.responseBody) > 0 {
 			ts := httptest.NewServer(
@@ -305,7 +307,7 @@ func TestClientQueriers(t *testing.T) {
 	}
 
 	for i, test := range tests {
-		c := NewClient(nil, nil)
+		var c client
 
 		if len(test.uris) == 0 {
 			ts := httptest.NewServer(

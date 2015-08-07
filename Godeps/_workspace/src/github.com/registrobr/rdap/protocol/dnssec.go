@@ -2,6 +2,7 @@ package protocol
 
 import "time"
 
+// DS describes the dsData as it is in RFC 7483, section 5.3
 type DS struct {
 	KeyTag      int       `json:"keyTag"`
 	Algorithm   int       `json:"algorithm"`
@@ -13,6 +14,7 @@ type DS struct {
 	LastOKAt    time.Time `json:"nicbr_lastOK,omitempty"`
 }
 
+// SecureDNS describes the secureDNS as it is in RFC 7483, section 5.3
 type SecureDNS struct {
 	ZoneSigned       bool `json:"zoneSigned"`
 	DelegationSigned bool `json:"delegationSigned"`
