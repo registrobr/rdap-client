@@ -5,10 +5,11 @@ import "text/template"
 const (
 	domainTmpl = `domain:   {{.Domain.LDHName}}
 {{range .Domain.Nameservers}}nserver:  {{.LDHName}}
-nsstat:   {{.LastCheckAt | formatDate}} {{.HostStatus}}
-nslastaa: {{.LastOKAt | formatDate}}
+nsstat:   {{nsLastCheck .Events | formatDate}} {{nsStatus .Events}}
+nslastaa: {{nsLastOK .Events | formatDate}}
 {{end}}{{range .DS}}dsrecord: {{.KeyTag}} {{.Algorithm | dsAlgorithm}} {{.Digest}}
-dsstatus: {{.CreatedAt | formatDate}} {{.DSStatus}}
+dsstatus: {{dsLastCheck .Events | formatDate}} {{dsStatus .Events}}
+dslastok: {{dsLastOK .Events | formatDate}}
 {{end}}created:  {{.CreatedAt | formatDate}}
 changed:  {{.UpdatedAt | formatDate}}
 {{range .Domain.Status}}status:   {{.}}

@@ -9,10 +9,11 @@ import (
 
 var expectedDomainOutput = `domain:   example.br
 nserver:  a.dns.br
-nsstat:   00010101 aa
+nsstat:   00010101 ns aa
 nslastaa: 00010101
 dsrecord: 12345 RSASHA1 0123456789ABCDEF0123456789ABCDEF01234567
-dsstatus: 20150301 ok
+dsstatus: 20150301 ds ok
+dslastok: 00010101
 created:  20150301
 changed:  20150310
 status:   active
@@ -108,7 +109,12 @@ func TestDomainPrint(t *testing.T) {
 			{
 				ObjectClassName: "nameserver",
 				LDHName:         "a.dns.br",
-				HostStatus:      "aa",
+				Events: []protocol.Event{
+					{
+						Action: protocol.EventDelegationCheck,
+						Status: []protocol.Status{protocol.StatusNSAA},
+					},
+				},
 			},
 		},
 		SecureDNS: &protocol.SecureDNS{
@@ -117,9 +123,16 @@ func TestDomainPrint(t *testing.T) {
 					KeyTag:    12345,
 					Digest:    "0123456789ABCDEF0123456789ABCDEF01234567",
 					Algorithm: 5,
-					DSStatus:  "ok",
 					Events: []protocol.Event{
-						protocol.Event{Action: protocol.EventActionRegistration, Actor: "", Date: time.Date(2015, 03, 01, 12, 00, 00, 00, time.UTC)},
+						{
+							Action: protocol.EventActionRegistration,
+							Date:   time.Date(2015, 03, 01, 12, 00, 00, 00, time.UTC),
+						},
+						{
+							Action: protocol.EventDelegationSignCheck,
+							Status: []protocol.Status{protocol.StatusDSOK},
+							Date:   time.Date(2015, 03, 01, 12, 00, 00, 00, time.UTC),
+						},
 					},
 				},
 			},

@@ -37,7 +37,7 @@ func TestEntityPrint(t *testing.T) {
 				[]interface{}{"tel", struct{ Type string }{Type: "work"}, "uri", "tel:+55-11-5509-3506;ext=3506"},
 			},
 		},
-		Responsible: "Joe User",
+		LegalRepresentative: "Joe User",
 		Entities: []protocol.Entity{
 			{
 				ObjectClassName: "entity",
