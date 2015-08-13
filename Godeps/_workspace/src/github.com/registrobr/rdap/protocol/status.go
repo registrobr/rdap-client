@@ -22,6 +22,68 @@ const (
 	StatusRemoved Status = "removed"
 )
 
+// Proposed by NIC.br for DNS and DNSSEC checks of delegations
+const (
+	// StatusNSAA nameserver has authority for the domain (well configured)
+	StatusNSAA Status = "ns aa"
+
+	// StatusNSTimeout did not receive any answer of the nameserver when
+	// performing a DNS query
+	StatusNSTimeout Status = "ns timeout"
+
+	// StatusNSNoAA nameserver doesn't have authority for the domain
+	StatusNSNoAA Status = "ns noaa"
+
+	// StatusNSUDN nameserver answers with unknown domain name
+	StatusNSUDN Status = "ns udn"
+
+	// StatusNSUH nameserver name could not be resolved
+	StatusNSUH Status = "ns uh"
+
+	// StatusNSFail nameserver answers with an internal server error
+	StatusNSFail Status = "ns fail"
+
+	// StatusNSQueryRefused nameserver refused to give an answer
+	StatusNSQueryRefused Status = "ns query refused"
+
+	// StatusNSConnectionRefused connection was refused (firewall)
+	StatusNSConnectionRefused Status = "ns connection refused"
+
+	// StatusNSError some generic error occurred while checking the nameserver
+	StatusNSError Status = "ns error"
+
+	// StatusNSCNAME found CNAME record in zone APEX (RFC 2181, section 10.1)
+	StatusNSCNAME Status = "ns cname"
+
+	// StatusNSSOAVersion found different SOA versions between the nameservers
+	StatusNSSOAVersion Status = "ns soaVersion"
+
+	// StatusDSOK all nameservers are well configured for this DS record
+	StatusDSOK Status = "ds ok"
+
+	// StatusDSTimeout did not receive any answer of the nameserver when
+	// performing a DNSSEC query
+	StatusDSTimeout Status = "ds timeout"
+
+	// StatusDSNoSig no signature (RRSIG) was found in the answer
+	StatusDSNoSig Status = "ds nosig"
+
+	// StatusDSExpiredSig signature (RRSIG) is expired
+	StatusDSExpiredSig Status = "ds expiredsig"
+
+	// StatusDSInvalidSig signature (RRSIG) is invalid when checked with the
+	// public key (DNSKEY)
+	StatusDSInvalidSig Status = "ds invalidsig"
+
+	// StatusDSNotFound the corresponding public key (DNSKEY) was not found in
+	// the keyset
+	StatusDSNotFound Status = "ds notfound"
+
+	// StatusDSNoSEP the corresponding public key (DNSKEY) isn't a secure entry
+	// point
+	StatusDSNoSEP Status = "ds nosep"
+)
+
 // Status stores one of the possible status as listed in RFC 7483, section
 // 10.2.2
 type Status string

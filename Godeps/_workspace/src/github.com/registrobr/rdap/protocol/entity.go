@@ -21,7 +21,6 @@ type Entity struct {
 	VCardArray             []interface{}           `json:"vcardArray,omitempty"`
 	Roles                  []string                `json:"roles,omitempty"`
 	PublicIds              []PublicID              `json:"publicIds,omitempty"`
-	Responsible            string                  `json:"nicbr_responsible,omitempty"`
 	CustomerSupportService *CustomerSupportService `json:"nicbr_customerSupportService,omitempty"`
 	Entities               []Entity                `json:"entities,omitempty"`
 	Events                 []Event                 `json:"events,omitempty"`
@@ -32,6 +31,10 @@ type Entity struct {
 	InetCount              int                     `json:"nicbr_inetCount,omitempty"`
 	AutnumCount            int                     `json:"nicbr_autnumCount,omitempty"`
 	Conformance
+
+	// LegalRepresentative was proposed by NIC.br to store the name of the
+	// persons that is responsible for this entity
+	LegalRepresentative string `json:"legalRepresentative,omitempty"`
 }
 
 // GetEntity is an easy way to find an entity with a given role. If more than
