@@ -144,6 +144,10 @@ func NewDefaultFetcher(httpClient httpClient) Fetcher {
 func (d *defaultFetcher) Fetch(uris []string, queryType QueryType, queryValue string, header http.Header) (*http.Response, error) {
 	var lastErr error
 
+	if len(uris) == 0 {
+		return nil, fmt.Errorf("no URIs defined to query")
+	}
+
 	for _, uri := range uris {
 		uri = fmt.Sprintf("%s/%s/%s", uri, queryType, queryValue)
 

@@ -81,6 +81,12 @@ func TestDefaultFetcherFetch(t *testing.T) {
 			}(),
 		},
 		{
+			description:   "it should fail when theres no URI",
+			queryType:     QueryTypeDomain,
+			queryValue:    "example.com",
+			expectedError: fmt.Errorf(`no URIs defined to query`),
+		},
+		{
 			description:   "it should fail to create the HTTP request",
 			uris:          []string{"abc%"},
 			queryType:     QueryTypeDomain,
