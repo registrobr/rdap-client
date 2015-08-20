@@ -30,7 +30,7 @@ USAGE:
 VERSION:
    {{.Version}}{{if len .Authors}}
 
-AUTHOR(S): 
+AUTHOR(S):
    {{range .Authors}}{{ . }}{{end}}{{end}}
 
 GLOBAL OPTIONS:
@@ -73,11 +73,7 @@ GLOBAL OPTIONS:
 		},
 		cli.BoolFlag{
 			Name:  "ip",
-			Usage: "force query for an IP object",
-		},
-		cli.BoolFlag{
-			Name:  "ipnetwork",
-			Usage: "force query for an IP Network object",
+			Usage: "force query for an IP or IPNetwork object",
 		},
 		cli.BoolFlag{
 			Name:  "entity",
@@ -106,7 +102,6 @@ func action(ctx *cli.Context) {
 		forceDomain         = ctx.Bool("domain")
 		forceEntity         = ctx.Bool("entity")
 		forceIP             = ctx.Bool("ip")
-		forceIPNetwork      = ctx.Bool("ipnetwork")
 		httpClient          = &http.Client{}
 		uris                []string
 	)
@@ -115,7 +110,6 @@ func action(ctx *cli.Context) {
 	forceObjects := []bool{
 		forceDomain,
 		forceIP,
-		forceIPNetwork,
 		forceEntity,
 		forceASN,
 	}
@@ -189,16 +183,16 @@ func action(ctx *cli.Context) {
 		object, err = client.Entity(identifier, nil)
 
 	case forceIP:
-		if ip := net.ParseIP(identifier); ip == nil {
-			err = fmt.Errorf("invalid ip “%s”", identifier)
-		} else {
+		if ip := net.ParseIP(identifier); ip != nil {
 			object, err = client.IP(ip, nil)
-		}
+		} else {
+			var ipnetwork *net.IPNet
 
-	case forceIPNetwork:
-		var ipnetwork *net.IPNet
-		if _, ipnetwork, err = net.ParseCIDR(identifier); err == nil {
-			object, err = client.IPNetwork(ipnetwork, nil)
+			if _, ipnetwork, err = net.ParseCIDR(identifier); err != nil {
+				err = fmt.Errorf("invalid ip or ip network “%s”", identifier)
+			} else {
+				object, err = client.IPNetwork(ipnetwork, nil)
+			}
 		}
 
 	default:
