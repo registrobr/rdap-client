@@ -41,7 +41,7 @@ func TestServiceRegistryMatchAS(t *testing.T) {
 	tests := []struct {
 		description   string
 		registry      serviceRegistry
-		as            uint64
+		as            uint32
 		expected      []string
 		expectedError error
 	}{

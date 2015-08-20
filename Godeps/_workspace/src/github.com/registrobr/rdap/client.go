@@ -2,207 +2,179 @@ package rdap
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"net"
 	"net/http"
+	"regexp"
+	"strconv"
 	"strings"
 
 	"github.com/registrobr/rdap-client/Godeps/_workspace/src/github.com/miekg/dns/idn"
 	"github.com/registrobr/rdap-client/Godeps/_workspace/src/github.com/registrobr/rdap/protocol"
 )
 
-const (
-	domain kind = "domain"
-	autnum kind = "autnum"
-	ip     kind = "ip"
-	entity kind = "entity"
-)
-
 var (
-	// ErrNotFound is used when the RDAP server doesn't contain any
-	// information of the requested object
-	ErrNotFound = errors.New("not found")
+	isFQDN = regexp.MustCompile(`^((([a-z0-9][a-z0-9\-]*[a-z0-9])|[a-z0-9]+)\.)*([a-z]+|xn\-\-[a-z0-9]+)\.?$`)
 )
 
-// Client queries a RDAP server to retrieve information of desired objects.
-// You can also set the X-Forwarded-For HTTP header to work as a proxy
-type Client interface {
-	Domain(fqdn string) (*protocol.Domain, error)
-	ASN(as uint64) (*protocol.AS, error)
-	Entity(identifier string) (*protocol.Entity, error)
-	IPNetwork(ipnet *net.IPNet) (*protocol.IPNetwork, error)
-	IP(netIP net.IP) (*protocol.IPNetwork, error)
-	SetURIs(uris []string)
-	SetXForwardedFor(addr string)
+// Client is responsible for building, sending the request and parsing the
+// result. It can set the URIs attribute if you want to query RDAP servers
+// directly without using bootstrap
+type Client struct {
+	// Transport is the network layer that you can fill with a direct query to
+	// the RDAP servers or with an extra layer of RDAP bootstrap strategy
+	Transport Fetcher
+
+	// URIs store the addresses of the RDAP servers that you want to query
+	// directly. Remember that if you use a bootstrap transport layer this
+	// information might not be used
+	URIs []string
 }
 
-// NewClient returns a client with the injected RDAP servers and HTTP client
-var NewClient = func(uris []string, httpClient *http.Client) Client {
-	return &client{
-		uris:       uris,
-		httpClient: httpClient,
+// NewClient is an easy way to create a client with bootstrap support or not,
+// depending if you inform direct RDAP addresses
+func NewClient(URIs []string) *Client {
+	client := Client{
+		URIs: URIs,
 	}
-}
 
-// client stores the HTTP client and the RDAP servers to query for retrieving
-// the desired information. You can also set the X-Forward-For to work as a
-// proxy
-type client struct {
-	httpClient    *http.Client
-	uris          []string
-	xForwardedFor string
+	var httpClient http.Client
+
+	if len(URIs) == 0 {
+		client.Transport = NewBootstrapFetcher(&httpClient, IANABootstrap, nil)
+	} else {
+		client.Transport = NewDefaultFetcher(&httpClient)
+	}
+
+	return &client
 }
 
 // Domain will query each RDAP server to retrieve the desired information and
-// will parse and store the response into a protocol Domain object. If
+// will parse and store the response into a protocol Domain object. You can
+// optionally define the HTTP headers parameters to send to the RDAP server. If
 // something goes wrong an error will be returned, and if nothing is found
 // the error ErrNotFound will be returned
-func (c *client) Domain(fqdn string) (*protocol.Domain, error) {
-	r := &protocol.Domain{}
+func (c *Client) Domain(fqdn string, header http.Header) (*protocol.Domain, error) {
 	fqdn = idn.ToPunycode(strings.ToLower(fqdn))
 
-	if err := c.query(domain, fqdn, r); err != nil {
+	resp, err := c.Transport.Fetch(c.URIs, QueryTypeDomain, fqdn, header)
+	if err != nil {
 		return nil, err
 	}
 
-	return r, nil
+	domain := &protocol.Domain{}
+	if err = json.NewDecoder(resp.Body).Decode(domain); err != nil {
+		return nil, err
+	}
+
+	return domain, nil
 }
 
 // ASN will query each RDAP server to retrieve the desired information and
-// will parse and store the response into a protocol AS object. If
-// something goes wrong an error will be returned, and if nothing is found
+// will parse and store the response into a protocol AS object. You can
+// optionally define the HTTP headers parameters to send to the RDAP server.
+// If something goes wrong an error will be returned, and if nothing is found
 // the error ErrNotFound will be returned
-func (c *client) ASN(as uint64) (*protocol.AS, error) {
-	r := &protocol.AS{}
+func (c *Client) ASN(asn uint32, header http.Header) (*protocol.AS, error) {
+	asnStr := strconv.FormatUint(uint64(asn), 10)
 
-	if err := c.query(autnum, as, r); err != nil {
+	resp, err := c.Transport.Fetch(c.URIs, QueryTypeAutnum, asnStr, header)
+	if err != nil {
 		return nil, err
 	}
 
-	return r, nil
+	as := &protocol.AS{}
+	if err = json.NewDecoder(resp.Body).Decode(as); err != nil {
+		return nil, err
+	}
+
+	return as, nil
 }
 
 // Entity will query each RDAP server to retrieve the desired information and
-// will parse and store the response into a protocol Entity object. If
-// something goes wrong an error will be returned, and if nothing is found
+// will parse and store the response into a protocol Entity object. You can
+// optionally define the HTTP headers parameters to send to the RDAP server.
+// If something goes wrong an error will be returned, and if nothing is found
 // the error ErrNotFound will be returned
-func (c *client) Entity(identifier string) (*protocol.Entity, error) {
-	r := &protocol.Entity{}
-
-	if err := c.query(entity, identifier, r); err != nil {
+func (c *Client) Entity(identifier string, header http.Header) (*protocol.Entity, error) {
+	resp, err := c.Transport.Fetch(c.URIs, QueryTypeEntity, identifier, header)
+	if err != nil {
 		return nil, err
 	}
 
-	return r, nil
+	entity := &protocol.Entity{}
+	if err = json.NewDecoder(resp.Body).Decode(entity); err != nil {
+		return nil, err
+	}
+
+	return entity, nil
 }
 
 // IPNetwork will query each RDAP server to retrieve the desired information and
-// will parse and store the response into a protocol IPNetwork object. If
-// something goes wrong an error will be returned, and if nothing is found
+// will parse and store the response into a protocol IPNetwork object. You can
+// optionally define the HTTP headers parameters to send to the RDAP server.
+// If something goes wrong an error will be returned, and if nothing is found
 // the error ErrNotFound will be returned
-func (c *client) IPNetwork(ipnet *net.IPNet) (*protocol.IPNetwork, error) {
-	r := &protocol.IPNetwork{}
+func (c *Client) IPNetwork(ipnet *net.IPNet, header http.Header) (*protocol.IPNetwork, error) {
+	if ipnet == nil {
+		return nil, fmt.Errorf("undefined IP network")
+	}
 
-	if err := c.query(ip, ipnet, r); err != nil {
+	resp, err := c.Transport.Fetch(c.URIs, QueryTypeIP, ipnet.String(), header)
+	if err != nil {
 		return nil, err
 	}
 
-	return r, nil
+	ipNetwork := &protocol.IPNetwork{}
+	if err = json.NewDecoder(resp.Body).Decode(ipNetwork); err != nil {
+		return nil, err
+	}
+
+	return ipNetwork, nil
 }
 
 // IP will query each RDAP server to retrieve the desired information and
-// will parse and store the response into a protocol IP object. If
-// something goes wrong an error will be returned, and if nothing is found
+// will parse and store the response into a protocol IP object. You can
+// optionally define the HTTP headers parameters to send to the RDAP server.
+// If something goes wrong an error will be returned, and if nothing is found
 // the error ErrNotFound will be returned
-func (c *client) IP(netIP net.IP) (*protocol.IPNetwork, error) {
-	r := &protocol.IPNetwork{}
-
-	if err := c.query(ip, netIP, r); err != nil {
-		return nil, err
+func (c *Client) IP(ip net.IP, header http.Header) (*protocol.IPNetwork, error) {
+	if ip == nil {
+		return nil, fmt.Errorf("undefined IP")
 	}
 
-	return r, nil
-}
-
-func (c *client) query(kind kind, identifier interface{}, object interface{}) error {
-	var lastErr error
-	for _, uri := range c.uris {
-		uri := fmt.Sprintf("%s/%s/%v", uri, kind, identifier)
-
-		res, err := c.fetch(uri)
-		if err != nil {
-			lastErr = err
-			continue
-		}
-		defer res.Body.Close()
-
-		if err := handleHTTPStatusCode(kind, res); err != nil {
-			lastErr = err
-			continue
-		}
-
-		if err = json.NewDecoder(res.Body).Decode(&object); err != nil {
-			lastErr = err
-			continue
-		}
-
-		return nil
-	}
-
-	return lastErr
-}
-
-func (c *client) fetch(uri string) (response *http.Response, err error) {
-	req, err := http.NewRequest("GET", uri, nil)
-
-	if err != nil {
-		return nil, err
-	}
-	req.Header.Add("Accept", "application/json")
-
-	if c.xForwardedFor != "" {
-		req.Header.Add("X-Forwarded-For", c.xForwardedFor)
-	}
-
-	if c.httpClient == nil {
-		c.httpClient = &http.Client{}
-	}
-
-	response, err = c.httpClient.Do(req)
-
+	resp, err := c.Transport.Fetch(c.URIs, QueryTypeIP, ip.String(), header)
 	if err != nil {
 		return nil, err
 	}
 
-	return response, nil
+	ipNetwork := &protocol.IPNetwork{}
+	if err = json.NewDecoder(resp.Body).Decode(ipNetwork); err != nil {
+		return nil, err
+	}
+
+	return ipNetwork, nil
 }
 
-func (c *client) SetURIs(uris []string) {
-	c.uris = uris
-}
-
-func (c *client) SetXForwardedFor(addr string) {
-	c.xForwardedFor = addr
-}
-
-func handleHTTPStatusCode(kind kind, response *http.Response) error {
-	if response.StatusCode == http.StatusOK {
-		return nil
+// Query will try to search the object in the following order: ASN, IP, IP
+// network, domain and entity. If the format is not valid for the specific
+// search, the search is ignored
+func (c *Client) Query(object string, header http.Header) (interface{}, error) {
+	if asn, err := strconv.ParseUint(object, 10, 32); err == nil {
+		return c.ASN(uint32(asn), header)
 	}
 
-	if response.StatusCode == http.StatusNotFound {
-		return ErrNotFound
+	if ip := net.ParseIP(object); ip != nil {
+		return c.IP(ip, header)
 	}
 
-	if response.Header.Get("Content-Type") != "application/rdap+json" {
-		return fmt.Errorf("unexpected response: %d %s",
-			response.StatusCode, http.StatusText(response.StatusCode))
+	if _, ipnetwork, err := net.ParseCIDR(object); err == nil {
+		return c.IPNetwork(ipnetwork, header)
 	}
 
-	var responseErr protocol.Error
-	if err := json.NewDecoder(response.Body).Decode(&responseErr); err != nil {
-		return err
+	if fqdn := idn.ToPunycode(strings.ToLower(object)); isFQDN.MatchString(fqdn) {
+		return c.Domain(fqdn, header)
 	}
-	return responseErr
+
+	return c.Entity(object, header)
 }

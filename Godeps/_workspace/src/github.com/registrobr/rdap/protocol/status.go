@@ -84,6 +84,25 @@ const (
 	StatusDSNoSEP Status = "ds nosep"
 )
 
+// Proposed by NIC.br for domain status
+const (
+	// StatusWaitingActivation waiting for the next publication cycle to
+	// publish the domain name in the DNS
+	StatusWaitingActivation Status = "nicbr waiting activation"
+
+	// StatusWaitingInactivation waiting for the next publication cycle to
+	// remove the domain name from the DNS
+	StatusWaitingInactivation Status = "nicbr waiting inactivation"
+
+	// StatusInactiveCourtOrder legal decision was executed and the domain name
+	// cannot be published in the DNS
+	StatusInactiveCourtOrder Status = "nicbr inactive court order"
+
+	// StatusInactiveCG by a decision of the "Comitê Gestor da Internet no
+	// Brasil", this domain name cannot be published in the DNS
+	StatusInactiveCG Status = "nicbr inactive CG"
+)
+
 // Status stores one of the possible status as listed in RFC 7483, section
 // 10.2.2
 type Status string

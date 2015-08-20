@@ -47,7 +47,7 @@ func (s service) uris() []string {
 // specific range to which an AS number "asn" belongs.
 //
 // See http://tools.ietf.org/html/rfc7484#section-5.3
-func (s serviceRegistry) matchAS(asn uint64) (uris []string, err error) {
+func (s serviceRegistry) matchAS(asn uint32) (uris []string, err error) {
 	size := uint64(math.MaxUint32)
 
 	for _, service := range s.Services {
@@ -66,7 +66,7 @@ func (s serviceRegistry) matchAS(asn uint64) (uris []string, err error) {
 					return nil, err
 				}
 
-				if diff := end - begin; asn >= begin && asn <= end && diff < size {
+				if diff := end - begin; asn >= uint32(begin) && asn <= uint32(end) && diff < size {
 					size = diff
 					uris = service.uris()
 				}
@@ -77,7 +77,7 @@ func (s serviceRegistry) matchAS(asn uint64) (uris []string, err error) {
 					return nil, err
 				}
 
-				if number == asn {
+				if uint32(number) == asn {
 					return service.uris(), nil
 				}
 			}
