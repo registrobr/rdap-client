@@ -3,10 +3,12 @@ package main
 import (
 	"crypto/tls"
 	"fmt"
+	"net"
 	"net/http"
 	"net/url"
 	"os"
 	"path"
+	"strconv"
 	"strings"
 
 	"github.com/registrobr/rdap-client/Godeps/_workspace/src/github.com/codegangsta/cli"
@@ -50,7 +52,7 @@ GLOBAL OPTIONS:
 		},
 		cli.StringFlag{
 			Name:  "bootstrap",
-			Value: rdap.RDAPBootstrap,
+			Value: rdap.IANABootstrap,
 			Usage: "RDAP bootstrap service URL",
 		},
 		cli.BoolFlag{
@@ -105,7 +107,6 @@ func action(ctx *cli.Context) {
 		forceEntity         = ctx.Bool("entity")
 		forceIP             = ctx.Bool("ip")
 		forceIPNetwork      = ctx.Bool("ipnetwork")
-		force               = forceASN || forceDomain || forceEntity || forceIP || forceIPNetwork
 		httpClient          = &http.Client{}
 		uris                []string
 	)
@@ -157,46 +158,59 @@ func action(ctx *cli.Context) {
 		os.Exit(1)
 	}
 
-	var (
-		err     error
-		object  interface{}
-		client  = rdap.NewBootstrapClient(uris, httpClient, bootstrapURI)
-		printer output.Printer
-	)
+	var client rdap.Client
+	client.URIs = uris
 
-	if len(host) == 0 {
-		client.SetCacheDetector(func(resp *http.Response) bool {
+	if len(client.URIs) == 0 {
+		cacheDetector := rdap.CacheDetector(func(resp *http.Response) bool {
 			return resp.Header.Get(httpcache.XFromCache) == "1"
 		})
+
+		client.Transport = rdap.NewBootstrapFetcher(httpClient, bootstrapURI, cacheDetector)
+
+	} else {
+		client.Transport = rdap.NewDefaultFetcher(httpClient)
 	}
+
+	var err error
+	var object interface{}
 
 	switch {
 	case forceASN:
-		object, err = client.ASN(identifier)
-	case forceDomain:
-		object, err = client.Domain(identifier)
-	case forceEntity:
-		object, err = client.Entity(identifier)
-	case forceIP:
-		object, err = client.IP(identifier)
-	case forceIPNetwork:
-		object, err = client.IPNetwork(identifier)
-	default:
-		object, err = client.Query(identifier)
-	}
-
-	if err == rdap.ErrInvalidQuery {
-		if force {
-			err = fmt.Errorf("the requested object doesn't match the requested object type")
-		} else {
-			err = fmt.Errorf("the requested object doesn't match an ASN, Domain, Entity, IP or IPNetwork")
+		var asn uint64
+		if asn, err = strconv.ParseUint(identifier, 10, 32); err == nil {
+			object, err = client.ASN(uint32(asn), nil)
 		}
+
+	case forceDomain:
+		object, err = client.Domain(identifier, nil)
+
+	case forceEntity:
+		object, err = client.Entity(identifier, nil)
+
+	case forceIP:
+		if ip := net.ParseIP(identifier); ip == nil {
+			err = fmt.Errorf("invalid ip “%s”", identifier)
+		} else {
+			object, err = client.IP(ip, nil)
+		}
+
+	case forceIPNetwork:
+		var ipnetwork *net.IPNet
+		if _, ipnetwork, err = net.ParseCIDR(identifier); err == nil {
+			object, err = client.IPNetwork(ipnetwork, nil)
+		}
+
+	default:
+		object, err = client.Query(identifier, nil)
 	}
 
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
+
+	var printer output.Printer
 
 	switch object.(type) {
 	case *protocol.AS:
