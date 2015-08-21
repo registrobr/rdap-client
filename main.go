@@ -95,6 +95,11 @@ GLOBAL OPTIONS:
 			Value: "default",
 			Usage: "defines the output format, possible values are “" + outputTypeDefault + "” and “" + outputTypeRaw + "”",
 		},
+		cli.StringSliceFlag{
+			Name:  "extra,x",
+			Value: &cli.StringSlice{},
+			Usage: "set some extra options using key=value format",
+		},
 	}
 
 	app.Commands = []cli.Command{}
@@ -114,8 +119,7 @@ func action(ctx *cli.Context) {
 		forceDomain         = ctx.Bool("domain")
 		forceEntity         = ctx.Bool("entity")
 		forceIP             = ctx.Bool("ip")
-		httpClient          = &http.Client{}
-		uris                []string
+		extraOptions        = ctx.StringSlice("extra")
 	)
 
 	if outputType != outputTypeDefault && outputType != outputTypeRaw {
@@ -140,6 +144,8 @@ func action(ctx *cli.Context) {
 		}
 	}
 
+	httpClient := &http.Client{}
+
 	if !ctx.Bool("no-cache") {
 		transport := httpcache.NewTransport(
 			diskcache.New(cache),
@@ -154,15 +160,6 @@ func action(ctx *cli.Context) {
 		httpClient.Transport = transport
 	}
 
-	if len(host) > 0 {
-		if _, err := url.Parse(host); err != nil {
-			fmt.Fprintf(os.Stderr, "%s\n", err)
-			os.Exit(1)
-		}
-
-		uris = []string{host}
-	}
-
 	identifier := strings.Join(ctx.Args(), " ")
 	if identifier == "" {
 		cli.ShowAppHelp(ctx)
@@ -170,17 +167,36 @@ func action(ctx *cli.Context) {
 	}
 
 	var client rdap.Client
-	client.URIs = uris
 
-	if len(client.URIs) == 0 {
+	if len(host) > 0 {
+		u, err := url.Parse(host)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "%s\n", err)
+			os.Exit(1)
+		}
+
+		client.URIs = append(client.URIs, u.String())
+		client.Transport = rdap.NewDefaultFetcher(httpClient)
+
+	} else {
 		cacheDetector := rdap.CacheDetector(func(resp *http.Response) bool {
 			return resp.Header.Get(httpcache.XFromCache) == "1"
 		})
 
 		client.Transport = rdap.NewBootstrapFetcher(httpClient, bootstrapURI, cacheDetector)
+	}
 
-	} else {
-		client.Transport = rdap.NewDefaultFetcher(httpClient)
+	queryString := make(url.Values)
+
+	for _, extraOption := range extraOptions {
+		extraOptionParts := strings.Split(extraOption, "=")
+		if len(extraOptionParts) != 2 {
+			fmt.Fprintln(os.Stderr, "invalid extra option “"+extraOption+"”")
+			os.Exit(1)
+		}
+
+		key, value := strings.TrimSpace(extraOptionParts[0]), strings.TrimSpace(extraOptionParts[1])
+		queryString.Add(key, value)
 	}
 
 	var err error
@@ -190,30 +206,30 @@ func action(ctx *cli.Context) {
 	case forceASN:
 		var asn uint64
 		if asn, err = strconv.ParseUint(identifier, 10, 32); err == nil {
-			object, err = client.ASN(uint32(asn), nil)
+			object, err = client.ASN(uint32(asn), nil, queryString)
 		}
 
 	case forceDomain:
-		object, err = client.Domain(identifier, nil)
+		object, err = client.Domain(identifier, nil, queryString)
 
 	case forceEntity:
-		object, err = client.Entity(identifier, nil)
+		object, err = client.Entity(identifier, nil, queryString)
 
 	case forceIP:
 		if ip := net.ParseIP(identifier); ip != nil {
-			object, err = client.IP(ip, nil)
+			object, err = client.IP(ip, nil, queryString)
 		} else {
 			var ipnetwork *net.IPNet
 
 			if _, ipnetwork, err = net.ParseCIDR(identifier); err != nil {
 				err = fmt.Errorf("invalid ip or ip network “%s”", identifier)
 			} else {
-				object, err = client.IPNetwork(ipnetwork, nil)
+				object, err = client.IPNetwork(ipnetwork, nil, queryString)
 			}
 		}
 
 	default:
-		object, err = client.Query(identifier, nil)
+		object, err = client.Query(identifier, nil, queryString)
 	}
 
 	if err != nil {
