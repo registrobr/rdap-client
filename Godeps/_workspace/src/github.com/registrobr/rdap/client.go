@@ -9,6 +9,8 @@ import (
 	"strconv"
 	"strings"
 
+	"net/url"
+
 	"github.com/registrobr/rdap-client/Godeps/_workspace/src/github.com/miekg/dns/idn"
 	"github.com/registrobr/rdap-client/Godeps/_workspace/src/github.com/registrobr/rdap/protocol"
 )
@@ -54,10 +56,10 @@ func NewClient(URIs []string) *Client {
 // optionally define the HTTP headers parameters to send to the RDAP server. If
 // something goes wrong an error will be returned, and if nothing is found
 // the error ErrNotFound will be returned
-func (c *Client) Domain(fqdn string, header http.Header) (*protocol.Domain, error) {
+func (c *Client) Domain(fqdn string, header http.Header, queryString url.Values) (*protocol.Domain, error) {
 	fqdn = idn.ToPunycode(strings.ToLower(fqdn))
 
-	resp, err := c.Transport.Fetch(c.URIs, QueryTypeDomain, fqdn, header)
+	resp, err := c.Transport.Fetch(c.URIs, QueryTypeDomain, fqdn, header, queryString)
 	if err != nil {
 		return nil, err
 	}
@@ -75,10 +77,10 @@ func (c *Client) Domain(fqdn string, header http.Header) (*protocol.Domain, erro
 // optionally define the HTTP headers parameters to send to the RDAP server.
 // If something goes wrong an error will be returned, and if nothing is found
 // the error ErrNotFound will be returned
-func (c *Client) ASN(asn uint32, header http.Header) (*protocol.AS, error) {
+func (c *Client) ASN(asn uint32, header http.Header, queryString url.Values) (*protocol.AS, error) {
 	asnStr := strconv.FormatUint(uint64(asn), 10)
 
-	resp, err := c.Transport.Fetch(c.URIs, QueryTypeAutnum, asnStr, header)
+	resp, err := c.Transport.Fetch(c.URIs, QueryTypeAutnum, asnStr, header, queryString)
 	if err != nil {
 		return nil, err
 	}
@@ -96,8 +98,8 @@ func (c *Client) ASN(asn uint32, header http.Header) (*protocol.AS, error) {
 // optionally define the HTTP headers parameters to send to the RDAP server.
 // If something goes wrong an error will be returned, and if nothing is found
 // the error ErrNotFound will be returned
-func (c *Client) Entity(identifier string, header http.Header) (*protocol.Entity, error) {
-	resp, err := c.Transport.Fetch(c.URIs, QueryTypeEntity, identifier, header)
+func (c *Client) Entity(identifier string, header http.Header, queryString url.Values) (*protocol.Entity, error) {
+	resp, err := c.Transport.Fetch(c.URIs, QueryTypeEntity, identifier, header, queryString)
 	if err != nil {
 		return nil, err
 	}
@@ -115,12 +117,12 @@ func (c *Client) Entity(identifier string, header http.Header) (*protocol.Entity
 // optionally define the HTTP headers parameters to send to the RDAP server.
 // If something goes wrong an error will be returned, and if nothing is found
 // the error ErrNotFound will be returned
-func (c *Client) IPNetwork(ipnet *net.IPNet, header http.Header) (*protocol.IPNetwork, error) {
+func (c *Client) IPNetwork(ipnet *net.IPNet, header http.Header, queryString url.Values) (*protocol.IPNetwork, error) {
 	if ipnet == nil {
 		return nil, fmt.Errorf("undefined IP network")
 	}
 
-	resp, err := c.Transport.Fetch(c.URIs, QueryTypeIP, ipnet.String(), header)
+	resp, err := c.Transport.Fetch(c.URIs, QueryTypeIP, ipnet.String(), header, queryString)
 	if err != nil {
 		return nil, err
 	}
@@ -138,12 +140,12 @@ func (c *Client) IPNetwork(ipnet *net.IPNet, header http.Header) (*protocol.IPNe
 // optionally define the HTTP headers parameters to send to the RDAP server.
 // If something goes wrong an error will be returned, and if nothing is found
 // the error ErrNotFound will be returned
-func (c *Client) IP(ip net.IP, header http.Header) (*protocol.IPNetwork, error) {
+func (c *Client) IP(ip net.IP, header http.Header, queryString url.Values) (*protocol.IPNetwork, error) {
 	if ip == nil {
 		return nil, fmt.Errorf("undefined IP")
 	}
 
-	resp, err := c.Transport.Fetch(c.URIs, QueryTypeIP, ip.String(), header)
+	resp, err := c.Transport.Fetch(c.URIs, QueryTypeIP, ip.String(), header, queryString)
 	if err != nil {
 		return nil, err
 	}
@@ -159,22 +161,22 @@ func (c *Client) IP(ip net.IP, header http.Header) (*protocol.IPNetwork, error) 
 // Query will try to search the object in the following order: ASN, IP, IP
 // network, domain and entity. If the format is not valid for the specific
 // search, the search is ignored
-func (c *Client) Query(object string, header http.Header) (interface{}, error) {
+func (c *Client) Query(object string, header http.Header, queryString url.Values) (interface{}, error) {
 	if asn, err := strconv.ParseUint(object, 10, 32); err == nil {
-		return c.ASN(uint32(asn), header)
+		return c.ASN(uint32(asn), header, queryString)
 	}
 
 	if ip := net.ParseIP(object); ip != nil {
-		return c.IP(ip, header)
+		return c.IP(ip, header, queryString)
 	}
 
 	if _, ipnetwork, err := net.ParseCIDR(object); err == nil {
-		return c.IPNetwork(ipnetwork, header)
+		return c.IPNetwork(ipnetwork, header, queryString)
 	}
 
 	if fqdn := idn.ToPunycode(strings.ToLower(object)); isFQDN.MatchString(fqdn) {
-		return c.Domain(fqdn, header)
+		return c.Domain(fqdn, header, queryString)
 	}
 
-	return c.Entity(object, header)
+	return c.Entity(object, header, queryString)
 }

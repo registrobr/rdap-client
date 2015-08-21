@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net"
 	"net/http"
+	"net/url"
 	"reflect"
 	"strings"
 	"testing"
@@ -27,17 +28,21 @@ func TestDefaultFetcherFetch(t *testing.T) {
 		queryType     QueryType
 		queryValue    string
 		header        http.Header
+		queryString   url.Values
 		httpClient    func() (*http.Response, error)
 		expected      *http.Response
 		expectedError error
 	}{
 		{
 			description: "it should fetch correctly",
-			uris:        []string{"https://rdap.beta.registro.br"},
+			uris:        []string{"rdap.beta.registro.br////?key1=value1"},
 			queryType:   QueryTypeDomain,
 			queryValue:  "example.com",
 			header: http.Header{
 				"X-Forwarded-For": []string{"200.160.2.3"},
+			},
+			queryString: url.Values{
+				"ticket": []string{"1234"},
 			},
 			httpClient: func() (*http.Response, error) {
 				domain := protocol.Domain{
@@ -91,7 +96,7 @@ func TestDefaultFetcherFetch(t *testing.T) {
 			uris:          []string{"abc%"},
 			queryType:     QueryTypeDomain,
 			queryValue:    "example.com",
-			expectedError: fmt.Errorf(`parse abc%%/domain/example.com: invalid URL escape "%%/d"`),
+			expectedError: fmt.Errorf(`parse http://abc%%/domain/example.com: percent-encoded characters in host`),
 		},
 		{
 			description: "it should fail while sending the HTTP request",
@@ -197,6 +202,10 @@ func TestDefaultFetcherFetch(t *testing.T) {
 				return nil, fmt.Errorf("expected url “%s” and got “%s”", expectedURL, r.URL.Path)
 			}
 
+			if r.URL.Query().Encode() != item.queryString.Encode() {
+				return nil, fmt.Errorf("expected query string “%s” and got “%s”", item.queryString.Encode(), r.URL.Query().Encode())
+			}
+
 			for key, values := range item.header {
 				var value string
 				if len(values) > 0 {
@@ -212,7 +221,7 @@ func TestDefaultFetcherFetch(t *testing.T) {
 		})
 
 		fetcher := NewDefaultFetcher(httpClient)
-		response, err := fetcher.Fetch(item.uris, item.queryType, item.queryValue, item.header)
+		response, err := fetcher.Fetch(item.uris, item.queryType, item.queryValue, item.header, item.queryString)
 
 		if item.expectedError != nil {
 			if fmt.Sprintf("%v", item.expectedError) != fmt.Sprintf("%v", err) {
@@ -1037,7 +1046,7 @@ func TestBootstrap(t *testing.T) {
 		})
 
 		fetcher := NewBootstrapFetcher(httpClient, item.bootstrapURI, item.cacheDetector)
-		response, err := fetcher.Fetch(item.uris, item.queryType, item.queryValue, nil)
+		response, err := fetcher.Fetch(item.uris, item.queryType, item.queryValue, nil, nil)
 
 		if item.expectedError != nil {
 			if fmt.Sprintf("%v", item.expectedError) != fmt.Sprintf("%v", err) {

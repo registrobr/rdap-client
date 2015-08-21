@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net"
 	"net/http"
+	"net/url"
 	"reflect"
 	"strconv"
 	"testing"
@@ -33,6 +34,7 @@ func TestClientDomain(t *testing.T) {
 		description   string
 		fqdn          string
 		header        http.Header
+		queryString   url.Values
 		client        func() (*http.Response, error)
 		expected      *protocol.Domain
 		expectedError error
@@ -42,6 +44,9 @@ func TestClientDomain(t *testing.T) {
 			fqdn:        "example.com",
 			header: http.Header{
 				"X-Forwarded-For": []string{"127.0.0.1"},
+			},
+			queryString: url.Values{
+				"ticket": []string{"1234"},
 			},
 			client: func() (*http.Response, error) {
 				domain := protocol.Domain{
@@ -88,7 +93,7 @@ func TestClientDomain(t *testing.T) {
 	for i, item := range data {
 		client := Client{
 			URIs: []string{"rdap.example.com"},
-			Transport: fetcherFunc(func(uris []string, queryType QueryType, queryValue string, header http.Header) (*http.Response, error) {
+			Transport: fetcherFunc(func(uris []string, queryType QueryType, queryValue string, header http.Header, queryString url.Values) (*http.Response, error) {
 				expectedURIs := []string{"rdap.example.com"}
 				if !reflect.DeepEqual(expectedURIs, uris) {
 					return nil, fmt.Errorf("expected uris “%#v” and got “%#v”", expectedURIs, uris)
@@ -96,6 +101,10 @@ func TestClientDomain(t *testing.T) {
 
 				if !reflect.DeepEqual(item.header, header) {
 					return nil, fmt.Errorf("expected HTTP headers “%#v” and got “%#v”", item.header, header)
+				}
+
+				if !reflect.DeepEqual(item.queryString, queryString) {
+					return nil, fmt.Errorf("expected query string “%#v” and got “%#v”", item.queryString, queryString)
 				}
 
 				if queryType != QueryTypeDomain {
@@ -110,7 +119,7 @@ func TestClientDomain(t *testing.T) {
 			}),
 		}
 
-		domain, err := client.Domain(item.fqdn, item.header)
+		domain, err := client.Domain(item.fqdn, item.header, item.queryString)
 
 		if item.expectedError != nil {
 			if fmt.Sprintf("%v", item.expectedError) != fmt.Sprintf("%v", err) {
@@ -133,6 +142,7 @@ func TestClientASN(t *testing.T) {
 		description   string
 		asn           uint32
 		header        http.Header
+		queryString   url.Values
 		client        func() (*http.Response, error)
 		expected      *protocol.AS
 		expectedError error
@@ -142,6 +152,9 @@ func TestClientASN(t *testing.T) {
 			asn:         1234,
 			header: http.Header{
 				"X-Forwarded-For": []string{"127.0.0.1"},
+			},
+			queryString: url.Values{
+				"full": nil,
 			},
 			client: func() (*http.Response, error) {
 				as := protocol.AS{
@@ -190,7 +203,7 @@ func TestClientASN(t *testing.T) {
 	for i, item := range data {
 		client := Client{
 			URIs: []string{"rdap.example.com"},
-			Transport: fetcherFunc(func(uris []string, queryType QueryType, queryValue string, header http.Header) (*http.Response, error) {
+			Transport: fetcherFunc(func(uris []string, queryType QueryType, queryValue string, header http.Header, queryString url.Values) (*http.Response, error) {
 				expectedURIs := []string{"rdap.example.com"}
 				if !reflect.DeepEqual(expectedURIs, uris) {
 					return nil, fmt.Errorf("expected uris “%#v” and got “%#v”", expectedURIs, uris)
@@ -198,6 +211,10 @@ func TestClientASN(t *testing.T) {
 
 				if !reflect.DeepEqual(item.header, header) {
 					return nil, fmt.Errorf("expected HTTP headers “%#v” and got “%#v”", item.header, header)
+				}
+
+				if !reflect.DeepEqual(item.queryString, queryString) {
+					return nil, fmt.Errorf("expected query string “%#v” and got “%#v”", item.queryString, queryString)
 				}
 
 				if queryType != QueryTypeAutnum {
@@ -212,7 +229,7 @@ func TestClientASN(t *testing.T) {
 			}),
 		}
 
-		as, err := client.ASN(item.asn, item.header)
+		as, err := client.ASN(item.asn, item.header, item.queryString)
 
 		if item.expectedError != nil {
 			if fmt.Sprintf("%v", item.expectedError) != fmt.Sprintf("%v", err) {
@@ -235,6 +252,7 @@ func TestClientEntity(t *testing.T) {
 		description   string
 		entity        string
 		header        http.Header
+		queryString   url.Values
 		client        func() (*http.Response, error)
 		expected      *protocol.Entity
 		expectedError error
@@ -244,6 +262,9 @@ func TestClientEntity(t *testing.T) {
 			entity:      "h_005506560000136-NICBR",
 			header: http.Header{
 				"X-Forwarded-For": []string{"127.0.0.1"},
+			},
+			queryString: url.Values{
+				"full": nil,
 			},
 			client: func() (*http.Response, error) {
 				entity := protocol.Entity{
@@ -288,7 +309,7 @@ func TestClientEntity(t *testing.T) {
 	for i, item := range data {
 		client := Client{
 			URIs: []string{"rdap.example.com"},
-			Transport: fetcherFunc(func(uris []string, queryType QueryType, queryValue string, header http.Header) (*http.Response, error) {
+			Transport: fetcherFunc(func(uris []string, queryType QueryType, queryValue string, header http.Header, queryString url.Values) (*http.Response, error) {
 				expectedURIs := []string{"rdap.example.com"}
 				if !reflect.DeepEqual(expectedURIs, uris) {
 					return nil, fmt.Errorf("expected uris “%#v” and got “%#v”", expectedURIs, uris)
@@ -296,6 +317,10 @@ func TestClientEntity(t *testing.T) {
 
 				if !reflect.DeepEqual(item.header, header) {
 					return nil, fmt.Errorf("expected HTTP headers “%#v” and got “%#v”", item.header, header)
+				}
+
+				if !reflect.DeepEqual(item.queryString, queryString) {
+					return nil, fmt.Errorf("expected query string “%#v” and got “%#v”", item.queryString, queryString)
 				}
 
 				if queryType != QueryTypeEntity {
@@ -310,7 +335,7 @@ func TestClientEntity(t *testing.T) {
 			}),
 		}
 
-		entity, err := client.Entity(item.entity, item.header)
+		entity, err := client.Entity(item.entity, item.header, item.queryString)
 
 		if item.expectedError != nil {
 			if fmt.Sprintf("%v", item.expectedError) != fmt.Sprintf("%v", err) {
@@ -333,6 +358,7 @@ func TestClientIPNetwork(t *testing.T) {
 		description   string
 		ipNetwork     *net.IPNet
 		header        http.Header
+		queryString   url.Values
 		client        func() (*http.Response, error)
 		expected      *protocol.IPNetwork
 		expectedError error
@@ -349,6 +375,9 @@ func TestClientIPNetwork(t *testing.T) {
 			}(),
 			header: http.Header{
 				"X-Forwarded-For": []string{"127.0.0.1"},
+			},
+			queryString: url.Values{
+				"full": nil,
 			},
 			client: func() (*http.Response, error) {
 				ipNetwork := protocol.IPNetwork{
@@ -411,7 +440,7 @@ func TestClientIPNetwork(t *testing.T) {
 	for i, item := range data {
 		client := Client{
 			URIs: []string{"rdap.example.com"},
-			Transport: fetcherFunc(func(uris []string, queryType QueryType, queryValue string, header http.Header) (*http.Response, error) {
+			Transport: fetcherFunc(func(uris []string, queryType QueryType, queryValue string, header http.Header, queryString url.Values) (*http.Response, error) {
 				expectedURIs := []string{"rdap.example.com"}
 				if !reflect.DeepEqual(expectedURIs, uris) {
 					return nil, fmt.Errorf("expected uris “%#v” and got “%#v”", expectedURIs, uris)
@@ -419,6 +448,10 @@ func TestClientIPNetwork(t *testing.T) {
 
 				if !reflect.DeepEqual(item.header, header) {
 					return nil, fmt.Errorf("expected HTTP headers “%#v” and got “%#v”", item.header, header)
+				}
+
+				if !reflect.DeepEqual(item.queryString, queryString) {
+					return nil, fmt.Errorf("expected query string “%#v” and got “%#v”", item.queryString, queryString)
 				}
 
 				if queryType != QueryTypeIP {
@@ -433,7 +466,7 @@ func TestClientIPNetwork(t *testing.T) {
 			}),
 		}
 
-		ipNetwork, err := client.IPNetwork(item.ipNetwork, item.header)
+		ipNetwork, err := client.IPNetwork(item.ipNetwork, item.header, item.queryString)
 
 		if item.expectedError != nil {
 			if fmt.Sprintf("%v", item.expectedError) != fmt.Sprintf("%v", err) {
@@ -456,6 +489,7 @@ func TestClientIP(t *testing.T) {
 		description   string
 		ip            net.IP
 		header        http.Header
+		queryString   url.Values
 		client        func() (*http.Response, error)
 		expected      *protocol.IPNetwork
 		expectedError error
@@ -465,6 +499,9 @@ func TestClientIP(t *testing.T) {
 			ip:          net.ParseIP("200.160.2.3"),
 			header: http.Header{
 				"X-Forwarded-For": []string{"127.0.0.1"},
+			},
+			queryString: url.Values{
+				"full": nil,
 			},
 			client: func() (*http.Response, error) {
 				ipNetwork := protocol.IPNetwork{
@@ -513,7 +550,7 @@ func TestClientIP(t *testing.T) {
 	for i, item := range data {
 		client := Client{
 			URIs: []string{"rdap.example.com"},
-			Transport: fetcherFunc(func(uris []string, queryType QueryType, queryValue string, header http.Header) (*http.Response, error) {
+			Transport: fetcherFunc(func(uris []string, queryType QueryType, queryValue string, header http.Header, queryString url.Values) (*http.Response, error) {
 				expectedURIs := []string{"rdap.example.com"}
 				if !reflect.DeepEqual(expectedURIs, uris) {
 					return nil, fmt.Errorf("expected uris “%#v” and got “%#v”", expectedURIs, uris)
@@ -521,6 +558,10 @@ func TestClientIP(t *testing.T) {
 
 				if !reflect.DeepEqual(item.header, header) {
 					return nil, fmt.Errorf("expected HTTP headers “%#v” and got “%#v”", item.header, header)
+				}
+
+				if !reflect.DeepEqual(item.queryString, queryString) {
+					return nil, fmt.Errorf("expected query string “%#v” and got “%#v”", item.queryString, queryString)
 				}
 
 				if queryType != QueryTypeIP {
@@ -535,7 +576,7 @@ func TestClientIP(t *testing.T) {
 			}),
 		}
 
-		ipNetwork, err := client.IP(item.ip, item.header)
+		ipNetwork, err := client.IP(item.ip, item.header, item.queryString)
 
 		if item.expectedError != nil {
 			if fmt.Sprintf("%v", item.expectedError) != fmt.Sprintf("%v", err) {
@@ -558,6 +599,7 @@ func TestClientQuery(t *testing.T) {
 		description   string
 		object        string
 		header        http.Header
+		queryString   url.Values
 		client        func() (*http.Response, error)
 		expected      interface{}
 		expectedError error
@@ -567,6 +609,9 @@ func TestClientQuery(t *testing.T) {
 			object:      "example.com",
 			header: http.Header{
 				"X-Forwarded-For": []string{"127.0.0.1"},
+			},
+			queryString: url.Values{
+				"ticket": []string{"1234"},
 			},
 			client: func() (*http.Response, error) {
 				domain := protocol.Domain{
@@ -703,12 +748,12 @@ func TestClientQuery(t *testing.T) {
 	for i, item := range data {
 		client := Client{
 			URIs: []string{"rdap.example.com"},
-			Transport: fetcherFunc(func(uris []string, queryType QueryType, queryValue string, header http.Header) (*http.Response, error) {
+			Transport: fetcherFunc(func(uris []string, queryType QueryType, queryValue string, header http.Header, queryString url.Values) (*http.Response, error) {
 				return item.client()
 			}),
 		}
 
-		resp, err := client.Query(item.object, item.header)
+		resp, err := client.Query(item.object, item.header, item.queryString)
 
 		if item.expectedError != nil {
 			if fmt.Sprintf("%v", item.expectedError) != fmt.Sprintf("%v", err) {
@@ -729,25 +774,56 @@ func TestClientQuery(t *testing.T) {
 func ExampleClient() {
 	c := NewClient([]string{"https://rdap.beta.registro.br"})
 
-	d, err := c.Query("nic.br", nil)
+	d, err := c.Query("nic.br", nil, nil)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 
-	fmt.Printf("%#v", d)
+	output, err := json.MarshalIndent(d, "", "  ")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	fmt.Println(string(output))
+
+	// Another example for a direct domain query adding a "ticket" parameter
+
+	queryString := make(url.Values)
+	queryString.Set("ticket", "5439886")
+
+	d, err = c.Domain("rafael.net.br", nil, queryString)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	output, err = json.MarshalIndent(d, "", "  ")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	fmt.Println(string(output))
 }
 
 func ExampleBootstrapClient() {
 	c := NewClient(nil)
 
-	ipnetwork, err := c.Query("214.1.2.3", nil)
+	ipnetwork, err := c.Query("214.1.2.3", nil, nil)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 
-	fmt.Printf("%#v", ipnetwork)
+	output, err := json.MarshalIndent(ipnetwork, "", "  ")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	fmt.Println(string(output))
 }
 
 func ExampleAdvancedBootstrapClient() {
@@ -763,12 +839,18 @@ func ExampleAdvancedBootstrapClient() {
 
 	ipnetwork, err := c.Query("214.1.2.3", http.Header{
 		"X-Forwarded-For": []string{"127.0.0.1"},
-	})
+	}, nil)
 
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 
-	fmt.Printf("%#v", ipnetwork)
+	output, err := json.MarshalIndent(ipnetwork, "", "  ")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	fmt.Println(string(output))
 }
