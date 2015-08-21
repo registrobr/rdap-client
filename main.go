@@ -2,6 +2,7 @@ package main
 
 import (
 	"crypto/tls"
+	"encoding/json"
 	"fmt"
 	"net"
 	"net/http"
@@ -17,6 +18,11 @@ import (
 	"github.com/registrobr/rdap-client/Godeps/_workspace/src/github.com/registrobr/rdap"
 	"github.com/registrobr/rdap-client/Godeps/_workspace/src/github.com/registrobr/rdap/protocol"
 	"github.com/registrobr/rdap-client/output"
+)
+
+const (
+	outputTypeDefault = "default"
+	outputTypeRaw     = "raw"
 )
 
 func main() {
@@ -88,6 +94,11 @@ GLOBAL OPTIONS:
 			Value: "",
 			Usage: "host where to send the query (bypass bootstrap)",
 		},
+		cli.StringFlag{
+			Name:  "output-type,o",
+			Value: "default",
+			Usage: "defines the output format, possible values are “" + outputTypeDefault + "” and “" + outputTypeRaw + "”",
+		},
 	}
 
 	app.Commands = []cli.Command{}
@@ -101,6 +112,7 @@ func action(ctx *cli.Context) {
 		cache               = ctx.String("cache")
 		bootstrapURI        = ctx.String("bootstrap")
 		host                = ctx.String("host")
+		outputType          = ctx.String("output-type")
 		skipTLSVerification = ctx.Bool("skip-tls-verification")
 		forceASN            = ctx.Bool("asn")
 		forceDomain         = ctx.Bool("domain")
@@ -110,6 +122,11 @@ func action(ctx *cli.Context) {
 		httpClient          = &http.Client{}
 		uris                []string
 	)
+
+	if outputType != outputTypeDefault && outputType != outputTypeRaw {
+		fmt.Fprintln(os.Stderr, "invalid output type")
+		os.Exit(1)
+	}
 
 	forceCount := 0
 	forceObjects := []bool{
@@ -210,30 +227,42 @@ func action(ctx *cli.Context) {
 		os.Exit(1)
 	}
 
-	var printer output.Printer
+	switch outputType {
+	case outputTypeDefault:
+		var printer output.Printer
 
-	switch object.(type) {
-	case *protocol.AS:
-		printer = &output.AS{
-			AS: object.(*protocol.AS),
+		switch object.(type) {
+		case *protocol.AS:
+			printer = &output.AS{
+				AS: object.(*protocol.AS),
+			}
+		case *protocol.Domain:
+			printer = &output.Domain{
+				Domain: object.(*protocol.Domain),
+			}
+		case *protocol.Entity:
+			printer = &output.Entity{
+				Entity: object.(*protocol.Entity),
+			}
+		case *protocol.IPNetwork:
+			printer = &output.IPNetwork{
+				IPNetwork: object.(*protocol.IPNetwork),
+			}
 		}
-	case *protocol.Domain:
-		printer = &output.Domain{
-			Domain: object.(*protocol.Domain),
-		}
-	case *protocol.Entity:
-		printer = &output.Entity{
-			Entity: object.(*protocol.Entity),
-		}
-	case *protocol.IPNetwork:
-		printer = &output.IPNetwork{
-			IPNetwork: object.(*protocol.IPNetwork),
-		}
-	}
 
-	if err := printer.Print(os.Stdout); err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		os.Exit(1)
+		if err := printer.Print(os.Stdout); err != nil {
+			fmt.Fprintln(os.Stderr, err)
+			os.Exit(1)
+		}
+
+	case outputTypeRaw:
+		output, err := json.MarshalIndent(object, "", "  ")
+		if err != nil {
+			fmt.Fprintln(os.Stderr, err)
+			os.Exit(1)
+		}
+
+		fmt.Println(string(output))
 	}
 
 	os.Exit(0)
