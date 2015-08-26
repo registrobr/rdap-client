@@ -63,7 +63,7 @@ GLOBAL OPTIONS:
 		},
 		cli.BoolFlag{
 			Name:  "no-cache",
-			Usage: "don't cache anything",
+			Usage: "don't cache boostrap responses",
 		},
 		cli.BoolFlag{
 			Name:  "skip-tls-verification,S",
@@ -138,13 +138,20 @@ func action(ctx *cli.Context) {
 	for _, force := range forceObjects {
 		if force {
 			if forceCount++; forceCount > 1 {
-				fmt.Fprintln(os.Stderr, "you can't use -asn, -domain, -entity, -ip or -ipnetwork at the same time")
+				fmt.Fprintln(os.Stderr, "you can't use -asn, -domain, -entity or -ip at the same time")
 				os.Exit(1)
 			}
 		}
 	}
 
-	httpClient := &http.Client{}
+	bsHTTPClient := &http.Client{}
+	rdapHTTPClient := &http.Client{
+		Transport: &http.Transport{
+			TLSClientConfig: &tls.Config{
+				InsecureSkipVerify: skipTLSVerification,
+			},
+		},
+	}
 
 	if !ctx.Bool("no-cache") {
 		transport := httpcache.NewTransport(
@@ -157,7 +164,7 @@ func action(ctx *cli.Context) {
 			},
 		}
 
-		httpClient.Transport = transport
+		bsHTTPClient.Transport = transport
 	}
 
 	identifier := strings.Join(ctx.Args(), " ")
@@ -176,14 +183,14 @@ func action(ctx *cli.Context) {
 		}
 
 		client.URIs = append(client.URIs, u.String())
-		client.Transport = rdap.NewDefaultFetcher(httpClient)
+		client.Transport = rdap.NewDefaultFetcher(rdapHTTPClient)
 
 	} else {
 		cacheDetector := rdap.CacheDetector(func(resp *http.Response) bool {
 			return resp.Header.Get(httpcache.XFromCache) == "1"
 		})
 
-		client.Transport = rdap.NewBootstrapFetcher(httpClient, bootstrapURI, cacheDetector)
+		client.Transport = rdap.NewBootstrapFetcher(bsHTTPClient, bootstrapURI, cacheDetector)
 	}
 
 	queryString := make(url.Values)

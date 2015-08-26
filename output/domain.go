@@ -51,6 +51,10 @@ func (d *Domain) setDates() {
 }
 
 func (d *Domain) setDS() {
+	if d.Domain.SecureDNS == nil {
+		return
+	}
+
 	d.DS = make([]ds, len(d.Domain.SecureDNS.DSData))
 
 	for i, dsdatum := range d.Domain.SecureDNS.DSData {
