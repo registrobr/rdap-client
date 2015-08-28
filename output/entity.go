@@ -2,6 +2,7 @@ package output
 
 import (
 	"io"
+	"strings"
 	"text/template"
 	"time"
 
@@ -40,7 +41,7 @@ func (e *Entity) Print(wr io.Writer) error {
 
 	t, err := template.New("entity template").
 		Funcs(genericFuncMap).
-		Parse(contactTmpl)
+		Parse(strings.Replace(contactTmpl, "\\\n", "", -1))
 
 	if err != nil {
 		return err
