@@ -8,12 +8,12 @@ import (
 	"github.com/registrobr/rdap-client/Godeps/_workspace/src/github.com/registrobr/rdap/protocol"
 )
 
-var expectedASOutput = `aut-num:     a_123456-NICBR
+var expectedASOutput = `
+aut-num:     123456
+type:        DIRECT ALLOCATION
 country:     BR
 created:     20150301
 changed:     20150310
-
-inetnum:     (ip networks)
 
 handle:   XXXX
 person:   Joe User

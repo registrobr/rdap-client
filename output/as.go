@@ -1,7 +1,9 @@
 package output
 
 import (
+	"fmt"
 	"io"
+	"strings"
 	"text/template"
 	"time"
 
@@ -9,11 +11,10 @@ import (
 )
 
 type AS struct {
-	AS *protocol.AS
-
-	CreatedAt time.Time
-	UpdatedAt time.Time
-
+	AS            *protocol.AS
+	CreatedAt     time.Time
+	UpdatedAt     time.Time
+	IPNetworks    []string
 	ContactsInfos []contactInfo
 }
 
@@ -40,14 +41,29 @@ func (a *AS) setDates() {
 	}
 }
 
+func (a *AS) setIPNetworks() {
+	for _, l := range a.AS.Links {
+		if l.Rel != "related" {
+			continue
+		}
+
+		linkParts := strings.Split(l.Href, "/")
+		if len(linkParts) >= 3 && linkParts[len(linkParts)-3] == "ip" {
+			cidr := fmt.Sprintf("%s/%s", linkParts[len(linkParts)-2], linkParts[len(linkParts)-1])
+			a.IPNetworks = append(a.IPNetworks, cidr)
+		}
+	}
+}
+
 func (a *AS) Print(wr io.Writer) error {
 	a.setDates()
+	a.setIPNetworks()
 	addContacts(a, a.AS.Entities)
 	filterContacts(a)
 
 	t, err := template.New("as template").
 		Funcs(genericFuncMap).
-		Parse(asTmpl)
+		Parse(strings.Replace(asTmpl, "\\\n", "", -1))
 
 	if err != nil {
 		return err
