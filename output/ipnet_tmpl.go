@@ -1,28 +1,27 @@
 package output
 
 var ipnetTmpl = `inetnum:       {{.Inetnum}}
-aut-num:       {{.IPNetwork.Handle}}
-abuse-c:       (handle)
-owner:         {{.IPNetwork.Name}}
-ownerid:       (CPF/CNPJ)
-responsible:   {{.IPNetwork.Name}}
-address:     
-address:     
-country:       {{.IPNetwork.Country}}
-phone:       
+handle:        {{.IPNetwork.Handle}}
+{{if ne .IPNetwork.ParentHandle ""}}\
+parent-handle: {{.IPNetwork.ParentHandle}}
+{{end}}\
+{{if gt .IPNetwork.Autnum 0}}\
+aut-num:       {{.IPNetwork.Autnum}}
+{{end}}\
 start-address: {{.IPNetwork.StartAddress}}
 end-address:   {{.IPNetwork.EndAddress}}
 ip-version:    {{.IPNetwork.IPVersion}}
+name:          {{.IPNetwork.Name}}
+{{if ne .IPNetwork.Type ""}}\
 type:          {{.IPNetwork.Type}}
-parent-handle: {{.IPNetwork.ParentHandle}}
-status:        {{.IPNetwork.Status}}
-owner-c:     
-tech-c:      
-inetrev:     
-nserver:     
-nsstat:      
-nslastaa:    
-created:     {{.CreatedAt}}
-changed:     {{.UpdatedAt}}
+{{end}}\
+{{if ne .IPNetwork.Country ""}}\
+country:       {{.IPNetwork.Country}}
+{{end}}\
+{{range .IPNetwork.Status}}\
+status:        {{.}}
+{{end}}\
+created:       {{.CreatedAt}}
+changed:       {{.UpdatedAt}}
 
 ` + contactTmpl

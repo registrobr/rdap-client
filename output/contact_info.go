@@ -41,6 +41,17 @@ func (c *contactInfo) setContact(entity protocol.Entity) {
 			case "adr":
 				var address []string
 
+				addressLabel, ok := v[1].(map[string]interface{})
+				if ok {
+					if label, ok := addressLabel["label"]; ok {
+						labelStr := strings.Replace(label.(string), "\r", "", -1)
+						labelParts := strings.Split(labelStr, "\n")
+						for _, addr := range labelParts {
+							address = append(address, addr)
+						}
+					}
+				}
+
 				addresses, ok := v[3].([]interface{})
 				if !ok {
 					continue

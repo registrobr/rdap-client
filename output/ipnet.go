@@ -3,6 +3,7 @@ package output
 import (
 	"io"
 	"net"
+	"strings"
 	"text/template"
 	"time"
 
@@ -64,7 +65,7 @@ func (i *IPNetwork) Print(wr io.Writer) error {
 
 	t, err := template.New("ipnetwork template").
 		Funcs(genericFuncMap).
-		Parse(ipnetTmpl)
+		Parse(strings.Replace(ipnetTmpl, "\\\n", "", -1))
 
 	if err != nil {
 		return err
