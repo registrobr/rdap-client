@@ -33,8 +33,12 @@ inetrev:       {{inetnum .StartAddress .EndAddress}}
 nserver:       {{.LDHName}}
 {{end}}\
 {{end}}\
+{{if not (isDateDefined .CreatedAt)}}\
 created:       {{.CreatedAt | formatDate}}
+{{end}}\
+{{if not (isDateDefined .UpdatedAt)}}\
 changed:       {{.UpdatedAt | formatDate}}
+{{end}}\
 
 ` + contactTmpl
 

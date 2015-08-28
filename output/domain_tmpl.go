@@ -8,7 +8,8 @@ import (
 )
 
 const (
-	domainTmpl = `domain:   {{.Domain.LDHName}}
+	domainTmpl = `
+domain:   {{.Domain.LDHName}}
 {{range .Domain.Nameservers}}\
 nserver:  {{.LDHName}}
 nsstat:   {{nsLastCheck .Events | formatDate}} {{nsStatus .Events}}
@@ -19,8 +20,12 @@ dsrecord: {{.KeyTag}} {{.Algorithm | dsAlgorithm}} {{.Digest}}
 dsstatus: {{dsLastCheck .Events | formatDate}} {{dsStatus .Events}}
 dslastok: {{dsLastOK .Events | formatDate}}
 {{end}}\
+{{if not (isDateDefined .CreatedAt)}}\
 created:  {{.CreatedAt | formatDate}}
+{{end}}\
+{{if not (isDateDefined .UpdatedAt)}}\
 changed:  {{.UpdatedAt | formatDate}}
+{{end}}\
 {{range .Domain.Status}}\
 status:   {{.}}
 {{end}}\

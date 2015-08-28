@@ -12,8 +12,12 @@ type:        {{.AS.Type}}
 {{if ne .AS.Country ""}}\
 country:     {{.AS.Country}}
 {{end}}\
-created:     {{formatDate .CreatedAt}}
-changed:     {{formatDate .UpdatedAt}}
+{{if not (isDateDefined .CreatedAt)}}\
+created:     {{.CreatedAt | formatDate}}
+{{end}}\
+{{if not (isDateDefined .UpdatedAt)}}\
+changed:     {{.UpdatedAt | formatDate}}
+{{end}}\
 {{range .IPNetworks}}\
 inetnum:     {{.}}
 {{end}}\

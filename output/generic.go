@@ -8,6 +8,9 @@ import (
 
 var (
 	genericFuncMap = template.FuncMap{
+		"isDateDefined": func(time time.Time) bool {
+			return time.IsZero()
+		},
 		"formatDate": func(time time.Time) string {
 			return time.Format(dateFormat)
 		},
