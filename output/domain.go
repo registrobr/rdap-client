@@ -2,6 +2,7 @@ package output
 
 import (
 	"io"
+	"strings"
 	"text/template"
 	"time"
 
@@ -79,7 +80,7 @@ func (d *Domain) Print(wr io.Writer) error {
 	t, err := template.New("domain template").
 		Funcs(genericFuncMap).
 		Funcs(domainFuncMap).
-		Parse(domainTmpl)
+		Parse(strings.Replace(domainTmpl, "\\\n", "", -1))
 
 	if err != nil {
 		return err
