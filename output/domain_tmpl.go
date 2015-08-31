@@ -2,7 +2,6 @@ package output
 
 import (
 	"text/template"
-	"time"
 
 	"github.com/registrobr/rdap-client/Godeps/_workspace/src/github.com/registrobr/rdap/protocol"
 )
@@ -63,23 +62,23 @@ var (
 
 			return protocol.Status("")
 		},
-		"nsLastCheck": func(events []protocol.Event) time.Time {
+		"nsLastCheck": func(events []protocol.Event) protocol.EventDate {
 			for _, event := range events {
 				if event.Action == protocol.EventDelegationCheck && len(event.Status) > 0 {
 					return event.Date
 				}
 			}
 
-			return time.Time{}
+			return protocol.EventDate{}
 		},
-		"nsLastOK": func(events []protocol.Event) time.Time {
+		"nsLastOK": func(events []protocol.Event) protocol.EventDate {
 			for _, event := range events {
 				if event.Action == protocol.EventLastCorrectDelegationCheck {
 					return event.Date
 				}
 			}
 
-			return time.Time{}
+			return protocol.EventDate{}
 		},
 		"dsAlgorithm": func(id int) string {
 			return dsAlgorithms[id]
@@ -93,23 +92,23 @@ var (
 
 			return protocol.Status("")
 		},
-		"dsLastCheck": func(events []protocol.Event) time.Time {
+		"dsLastCheck": func(events []protocol.Event) protocol.EventDate {
 			for _, event := range events {
 				if event.Action == protocol.EventDelegationSignCheck && len(event.Status) > 0 {
 					return event.Date
 				}
 			}
 
-			return time.Time{}
+			return protocol.EventDate{}
 		},
-		"dsLastOK": func(events []protocol.Event) time.Time {
+		"dsLastOK": func(events []protocol.Event) protocol.EventDate {
 			for _, event := range events {
 				if event.Action == protocol.EventLastCorrectDelegationSignCheck {
 					return event.Date
 				}
 			}
 
-			return time.Time{}
+			return protocol.EventDate{}
 		},
 	}
 )

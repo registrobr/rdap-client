@@ -52,8 +52,8 @@ func TestASPrint(t *testing.T) {
 						},
 					},
 					Events: []protocol.Event{
-						protocol.Event{Action: protocol.EventActionRegistration, Actor: "", Date: time.Date(2015, 03, 01, 12, 00, 00, 00, time.UTC)},
-						protocol.Event{Action: protocol.EventActionLastChanged, Actor: "", Date: time.Date(2015, 03, 10, 14, 00, 00, 00, time.UTC)},
+						protocol.Event{Action: protocol.EventActionRegistration, Actor: "", Date: protocol.EventDate{Time: time.Date(2015, 03, 01, 12, 00, 00, 00, time.UTC)}},
+						protocol.Event{Action: protocol.EventActionLastChanged, Actor: "", Date: protocol.EventDate{Time: time.Date(2015, 03, 10, 14, 00, 00, 00, time.UTC)}},
 					},
 				},
 				{
@@ -76,14 +76,14 @@ func TestASPrint(t *testing.T) {
 						},
 					},
 					Events: []protocol.Event{
-						protocol.Event{Action: protocol.EventActionRegistration, Actor: "", Date: time.Date(2015, 03, 01, 12, 00, 00, 00, time.UTC)},
-						protocol.Event{Action: protocol.EventActionLastChanged, Actor: "", Date: time.Date(2015, 03, 10, 14, 00, 00, 00, time.UTC)},
+						protocol.Event{Action: protocol.EventActionRegistration, Actor: "", Date: protocol.EventDate{Time: time.Date(2015, 03, 01, 12, 00, 00, 00, time.UTC)}},
+						protocol.Event{Action: protocol.EventActionLastChanged, Actor: "", Date: protocol.EventDate{Time: time.Date(2015, 03, 10, 14, 00, 00, 00, time.UTC)}},
 					},
 				},
 			},
 			Events: []protocol.Event{
-				protocol.Event{Action: protocol.EventActionRegistration, Actor: "", Date: time.Date(2015, 03, 01, 12, 00, 00, 00, time.UTC)},
-				protocol.Event{Action: protocol.EventActionLastChanged, Actor: "", Date: time.Date(2015, 03, 10, 14, 00, 00, 00, time.UTC)},
+				protocol.Event{Action: protocol.EventActionRegistration, Actor: "", Date: protocol.EventDate{Time: time.Date(2015, 03, 01, 12, 00, 00, 00, time.UTC)}},
+				protocol.Event{Action: protocol.EventActionLastChanged, Actor: "", Date: protocol.EventDate{Time: time.Date(2015, 03, 10, 14, 00, 00, 00, time.UTC)}},
 			},
 		},
 	}

@@ -3,7 +3,6 @@ package output
 import (
 	"fmt"
 	"strings"
-	"time"
 
 	"github.com/registrobr/rdap-client/Godeps/_workspace/src/github.com/registrobr/rdap/protocol"
 )
@@ -16,8 +15,8 @@ type contactInfo struct {
 	Addresses []string
 	Phones    []string
 	Roles     []string
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	CreatedAt protocol.EventDate
+	UpdatedAt protocol.EventDate
 }
 
 func (c *contactInfo) setContact(entity protocol.Entity) {

@@ -4,7 +4,6 @@ import (
 	"io"
 	"strings"
 	"text/template"
-	"time"
 
 	"github.com/registrobr/rdap-client/Godeps/_workspace/src/github.com/registrobr/rdap/protocol"
 )
@@ -12,9 +11,9 @@ import (
 type Domain struct {
 	Domain *protocol.Domain
 
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	ExpiresAt time.Time
+	CreatedAt protocol.EventDate
+	UpdatedAt protocol.EventDate
+	ExpiresAt protocol.EventDate
 
 	Handles       map[string]string
 	DS            []ds
@@ -23,7 +22,7 @@ type Domain struct {
 
 type ds struct {
 	protocol.DS
-	CreatedAt time.Time
+	CreatedAt protocol.EventDate
 }
 
 func (d *Domain) addContact(c contactInfo) {

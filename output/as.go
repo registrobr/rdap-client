@@ -5,15 +5,14 @@ import (
 	"io"
 	"strings"
 	"text/template"
-	"time"
 
 	"github.com/registrobr/rdap-client/Godeps/_workspace/src/github.com/registrobr/rdap/protocol"
 )
 
 type AS struct {
 	AS            *protocol.AS
-	CreatedAt     time.Time
-	UpdatedAt     time.Time
+	CreatedAt     protocol.EventDate
+	UpdatedAt     protocol.EventDate
 	IPNetworks    []string
 	ContactsInfos []contactInfo
 }

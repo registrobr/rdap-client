@@ -4,15 +4,14 @@ import (
 	"io"
 	"strings"
 	"text/template"
-	"time"
 
 	"github.com/registrobr/rdap-client/Godeps/_workspace/src/github.com/registrobr/rdap/protocol"
 )
 
 type IPNetwork struct {
 	IPNetwork     *protocol.IPNetwork
-	CreatedAt     time.Time
-	UpdatedAt     time.Time
+	CreatedAt     protocol.EventDate
+	UpdatedAt     protocol.EventDate
 	ContactsInfos []contactInfo
 }
 

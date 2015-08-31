@@ -4,7 +4,6 @@ import (
 	"io"
 	"strings"
 	"text/template"
-	"time"
 
 	"github.com/registrobr/rdap-client/Godeps/_workspace/src/github.com/registrobr/rdap/protocol"
 )
@@ -12,8 +11,8 @@ import (
 type Entity struct {
 	Entity *protocol.Entity
 
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	CreatedAt protocol.EventDate
+	UpdatedAt protocol.EventDate
 
 	ContactsInfos []contactInfo
 }

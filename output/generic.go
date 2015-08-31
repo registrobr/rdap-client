@@ -3,15 +3,16 @@ package output
 import (
 	"strings"
 	"text/template"
-	"time"
+
+	"github.com/registrobr/rdap-client/Godeps/_workspace/src/github.com/registrobr/rdap/protocol"
 )
 
 var (
 	genericFuncMap = template.FuncMap{
-		"isDateDefined": func(time time.Time) bool {
+		"isDateDefined": func(time protocol.EventDate) bool {
 			return time.IsZero()
 		},
-		"formatDate": func(time time.Time) string {
+		"formatDate": func(time protocol.EventDate) string {
 			return time.Format(dateFormat)
 		},
 		"join": func(in []string) string {
