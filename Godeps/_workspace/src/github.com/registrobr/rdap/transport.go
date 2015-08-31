@@ -22,6 +22,11 @@ const (
 	// name
 	QueryTypeDomain QueryType = "domain"
 
+	// QueryTypeTicket used to query a domain request. This query type was
+	// created by NIC.br to allow retrieving information about the domain
+	// requests
+	QueryTypeTicket QueryType = "ticket"
+
 	// QueryTypeAutnum used to identify Autonomous System number registrations
 	// and associated data referenced using an asplain Autonomous System number
 	QueryTypeAutnum QueryType = "autnum"

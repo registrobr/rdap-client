@@ -16,7 +16,7 @@ import (
 )
 
 var (
-	isFQDN = regexp.MustCompile(`^((([a-z0-9][a-z0-9\-]*[a-z0-9])|[a-z0-9]+)\.)*([a-z]+|xn\-\-[a-z0-9]+)\.?$`)
+	fqdnRX = regexp.MustCompile(`^((([a-z0-9][a-z0-9\-]*[a-z0-9])|[a-z0-9]+)\.)*([a-z]+|xn\-\-[a-z0-9]+)\.?$`)
 )
 
 // Client is responsible for building, sending the request and parsing the
@@ -60,6 +60,25 @@ func (c *Client) Domain(fqdn string, header http.Header, queryString url.Values)
 	fqdn = idn.ToPunycode(strings.ToLower(fqdn))
 
 	resp, err := c.Transport.Fetch(c.URIs, QueryTypeDomain, fqdn, header, queryString)
+	if err != nil {
+		return nil, err
+	}
+
+	domain := &protocol.Domain{}
+	if err = json.NewDecoder(resp.Body).Decode(domain); err != nil {
+		return nil, err
+	}
+
+	return domain, nil
+}
+
+// Ticket will query each RDAP server to retrieve the desired information and
+// will parse and store the response into a protocol Domain object. You can
+// optionally define the HTTP headers parameters to send to the RDAP server. If
+// something goes wrong an error will be returned, and if nothing is found
+// the error ErrNotFound will be returned
+func (c *Client) Ticket(ticketNumber int, header http.Header, queryString url.Values) (*protocol.Domain, error) {
+	resp, err := c.Transport.Fetch(c.URIs, QueryTypeTicket, strconv.Itoa(ticketNumber), header, queryString)
 	if err != nil {
 		return nil, err
 	}
@@ -174,7 +193,7 @@ func (c *Client) Query(object string, header http.Header, queryString url.Values
 		return c.IPNetwork(ipnetwork, header, queryString)
 	}
 
-	if fqdn := idn.ToPunycode(strings.ToLower(object)); isFQDN.MatchString(fqdn) {
+	if fqdn := idn.ToPunycode(strings.ToLower(object)); fqdnRX.MatchString(fqdn) {
 		return c.Domain(fqdn, header, queryString)
 	}
 

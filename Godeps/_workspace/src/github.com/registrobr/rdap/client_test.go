@@ -137,6 +137,111 @@ func TestClientDomain(t *testing.T) {
 	}
 }
 
+func TestClientTicket(t *testing.T) {
+	data := []struct {
+		description   string
+		ticketNumber  int
+		header        http.Header
+		queryString   url.Values
+		client        func() (*http.Response, error)
+		expected      *protocol.Domain
+		expectedError error
+	}{
+		{
+			description:  "it should return a valid ticket",
+			ticketNumber: 1234,
+			header: http.Header{
+				"X-Forwarded-For": []string{"127.0.0.1"},
+			},
+			client: func() (*http.Response, error) {
+				domain := protocol.Domain{
+					ObjectClassName: "domain",
+					Handle:          "example.com",
+					LDHName:         "example.com",
+				}
+
+				data, err := json.Marshal(domain)
+				if err != nil {
+					t.Fatal(err)
+				}
+
+				var response http.Response
+				response.Body = nopCloser{bytes.NewBuffer(data)}
+				return &response, nil
+			},
+			expected: &protocol.Domain{
+				ObjectClassName: "domain",
+				Handle:          "example.com",
+				LDHName:         "example.com",
+			},
+		},
+		{
+			description:  "it should fail to query a ticket",
+			ticketNumber: 1234,
+			client: func() (*http.Response, error) {
+				return nil, fmt.Errorf("I'm a crazy error!")
+			},
+			expectedError: fmt.Errorf("I'm a crazy error!"),
+		},
+		{
+			description:  "it should fail to decode the domain response",
+			ticketNumber: 1234,
+			client: func() (*http.Response, error) {
+				var response http.Response
+				response.Body = nopCloser{bytes.NewBufferString(`{{{{`)}
+				return &response, nil
+			},
+			expectedError: fmt.Errorf("invalid character '{' looking for beginning of object key string"),
+		},
+	}
+
+	for i, item := range data {
+		client := Client{
+			URIs: []string{"rdap.example.com"},
+			Transport: fetcherFunc(func(uris []string, queryType QueryType, queryValue string, header http.Header, queryString url.Values) (*http.Response, error) {
+				expectedURIs := []string{"rdap.example.com"}
+				if !reflect.DeepEqual(expectedURIs, uris) {
+					return nil, fmt.Errorf("expected uris “%#v” and got “%#v”", expectedURIs, uris)
+				}
+
+				if !reflect.DeepEqual(item.header, header) {
+					return nil, fmt.Errorf("expected HTTP headers “%#v” and got “%#v”", item.header, header)
+				}
+
+				if !reflect.DeepEqual(item.queryString, queryString) {
+					return nil, fmt.Errorf("expected query string “%#v” and got “%#v”", item.queryString, queryString)
+				}
+
+				if queryType != QueryTypeTicket {
+					return nil, fmt.Errorf("expected query type “%s” and got “%s”", QueryTypeTicket, queryType)
+				}
+
+				if queryValue != strconv.Itoa(item.ticketNumber) {
+					return nil, fmt.Errorf("expected FQDN “%d” and got “%s”", item.ticketNumber, queryValue)
+				}
+
+				return item.client()
+			}),
+		}
+
+		domain, err := client.Ticket(item.ticketNumber, item.header, item.queryString)
+
+		if item.expectedError != nil {
+			if fmt.Sprintf("%v", item.expectedError) != fmt.Sprintf("%v", err) {
+				t.Errorf("[%d] %s: expected error “%s”, got “%s”", i, item.description, item.expectedError, err)
+			}
+
+		} else if err != nil {
+			t.Errorf("[%d] %s: unexpected error “%s”", i, item.description, err)
+
+		} else {
+			if !reflect.DeepEqual(item.expected, domain) {
+				t.Errorf("[%d] “%s”: mismatch results.\n%v", i, item.description, diff(item.expected, domain))
+			}
+		}
+	}
+}
+
 func TestClientASN(t *testing.T) {
 	data := []struct {
 		description   string
