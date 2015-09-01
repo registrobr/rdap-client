@@ -10,7 +10,7 @@ import (
 var (
 	genericFuncMap = template.FuncMap{
 		"isDateDefined": func(time protocol.EventDate) bool {
-			return time.IsZero()
+			return !time.IsZero()
 		},
 		"formatDate": func(time protocol.EventDate) string {
 			return time.Format(dateFormat)

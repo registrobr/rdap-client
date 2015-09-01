@@ -11,18 +11,24 @@ const (
 domain:   {{.Domain.LDHName}}
 {{range .Domain.Nameservers}}\
 nserver:  {{.LDHName}}
-nsstat:   {{nsLastCheck .Events | formatDate}} {{nsStatus .Events}}
-nslastaa: {{nsLastOK .Events | formatDate}}
+{{$lastCheck := nsLastCheck .Events}}\
+{{if (isDateDefined $lastCheck)}}\
+nsstat:   {{$lastCheck | formatDate}} {{nsStatus .Events}}
+{{end}}\
+{{$lastOK := nsLastOK .Events}}\
+{{if (isDateDefined $lastOK)}}\
+nslastaa: {{$lastOK | formatDate}}
+{{end}}\
 {{end}}\
 {{range .DS}}\
 dsrecord: {{.KeyTag}} {{.Algorithm | dsAlgorithm}} {{.Digest}}
 dsstatus: {{dsLastCheck .Events | formatDate}} {{dsStatus .Events}}
 dslastok: {{dsLastOK .Events | formatDate}}
 {{end}}\
-{{if not (isDateDefined .CreatedAt)}}\
+{{if (isDateDefined .CreatedAt)}}\
 created:  {{.CreatedAt | formatDate}}
 {{end}}\
-{{if not (isDateDefined .UpdatedAt)}}\
+{{if (isDateDefined .UpdatedAt)}}\
 changed:  {{.UpdatedAt | formatDate}}
 {{end}}\
 {{range .Domain.Status}}\

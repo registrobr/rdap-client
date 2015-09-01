@@ -33,10 +33,10 @@ inetrev:       {{inetnum .StartAddress .EndAddress}}
 nserver:       {{.LDHName}}
 {{end}}\
 {{end}}\
-{{if not (isDateDefined .CreatedAt)}}\
+{{if (isDateDefined .CreatedAt)}}\
 created:       {{.CreatedAt | formatDate}}
 {{end}}\
-{{if not (isDateDefined .UpdatedAt)}}\
+{{if (isDateDefined .UpdatedAt)}}\
 changed:       {{.UpdatedAt | formatDate}}
 {{end}}\
 

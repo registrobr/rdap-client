@@ -12,10 +12,10 @@ type:        {{.AS.Type}}
 {{if ne .AS.Country ""}}\
 country:     {{.AS.Country}}
 {{end}}\
-{{if not (isDateDefined .CreatedAt)}}\
+{{if (isDateDefined .CreatedAt)}}\
 created:     {{.CreatedAt | formatDate}}
 {{end}}\
-{{if not (isDateDefined .UpdatedAt)}}\
+{{if (isDateDefined .UpdatedAt)}}\
 changed:     {{.UpdatedAt | formatDate}}
 {{end}}\
 {{range .IPNetworks}}\
