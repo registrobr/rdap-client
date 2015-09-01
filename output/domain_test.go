@@ -44,8 +44,14 @@ func TestDomainPrint(t *testing.T) {
 						},
 					},
 					Events: []protocol.Event{
-						protocol.Event{Action: protocol.EventActionRegistration, Actor: "", Date: protocol.EventDate{Time: time.Date(2015, 03, 01, 12, 00, 00, 00, time.UTC)}},
-						protocol.Event{Action: protocol.EventActionLastChanged, Actor: "", Date: protocol.EventDate{Time: time.Date(2015, 03, 10, 14, 00, 00, 00, time.UTC)}},
+						{
+							Action: protocol.EventActionRegistration,
+							Date:   protocol.Date(2015, 03, 01, 12, 00, 00, 00, time.UTC),
+						},
+						{
+							Action: protocol.EventActionLastChanged,
+							Date:   protocol.Date(2015, 03, 10, 14, 00, 00, 00, time.UTC),
+						},
 					},
 				},
 				{
@@ -68,14 +74,26 @@ func TestDomainPrint(t *testing.T) {
 						},
 					},
 					Events: []protocol.Event{
-						protocol.Event{Action: protocol.EventActionRegistration, Actor: "", Date: protocol.EventDate{Time: time.Date(2015, 03, 01, 12, 00, 00, 00, time.UTC)}},
-						protocol.Event{Action: protocol.EventActionLastChanged, Actor: "", Date: protocol.EventDate{Time: time.Date(2015, 03, 10, 14, 00, 00, 00, time.UTC)}},
+						{
+							Action: protocol.EventActionRegistration,
+							Date:   protocol.Date(2015, 03, 01, 12, 00, 00, 00, time.UTC),
+						},
+						{
+							Action: protocol.EventActionLastChanged,
+							Date:   protocol.Date(2015, 03, 10, 14, 00, 00, 00, time.UTC),
+						},
 					},
 				},
 			},
 			Events: []protocol.Event{
-				protocol.Event{Action: protocol.EventActionRegistration, Actor: "", Date: protocol.EventDate{Time: time.Date(2015, 03, 01, 12, 00, 00, 00, time.UTC)}},
-				protocol.Event{Action: protocol.EventActionLastChanged, Actor: "", Date: protocol.EventDate{Time: time.Date(2015, 03, 10, 14, 00, 00, 00, time.UTC)}},
+				{
+					Action: protocol.EventActionRegistration,
+					Date:   protocol.Date(2015, 03, 01, 12, 00, 00, 00, time.UTC),
+				},
+				{
+					Action: protocol.EventActionLastChanged,
+					Date:   protocol.Date(2015, 03, 10, 14, 00, 00, 00, time.UTC),
+				},
 			},
 			Nameservers: []protocol.Nameserver{
 				{
@@ -98,12 +116,12 @@ func TestDomainPrint(t *testing.T) {
 						Events: []protocol.Event{
 							{
 								Action: protocol.EventActionRegistration,
-								Date:   protocol.EventDate{Time: time.Date(2015, 03, 01, 12, 00, 00, 00, time.UTC)},
+								Date:   protocol.Date(2015, 03, 01, 12, 00, 00, 00, time.UTC),
 							},
 							{
 								Action: protocol.EventDelegationSignCheck,
 								Status: []protocol.Status{protocol.StatusDSOK},
-								Date:   protocol.EventDate{Time: time.Date(2015, 03, 01, 12, 00, 00, 00, time.UTC)},
+								Date:   protocol.Date(2015, 03, 01, 12, 00, 00, 00, time.UTC),
 							},
 						},
 					},
