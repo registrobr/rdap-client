@@ -1,32 +1,36 @@
-# rdap-client
+rdap-client
+===========
 
-RDAP client usage
+This is a command line RDAP client.
+
+
+Install
+-------
 
 ```
-NAME:
-   rdap - RDAP cgclient
+go get github.com/registrobr/rdap-client
+```
 
-USAGE:
-   rdap [global options] OBJECT
+Remember to add your $GOPATH/bin to your $PATH environment.
 
-VERSION:
-   0.0.1
 
-AUTHOR(S): 
-   NIC.br 
+Usage
+-----
 
-GLOBAL OPTIONS:
-   --cache "/home/joao/.rdap"                          directory for caching bootstrap and RDAP data
-   --bootstrap "https://data.iana.org/rdap/%s.json"    RDAP bootstrap service URL
-   --no-cache                                          don't cache anything
-   --skip-tls-verification, -S                         skip TLS verification
-   --domain                                            force query for a domain object
-   --asn                                               force query for an ASN object
-   --ip                                                force query for an IP object
-   --ipnetwork                                         force query for an IP Network object
-   --entity                                            force query for an Entity object
-   --host, -H                                          host where to send the query (bypass bootstrap)
-   --help, -h                                          show help
-   --version, -v                                       print the version
+To query something using bootstrap strategy:
 
+```
+rdap-client 199.71.0.160
+```
+
+Or if you want to directly query a RDAP server:
+
+```
+rdap-client -H rdap.beta.registro.br nic.br
+```
+
+You can check more options with:
+
+```
+rdap-client -h
 ```
