@@ -1,3 +1,5 @@
+[![GoDoc](https://godoc.org/github.com/registrobr/rdap?status.svg)](https://godoc.org/github.com/registrobr/rdap)
+
 RDAP
 ====
 

@@ -7,6 +7,24 @@ import (
 	"time"
 )
 
+func TestDate(t *testing.T) {
+	eventDate := Date(2015, 9, 1, 10, 20, 30, 0, time.UTC)
+
+	expected := "2015-09-01T10:20:30Z"
+	if out := eventDate.Format(time.RFC3339); out != expected {
+		t.Errorf("Expected “%s” and got “%s”", expected, out)
+	}
+}
+
+func TestNewEventDate(t *testing.T) {
+	eventDate := NewEventDate(time.Date(2015, 9, 1, 10, 20, 30, 0, time.UTC))
+
+	expected := "2015-09-01T10:20:30Z"
+	if out := eventDate.Format(time.RFC3339); out != expected {
+		t.Errorf("Expected “%s” and got “%s”", expected, out)
+	}
+}
+
 func TestEventDateUnmarshalJSON(t *testing.T) {
 	data := []struct {
 		description   string
