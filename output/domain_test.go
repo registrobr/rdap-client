@@ -133,8 +133,6 @@ func TestDomainPrint(t *testing.T) {
 	expected := `
 domain:   example.br
 nserver:  a.dns.br
-nsstat:   00010101 ns aa
-nslastaa: 00010101
 dsrecord: 12345 RSASHA1 0123456789ABCDEF0123456789ABCDEF01234567
 dsstatus: 20150301 ds ok
 dslastok: 00010101
