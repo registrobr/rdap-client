@@ -213,30 +213,30 @@ func action(ctx *cli.Context) {
 	case forceASN:
 		var asn uint64
 		if asn, err = strconv.ParseUint(identifier, 10, 32); err == nil {
-			object, err = client.ASN(uint32(asn), nil, queryString)
+			object, _, err = client.ASN(uint32(asn), nil, queryString)
 		}
 
 	case forceDomain:
-		object, err = client.Domain(identifier, nil, queryString)
+		object, _, err = client.Domain(identifier, nil, queryString)
 
 	case forceEntity:
-		object, err = client.Entity(identifier, nil, queryString)
+		object, _, err = client.Entity(identifier, nil, queryString)
 
 	case forceIP:
 		if ip := net.ParseIP(identifier); ip != nil {
-			object, err = client.IP(ip, nil, queryString)
+			object, _, err = client.IP(ip, nil, queryString)
 		} else {
 			var ipnetwork *net.IPNet
 
 			if _, ipnetwork, err = net.ParseCIDR(identifier); err != nil {
 				err = fmt.Errorf("invalid ip or ip network “%s”", identifier)
 			} else {
-				object, err = client.IPNetwork(ipnetwork, nil, queryString)
+				object, _, err = client.IPNetwork(ipnetwork, nil, queryString)
 			}
 		}
 
 	default:
-		object, err = client.Query(identifier, nil, queryString)
+		object, _, err = client.Query(identifier, nil, queryString)
 	}
 
 	if err != nil {
