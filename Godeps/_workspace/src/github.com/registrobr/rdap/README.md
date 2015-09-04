@@ -42,7 +42,7 @@ import (
 func main() {
 	c := rdap.NewClient([]string{"https://rdap.beta.registro.br"})
 
-	d, err := c.Query("nic.br", nil, nil)
+	d, _, err := c.Query("nic.br", nil, nil)
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -61,7 +61,7 @@ func main() {
 	queryString := make(url.Values)
 	queryString.Set("ticket", "5439886")
 
-	d, err = c.Domain("rafael.net.br", nil, queryString)
+	d, _, err = c.Domain("rafael.net.br", nil, queryString)
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -92,7 +92,7 @@ import (
 func main() {
 	c := rdap.NewClient(nil)
 
-	ipnetwork, err := c.Query("214.1.2.3", nil, nil)
+	ipnetwork, _, err := c.Query("214.1.2.3", nil, nil)
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -133,7 +133,7 @@ func main() {
 		Transport: rdap.NewBootstrapFetcher(&httpClient, rdap.IANABootstrap, cacheDetector),
 	}
 
-	ipnetwork, err := c.Query("214.1.2.3", http.Header{
+	ipnetwork, _, err := c.Query("214.1.2.3", http.Header{
 		"X-Forwarded-For": []string{"127.0.0.1"},
 	}, nil)
 

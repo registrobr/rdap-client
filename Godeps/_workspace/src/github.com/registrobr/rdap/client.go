@@ -55,132 +55,139 @@ func NewClient(URIs []string) *Client {
 // will parse and store the response into a protocol Domain object. You can
 // optionally define the HTTP headers parameters to send to the RDAP server. If
 // something goes wrong an error will be returned, and if nothing is found
-// the error ErrNotFound will be returned
-func (c *Client) Domain(fqdn string, header http.Header, queryString url.Values) (*protocol.Domain, error) {
+// the error ErrNotFound will be returned. The HTTP header of the RDAP
+// response is also returned to analyze any specific flag
+func (c *Client) Domain(fqdn string, header http.Header, queryString url.Values) (*protocol.Domain, http.Header, error) {
 	fqdn = idn.ToPunycode(strings.ToLower(fqdn))
 
 	resp, err := c.Transport.Fetch(c.URIs, QueryTypeDomain, fqdn, header, queryString)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	domain := &protocol.Domain{}
 	if err = json.NewDecoder(resp.Body).Decode(domain); err != nil {
-		return nil, err
+		return nil, resp.Header, err
 	}
 
-	return domain, nil
+	return domain, resp.Header, nil
 }
 
 // Ticket will query each RDAP server to retrieve the desired information and
 // will parse and store the response into a protocol Domain object. You can
 // optionally define the HTTP headers parameters to send to the RDAP server. If
 // something goes wrong an error will be returned, and if nothing is found
-// the error ErrNotFound will be returned
-func (c *Client) Ticket(ticketNumber int, header http.Header, queryString url.Values) (*protocol.Domain, error) {
+// the error ErrNotFound will be returned. The HTTP header of the RDAP
+// response is also returned to analyze any specific flag
+func (c *Client) Ticket(ticketNumber int, header http.Header, queryString url.Values) (*protocol.Domain, http.Header, error) {
 	resp, err := c.Transport.Fetch(c.URIs, QueryTypeTicket, strconv.Itoa(ticketNumber), header, queryString)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	domain := &protocol.Domain{}
 	if err = json.NewDecoder(resp.Body).Decode(domain); err != nil {
-		return nil, err
+		return nil, resp.Header, err
 	}
 
-	return domain, nil
+	return domain, resp.Header, nil
 }
 
 // ASN will query each RDAP server to retrieve the desired information and
 // will parse and store the response into a protocol AS object. You can
 // optionally define the HTTP headers parameters to send to the RDAP server.
 // If something goes wrong an error will be returned, and if nothing is found
-// the error ErrNotFound will be returned
-func (c *Client) ASN(asn uint32, header http.Header, queryString url.Values) (*protocol.AS, error) {
+// the error ErrNotFound will be returned. The HTTP header of the RDAP
+// response is also returned to analyze any specific flag
+func (c *Client) ASN(asn uint32, header http.Header, queryString url.Values) (*protocol.AS, http.Header, error) {
 	asnStr := strconv.FormatUint(uint64(asn), 10)
 
 	resp, err := c.Transport.Fetch(c.URIs, QueryTypeAutnum, asnStr, header, queryString)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	as := &protocol.AS{}
 	if err = json.NewDecoder(resp.Body).Decode(as); err != nil {
-		return nil, err
+		return nil, resp.Header, err
 	}
 
-	return as, nil
+	return as, resp.Header, nil
 }
 
 // Entity will query each RDAP server to retrieve the desired information and
 // will parse and store the response into a protocol Entity object. You can
 // optionally define the HTTP headers parameters to send to the RDAP server.
 // If something goes wrong an error will be returned, and if nothing is found
-// the error ErrNotFound will be returned
-func (c *Client) Entity(identifier string, header http.Header, queryString url.Values) (*protocol.Entity, error) {
+// the error ErrNotFound will be returned. The HTTP header of the RDAP
+// response is also returned to analyze any specific flag
+func (c *Client) Entity(identifier string, header http.Header, queryString url.Values) (*protocol.Entity, http.Header, error) {
 	resp, err := c.Transport.Fetch(c.URIs, QueryTypeEntity, identifier, header, queryString)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	entity := &protocol.Entity{}
 	if err = json.NewDecoder(resp.Body).Decode(entity); err != nil {
-		return nil, err
+		return nil, resp.Header, err
 	}
 
-	return entity, nil
+	return entity, resp.Header, nil
 }
 
 // IPNetwork will query each RDAP server to retrieve the desired information and
 // will parse and store the response into a protocol IPNetwork object. You can
 // optionally define the HTTP headers parameters to send to the RDAP server.
 // If something goes wrong an error will be returned, and if nothing is found
-// the error ErrNotFound will be returned
-func (c *Client) IPNetwork(ipnet *net.IPNet, header http.Header, queryString url.Values) (*protocol.IPNetwork, error) {
+// the error ErrNotFound will be returned. The HTTP header of the RDAP
+// response is also returned to analyze any specific flag
+func (c *Client) IPNetwork(ipnet *net.IPNet, header http.Header, queryString url.Values) (*protocol.IPNetwork, http.Header, error) {
 	if ipnet == nil {
-		return nil, fmt.Errorf("undefined IP network")
+		return nil, nil, fmt.Errorf("undefined IP network")
 	}
 
 	resp, err := c.Transport.Fetch(c.URIs, QueryTypeIP, ipnet.String(), header, queryString)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	ipNetwork := &protocol.IPNetwork{}
 	if err = json.NewDecoder(resp.Body).Decode(ipNetwork); err != nil {
-		return nil, err
+		return nil, resp.Header, err
 	}
 
-	return ipNetwork, nil
+	return ipNetwork, resp.Header, nil
 }
 
 // IP will query each RDAP server to retrieve the desired information and
 // will parse and store the response into a protocol IP object. You can
 // optionally define the HTTP headers parameters to send to the RDAP server.
 // If something goes wrong an error will be returned, and if nothing is found
-// the error ErrNotFound will be returned
-func (c *Client) IP(ip net.IP, header http.Header, queryString url.Values) (*protocol.IPNetwork, error) {
+// the error ErrNotFound will be returned. The HTTP header of the RDAP
+// response is also returned to analyze any specific flag
+func (c *Client) IP(ip net.IP, header http.Header, queryString url.Values) (*protocol.IPNetwork, http.Header, error) {
 	if ip == nil {
-		return nil, fmt.Errorf("undefined IP")
+		return nil, nil, fmt.Errorf("undefined IP")
 	}
 
 	resp, err := c.Transport.Fetch(c.URIs, QueryTypeIP, ip.String(), header, queryString)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	ipNetwork := &protocol.IPNetwork{}
 	if err = json.NewDecoder(resp.Body).Decode(ipNetwork); err != nil {
-		return nil, err
+		return nil, resp.Header, err
 	}
 
-	return ipNetwork, nil
+	return ipNetwork, resp.Header, nil
 }
 
 // Query will try to search the object in the following order: ASN, IP, IP
 // network, domain and entity. If the format is not valid for the specific
-// search, the search is ignored
-func (c *Client) Query(object string, header http.Header, queryString url.Values) (interface{}, error) {
+// search, the search is ignored. The HTTP header of the RDAP
+// response is also returned to analyze any specific flag
+func (c *Client) Query(object string, header http.Header, queryString url.Values) (interface{}, http.Header, error) {
 	if asn, err := strconv.ParseUint(object, 10, 32); err == nil {
 		return c.ASN(uint32(asn), header, queryString)
 	}

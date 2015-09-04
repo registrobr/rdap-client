@@ -31,13 +31,14 @@ func TestNewClient(t *testing.T) {
 
 func TestClientDomain(t *testing.T) {
 	data := []struct {
-		description   string
-		fqdn          string
-		header        http.Header
-		queryString   url.Values
-		client        func() (*http.Response, error)
-		expected      *protocol.Domain
-		expectedError error
+		description    string
+		fqdn           string
+		header         http.Header
+		queryString    url.Values
+		client         func() (*http.Response, error)
+		expected       *protocol.Domain
+		expectedHeader http.Header
+		expectedError  error
 	}{
 		{
 			description: "it should return a valid domain",
@@ -62,12 +63,18 @@ func TestClientDomain(t *testing.T) {
 
 				var response http.Response
 				response.Body = nopCloser{bytes.NewBuffer(data)}
+				response.Header = http.Header{
+					"Random-Header": []string{"value"},
+				}
 				return &response, nil
 			},
 			expected: &protocol.Domain{
 				ObjectClassName: "domain",
 				Handle:          "example.com",
 				LDHName:         "example.com",
+			},
+			expectedHeader: http.Header{
+				"Random-Header": []string{"value"},
 			},
 		},
 		{
@@ -119,7 +126,7 @@ func TestClientDomain(t *testing.T) {
 			}),
 		}
 
-		domain, err := client.Domain(item.fqdn, item.header, item.queryString)
+		domain, header, err := client.Domain(item.fqdn, item.header, item.queryString)
 
 		if item.expectedError != nil {
 			if fmt.Sprintf("%v", item.expectedError) != fmt.Sprintf("%v", err) {
@@ -133,19 +140,24 @@ func TestClientDomain(t *testing.T) {
 			if !reflect.DeepEqual(item.expected, domain) {
 				t.Errorf("[%d] “%s”: mismatch results.\n%v", i, item.description, diff(item.expected, domain))
 			}
+
+			if !reflect.DeepEqual(item.expectedHeader, header) {
+				t.Errorf("[%d] “%s”: mismatch HTTP header.\n%v", i, item.description, diff(item.expectedHeader, header))
+			}
 		}
 	}
 }
 
 func TestClientTicket(t *testing.T) {
 	data := []struct {
-		description   string
-		ticketNumber  int
-		header        http.Header
-		queryString   url.Values
-		client        func() (*http.Response, error)
-		expected      *protocol.Domain
-		expectedError error
+		description    string
+		ticketNumber   int
+		header         http.Header
+		queryString    url.Values
+		client         func() (*http.Response, error)
+		expected       *protocol.Domain
+		expectedHeader http.Header
+		expectedError  error
 	}{
 		{
 			description:  "it should return a valid ticket",
@@ -167,12 +179,18 @@ func TestClientTicket(t *testing.T) {
 
 				var response http.Response
 				response.Body = nopCloser{bytes.NewBuffer(data)}
+				response.Header = http.Header{
+					"Random-Header": []string{"value"},
+				}
 				return &response, nil
 			},
 			expected: &protocol.Domain{
 				ObjectClassName: "domain",
 				Handle:          "example.com",
 				LDHName:         "example.com",
+			},
+			expectedHeader: http.Header{
+				"Random-Header": []string{"value"},
 			},
 		},
 		{
@@ -224,7 +242,7 @@ func TestClientTicket(t *testing.T) {
 			}),
 		}
 
-		domain, err := client.Ticket(item.ticketNumber, item.header, item.queryString)
+		domain, header, err := client.Ticket(item.ticketNumber, item.header, item.queryString)
 
 		if item.expectedError != nil {
 			if fmt.Sprintf("%v", item.expectedError) != fmt.Sprintf("%v", err) {
@@ -238,19 +256,24 @@ func TestClientTicket(t *testing.T) {
 			if !reflect.DeepEqual(item.expected, domain) {
 				t.Errorf("[%d] “%s”: mismatch results.\n%v", i, item.description, diff(item.expected, domain))
 			}
+
+			if !reflect.DeepEqual(item.expectedHeader, header) {
+				t.Errorf("[%d] “%s”: mismatch HTTP header.\n%v", i, item.description, diff(item.expectedHeader, header))
+			}
 		}
 	}
 }
 
 func TestClientASN(t *testing.T) {
 	data := []struct {
-		description   string
-		asn           uint32
-		header        http.Header
-		queryString   url.Values
-		client        func() (*http.Response, error)
-		expected      *protocol.AS
-		expectedError error
+		description    string
+		asn            uint32
+		header         http.Header
+		queryString    url.Values
+		client         func() (*http.Response, error)
+		expected       *protocol.AS
+		expectedHeader http.Header
+		expectedError  error
 	}{
 		{
 			description: "it should return a valid AS",
@@ -276,6 +299,9 @@ func TestClientASN(t *testing.T) {
 
 				var response http.Response
 				response.Body = nopCloser{bytes.NewBuffer(data)}
+				response.Header = http.Header{
+					"Random-Header": []string{"value"},
+				}
 				return &response, nil
 			},
 			expected: &protocol.AS{
@@ -283,6 +309,9 @@ func TestClientASN(t *testing.T) {
 				Handle:          "1234",
 				StartAutnum:     1234,
 				EndAutnum:       1234,
+			},
+			expectedHeader: http.Header{
+				"Random-Header": []string{"value"},
 			},
 		},
 		{
@@ -334,7 +363,7 @@ func TestClientASN(t *testing.T) {
 			}),
 		}
 
-		as, err := client.ASN(item.asn, item.header, item.queryString)
+		as, header, err := client.ASN(item.asn, item.header, item.queryString)
 
 		if item.expectedError != nil {
 			if fmt.Sprintf("%v", item.expectedError) != fmt.Sprintf("%v", err) {
@@ -348,19 +377,24 @@ func TestClientASN(t *testing.T) {
 			if !reflect.DeepEqual(item.expected, as) {
 				t.Errorf("[%d] “%s”: mismatch results.\n%v", i, item.description, diff(item.expected, as))
 			}
+
+			if !reflect.DeepEqual(item.expectedHeader, header) {
+				t.Errorf("[%d] “%s”: mismatch HTTP header.\n%v", i, item.description, diff(item.expectedHeader, header))
+			}
 		}
 	}
 }
 
 func TestClientEntity(t *testing.T) {
 	data := []struct {
-		description   string
-		entity        string
-		header        http.Header
-		queryString   url.Values
-		client        func() (*http.Response, error)
-		expected      *protocol.Entity
-		expectedError error
+		description    string
+		entity         string
+		header         http.Header
+		queryString    url.Values
+		client         func() (*http.Response, error)
+		expected       *protocol.Entity
+		expectedHeader http.Header
+		expectedError  error
 	}{
 		{
 			description: "it should return a valid entity",
@@ -384,11 +418,17 @@ func TestClientEntity(t *testing.T) {
 
 				var response http.Response
 				response.Body = nopCloser{bytes.NewBuffer(data)}
+				response.Header = http.Header{
+					"Random-Header": []string{"value"},
+				}
 				return &response, nil
 			},
 			expected: &protocol.Entity{
 				ObjectClassName: "entity",
 				Handle:          "005.506.560/0001-36",
+			},
+			expectedHeader: http.Header{
+				"Random-Header": []string{"value"},
 			},
 		},
 		{
@@ -440,7 +480,7 @@ func TestClientEntity(t *testing.T) {
 			}),
 		}
 
-		entity, err := client.Entity(item.entity, item.header, item.queryString)
+		entity, header, err := client.Entity(item.entity, item.header, item.queryString)
 
 		if item.expectedError != nil {
 			if fmt.Sprintf("%v", item.expectedError) != fmt.Sprintf("%v", err) {
@@ -454,19 +494,24 @@ func TestClientEntity(t *testing.T) {
 			if !reflect.DeepEqual(item.expected, entity) {
 				t.Errorf("[%d] “%s”: mismatch results.\n%v", i, item.description, diff(item.expected, entity))
 			}
+
+			if !reflect.DeepEqual(item.expectedHeader, header) {
+				t.Errorf("[%d] “%s”: mismatch HTTP header.\n%v", i, item.description, diff(item.expectedHeader, header))
+			}
 		}
 	}
 }
 
 func TestClientIPNetwork(t *testing.T) {
 	data := []struct {
-		description   string
-		ipNetwork     *net.IPNet
-		header        http.Header
-		queryString   url.Values
-		client        func() (*http.Response, error)
-		expected      *protocol.IPNetwork
-		expectedError error
+		description    string
+		ipNetwork      *net.IPNet
+		header         http.Header
+		queryString    url.Values
+		client         func() (*http.Response, error)
+		expected       *protocol.IPNetwork
+		expectedHeader http.Header
+		expectedError  error
 	}{
 		{
 			description: "it should return a valid IP network",
@@ -497,11 +542,17 @@ func TestClientIPNetwork(t *testing.T) {
 
 				var response http.Response
 				response.Body = nopCloser{bytes.NewBuffer(data)}
+				response.Header = http.Header{
+					"Random-Header": []string{"value"},
+				}
 				return &response, nil
 			},
 			expected: &protocol.IPNetwork{
 				ObjectClassName: "ipnetwork",
 				Handle:          "200.160.0.0/20",
+			},
+			expectedHeader: http.Header{
+				"Random-Header": []string{"value"},
 			},
 		},
 		{
@@ -571,7 +622,7 @@ func TestClientIPNetwork(t *testing.T) {
 			}),
 		}
 
-		ipNetwork, err := client.IPNetwork(item.ipNetwork, item.header, item.queryString)
+		ipNetwork, header, err := client.IPNetwork(item.ipNetwork, item.header, item.queryString)
 
 		if item.expectedError != nil {
 			if fmt.Sprintf("%v", item.expectedError) != fmt.Sprintf("%v", err) {
@@ -585,19 +636,24 @@ func TestClientIPNetwork(t *testing.T) {
 			if !reflect.DeepEqual(item.expected, ipNetwork) {
 				t.Errorf("[%d] “%s”: mismatch results.\n%v", i, item.description, diff(item.expected, ipNetwork))
 			}
+
+			if !reflect.DeepEqual(item.expectedHeader, header) {
+				t.Errorf("[%d] “%s”: mismatch HTTP header.\n%v", i, item.description, diff(item.expectedHeader, header))
+			}
 		}
 	}
 }
 
 func TestClientIP(t *testing.T) {
 	data := []struct {
-		description   string
-		ip            net.IP
-		header        http.Header
-		queryString   url.Values
-		client        func() (*http.Response, error)
-		expected      *protocol.IPNetwork
-		expectedError error
+		description    string
+		ip             net.IP
+		header         http.Header
+		queryString    url.Values
+		client         func() (*http.Response, error)
+		expected       *protocol.IPNetwork
+		expectedHeader http.Header
+		expectedError  error
 	}{
 		{
 			description: "it should return a valid IP network",
@@ -621,11 +677,17 @@ func TestClientIP(t *testing.T) {
 
 				var response http.Response
 				response.Body = nopCloser{bytes.NewBuffer(data)}
+				response.Header = http.Header{
+					"Random-Header": []string{"value"},
+				}
 				return &response, nil
 			},
 			expected: &protocol.IPNetwork{
 				ObjectClassName: "ipnetwork",
 				Handle:          "200.160.0.0/20",
+			},
+			expectedHeader: http.Header{
+				"Random-Header": []string{"value"},
 			},
 		},
 		{
@@ -681,7 +743,7 @@ func TestClientIP(t *testing.T) {
 			}),
 		}
 
-		ipNetwork, err := client.IP(item.ip, item.header, item.queryString)
+		ipNetwork, header, err := client.IP(item.ip, item.header, item.queryString)
 
 		if item.expectedError != nil {
 			if fmt.Sprintf("%v", item.expectedError) != fmt.Sprintf("%v", err) {
@@ -695,19 +757,24 @@ func TestClientIP(t *testing.T) {
 			if !reflect.DeepEqual(item.expected, ipNetwork) {
 				t.Errorf("[%d] “%s”: mismatch results.\n%v", i, item.description, diff(item.expected, ipNetwork))
 			}
+
+			if !reflect.DeepEqual(item.expectedHeader, header) {
+				t.Errorf("[%d] “%s”: mismatch HTTP header.\n%v", i, item.description, diff(item.expectedHeader, header))
+			}
 		}
 	}
 }
 
 func TestClientQuery(t *testing.T) {
 	data := []struct {
-		description   string
-		object        string
-		header        http.Header
-		queryString   url.Values
-		client        func() (*http.Response, error)
-		expected      interface{}
-		expectedError error
+		description    string
+		object         string
+		header         http.Header
+		queryString    url.Values
+		client         func() (*http.Response, error)
+		expected       interface{}
+		expectedHeader http.Header
+		expectedError  error
 	}{
 		{
 			description: "it should return a valid domain",
@@ -732,12 +799,18 @@ func TestClientQuery(t *testing.T) {
 
 				var response http.Response
 				response.Body = nopCloser{bytes.NewBuffer(data)}
+				response.Header = http.Header{
+					"Random-Header": []string{"value"},
+				}
 				return &response, nil
 			},
 			expected: &protocol.Domain{
 				ObjectClassName: "domain",
 				Handle:          "example.com",
 				LDHName:         "example.com",
+			},
+			expectedHeader: http.Header{
+				"Random-Header": []string{"value"},
 			},
 		},
 		{
@@ -761,6 +834,9 @@ func TestClientQuery(t *testing.T) {
 
 				var response http.Response
 				response.Body = nopCloser{bytes.NewBuffer(data)}
+				response.Header = http.Header{
+					"Random-Header": []string{"value"},
+				}
 				return &response, nil
 			},
 			expected: &protocol.AS{
@@ -768,6 +844,9 @@ func TestClientQuery(t *testing.T) {
 				Handle:          "1234",
 				StartAutnum:     1234,
 				EndAutnum:       1234,
+			},
+			expectedHeader: http.Header{
+				"Random-Header": []string{"value"},
 			},
 		},
 		{
@@ -789,11 +868,17 @@ func TestClientQuery(t *testing.T) {
 
 				var response http.Response
 				response.Body = nopCloser{bytes.NewBuffer(data)}
+				response.Header = http.Header{
+					"Random-Header": []string{"value"},
+				}
 				return &response, nil
 			},
 			expected: &protocol.Entity{
 				ObjectClassName: "entity",
 				Handle:          "005.506.560/0001-36",
+			},
+			expectedHeader: http.Header{
+				"Random-Header": []string{"value"},
 			},
 		},
 		{
@@ -815,11 +900,17 @@ func TestClientQuery(t *testing.T) {
 
 				var response http.Response
 				response.Body = nopCloser{bytes.NewBuffer(data)}
+				response.Header = http.Header{
+					"Random-Header": []string{"value"},
+				}
 				return &response, nil
 			},
 			expected: &protocol.IPNetwork{
 				ObjectClassName: "ipnetwork",
 				Handle:          "200.160.0.0/20",
+			},
+			expectedHeader: http.Header{
+				"Random-Header": []string{"value"},
 			},
 		},
 		{
@@ -841,11 +932,17 @@ func TestClientQuery(t *testing.T) {
 
 				var response http.Response
 				response.Body = nopCloser{bytes.NewBuffer(data)}
+				response.Header = http.Header{
+					"Random-Header": []string{"value"},
+				}
 				return &response, nil
 			},
 			expected: &protocol.IPNetwork{
 				ObjectClassName: "ipnetwork",
 				Handle:          "200.160.0.0/20",
+			},
+			expectedHeader: http.Header{
+				"Random-Header": []string{"value"},
 			},
 		},
 	}
@@ -858,7 +955,7 @@ func TestClientQuery(t *testing.T) {
 			}),
 		}
 
-		resp, err := client.Query(item.object, item.header, item.queryString)
+		resp, header, err := client.Query(item.object, item.header, item.queryString)
 
 		if item.expectedError != nil {
 			if fmt.Sprintf("%v", item.expectedError) != fmt.Sprintf("%v", err) {
@@ -872,6 +969,10 @@ func TestClientQuery(t *testing.T) {
 			if !reflect.DeepEqual(item.expected, resp) {
 				t.Errorf("[%d] “%s”: mismatch results.\n%v", i, item.description, diff(item.expected, resp))
 			}
+
+			if !reflect.DeepEqual(item.expectedHeader, header) {
+				t.Errorf("[%d] “%s”: mismatch HTTP header.\n%v", i, item.description, diff(item.expectedHeader, header))
+			}
 		}
 	}
 }
@@ -879,7 +980,7 @@ func TestClientQuery(t *testing.T) {
 func ExampleClient() {
 	c := NewClient([]string{"https://rdap.beta.registro.br"})
 
-	d, err := c.Query("nic.br", nil, nil)
+	d, _, err := c.Query("nic.br", nil, nil)
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -898,7 +999,7 @@ func ExampleClient() {
 	queryString := make(url.Values)
 	queryString.Set("ticket", "5439886")
 
-	d, err = c.Domain("rafael.net.br", nil, queryString)
+	d, _, err = c.Domain("rafael.net.br", nil, queryString)
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -916,7 +1017,7 @@ func ExampleClient() {
 func ExampleBootstrapClient() {
 	c := NewClient(nil)
 
-	ipnetwork, err := c.Query("214.1.2.3", nil, nil)
+	ipnetwork, _, err := c.Query("214.1.2.3", nil, nil)
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -942,7 +1043,7 @@ func ExampleAdvancedBootstrapClient() {
 		Transport: NewBootstrapFetcher(&httpClient, IANABootstrap, cacheDetector),
 	}
 
-	ipnetwork, err := c.Query("214.1.2.3", http.Header{
+	ipnetwork, _, err := c.Query("214.1.2.3", http.Header{
 		"X-Forwarded-For": []string{"127.0.0.1"},
 	}, nil)
 
