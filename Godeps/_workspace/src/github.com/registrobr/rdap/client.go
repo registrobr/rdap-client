@@ -62,6 +62,9 @@ func (c *Client) Domain(fqdn string, header http.Header, queryString url.Values)
 
 	resp, err := c.Transport.Fetch(c.URIs, QueryTypeDomain, fqdn, header, queryString)
 	if err != nil {
+		if resp != nil {
+			return nil, resp.Header, err
+		}
 		return nil, nil, err
 	}
 
@@ -82,6 +85,9 @@ func (c *Client) Domain(fqdn string, header http.Header, queryString url.Values)
 func (c *Client) Ticket(ticketNumber int, header http.Header, queryString url.Values) (*protocol.Domain, http.Header, error) {
 	resp, err := c.Transport.Fetch(c.URIs, QueryTypeTicket, strconv.Itoa(ticketNumber), header, queryString)
 	if err != nil {
+		if resp != nil {
+			return nil, resp.Header, err
+		}
 		return nil, nil, err
 	}
 
@@ -104,6 +110,9 @@ func (c *Client) ASN(asn uint32, header http.Header, queryString url.Values) (*p
 
 	resp, err := c.Transport.Fetch(c.URIs, QueryTypeAutnum, asnStr, header, queryString)
 	if err != nil {
+		if resp != nil {
+			return nil, resp.Header, err
+		}
 		return nil, nil, err
 	}
 
@@ -124,6 +133,9 @@ func (c *Client) ASN(asn uint32, header http.Header, queryString url.Values) (*p
 func (c *Client) Entity(identifier string, header http.Header, queryString url.Values) (*protocol.Entity, http.Header, error) {
 	resp, err := c.Transport.Fetch(c.URIs, QueryTypeEntity, identifier, header, queryString)
 	if err != nil {
+		if resp != nil {
+			return nil, resp.Header, err
+		}
 		return nil, nil, err
 	}
 
@@ -148,6 +160,9 @@ func (c *Client) IPNetwork(ipnet *net.IPNet, header http.Header, queryString url
 
 	resp, err := c.Transport.Fetch(c.URIs, QueryTypeIP, ipnet.String(), header, queryString)
 	if err != nil {
+		if resp != nil {
+			return nil, resp.Header, err
+		}
 		return nil, nil, err
 	}
 
@@ -172,6 +187,9 @@ func (c *Client) IP(ip net.IP, header http.Header, queryString url.Values) (*pro
 
 	resp, err := c.Transport.Fetch(c.URIs, QueryTypeIP, ip.String(), header, queryString)
 	if err != nil {
+		if resp != nil {
+			return nil, resp.Header, err
+		}
 		return nil, nil, err
 	}
 

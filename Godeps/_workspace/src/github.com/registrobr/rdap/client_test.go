@@ -81,6 +81,21 @@ func TestClientDomain(t *testing.T) {
 			description: "it should fail to query a domain",
 			fqdn:        "example.com",
 			client: func() (*http.Response, error) {
+				var response http.Response
+				response.Header = http.Header{
+					"Random-Header": []string{"value"},
+				}
+				return &response, fmt.Errorf("I'm a crazy error!")
+			},
+			expectedError: fmt.Errorf("I'm a crazy error!"),
+			expectedHeader: http.Header{
+				"Random-Header": []string{"value"},
+			},
+		},
+		{
+			description: "it should fail to query a domain with no response",
+			fqdn:        "example.com",
+			client: func() (*http.Response, error) {
 				return nil, fmt.Errorf("I'm a crazy error!")
 			},
 			expectedError: fmt.Errorf("I'm a crazy error!"),
@@ -195,6 +210,21 @@ func TestClientTicket(t *testing.T) {
 		},
 		{
 			description:  "it should fail to query a ticket",
+			ticketNumber: 1234,
+			client: func() (*http.Response, error) {
+				var response http.Response
+				response.Header = http.Header{
+					"Random-Header": []string{"value"},
+				}
+				return &response, fmt.Errorf("I'm a crazy error!")
+			},
+			expectedError: fmt.Errorf("I'm a crazy error!"),
+			expectedHeader: http.Header{
+				"Random-Header": []string{"value"},
+			},
+		},
+		{
+			description:  "it should fail to query a ticket with no response",
 			ticketNumber: 1234,
 			client: func() (*http.Response, error) {
 				return nil, fmt.Errorf("I'm a crazy error!")
@@ -318,6 +348,21 @@ func TestClientASN(t *testing.T) {
 			description: "it should fail to query an ASN",
 			asn:         1234,
 			client: func() (*http.Response, error) {
+				var response http.Response
+				response.Header = http.Header{
+					"Random-Header": []string{"value"},
+				}
+				return &response, fmt.Errorf("I'm a crazy error!")
+			},
+			expectedError: fmt.Errorf("I'm a crazy error!"),
+			expectedHeader: http.Header{
+				"Random-Header": []string{"value"},
+			},
+		},
+		{
+			description: "it should fail to query an ASN with no response",
+			asn:         1234,
+			client: func() (*http.Response, error) {
 				return nil, fmt.Errorf("I'm a crazy error!")
 			},
 			expectedError: fmt.Errorf("I'm a crazy error!"),
@@ -433,6 +478,21 @@ func TestClientEntity(t *testing.T) {
 		},
 		{
 			description: "it should fail to query an entity",
+			entity:      "h_005506560000136-NICBR",
+			client: func() (*http.Response, error) {
+				var response http.Response
+				response.Header = http.Header{
+					"Random-Header": []string{"value"},
+				}
+				return &response, fmt.Errorf("I'm a crazy error!")
+			},
+			expectedError: fmt.Errorf("I'm a crazy error!"),
+			expectedHeader: http.Header{
+				"Random-Header": []string{"value"},
+			},
+		},
+		{
+			description: "it should fail to query an entity with no response",
 			entity:      "h_005506560000136-NICBR",
 			client: func() (*http.Response, error) {
 				return nil, fmt.Errorf("I'm a crazy error!")
@@ -570,6 +630,28 @@ func TestClientIPNetwork(t *testing.T) {
 				return ipNetwork
 			}(),
 			client: func() (*http.Response, error) {
+				var response http.Response
+				response.Header = http.Header{
+					"Random-Header": []string{"value"},
+				}
+				return &response, fmt.Errorf("I'm a crazy error!")
+			},
+			expectedError: fmt.Errorf("I'm a crazy error!"),
+			expectedHeader: http.Header{
+				"Random-Header": []string{"value"},
+			},
+		},
+		{
+			description: "it should fail to query an IP network with no response",
+			ipNetwork: func() *net.IPNet {
+				_, ipNetwork, err := net.ParseCIDR("200.160.0.0/20")
+				if err != nil {
+					t.Fatal(err)
+				}
+
+				return ipNetwork
+			}(),
+			client: func() (*http.Response, error) {
 				return nil, fmt.Errorf("I'm a crazy error!")
 			},
 			expectedError: fmt.Errorf("I'm a crazy error!"),
@@ -695,7 +777,22 @@ func TestClientIP(t *testing.T) {
 			expectedError: fmt.Errorf("undefined IP"),
 		},
 		{
-			description: "it should fail to query an IP network",
+			description: "it should fail to query an IP",
+			ip:          net.ParseIP("200.160.2.3"),
+			client: func() (*http.Response, error) {
+				var response http.Response
+				response.Header = http.Header{
+					"Random-Header": []string{"value"},
+				}
+				return &response, fmt.Errorf("I'm a crazy error!")
+			},
+			expectedError: fmt.Errorf("I'm a crazy error!"),
+			expectedHeader: http.Header{
+				"Random-Header": []string{"value"},
+			},
+		},
+		{
+			description: "it should fail to query an IP with no response",
 			ip:          net.ParseIP("200.160.2.3"),
 			client: func() (*http.Response, error) {
 				return nil, fmt.Errorf("I'm a crazy error!")

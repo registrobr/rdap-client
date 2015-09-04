@@ -149,6 +149,7 @@ func NewDefaultFetcher(httpClient httpClient) Fetcher {
 
 func (d *defaultFetcher) Fetch(uris []string, queryType QueryType, queryValue string, header http.Header, queryString url.Values) (*http.Response, error) {
 	var lastErr error
+	var resp *http.Response
 
 	if len(uris) == 0 {
 		return nil, fmt.Errorf("no URIs defined to query")
@@ -182,7 +183,7 @@ func (d *defaultFetcher) Fetch(uris []string, queryType QueryType, queryValue st
 
 		req.Header.Set("Accept", "application/rdap+json")
 
-		resp, err := d.httpClient.Do(req)
+		resp, err = d.httpClient.Do(req)
 		if err != nil {
 			lastErr = err
 			continue
@@ -216,7 +217,7 @@ func (d *defaultFetcher) Fetch(uris []string, queryType QueryType, queryValue st
 		return resp, nil
 	}
 
-	return nil, lastErr
+	return resp, lastErr
 }
 
 // NewBootstrapFetcher returns a transport layer that tries to find the
