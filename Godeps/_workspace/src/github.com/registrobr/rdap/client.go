@@ -61,6 +61,12 @@ func (c *Client) Domain(fqdn string, header http.Header, queryString url.Values)
 	fqdn = idn.ToPunycode(strings.ToLower(fqdn))
 
 	resp, err := c.Transport.Fetch(c.URIs, QueryTypeDomain, fqdn, header, queryString)
+	defer func() {
+		if resp != nil && resp.Body != nil {
+			resp.Body.Close()
+		}
+	}()
+
 	if err != nil {
 		if resp != nil {
 			return nil, resp.Header, err
@@ -84,6 +90,12 @@ func (c *Client) Domain(fqdn string, header http.Header, queryString url.Values)
 // response is also returned to analyze any specific flag
 func (c *Client) Ticket(ticketNumber int, header http.Header, queryString url.Values) (*protocol.Domain, http.Header, error) {
 	resp, err := c.Transport.Fetch(c.URIs, QueryTypeTicket, strconv.Itoa(ticketNumber), header, queryString)
+	defer func() {
+		if resp != nil && resp.Body != nil {
+			resp.Body.Close()
+		}
+	}()
+
 	if err != nil {
 		if resp != nil {
 			return nil, resp.Header, err
@@ -109,6 +121,12 @@ func (c *Client) ASN(asn uint32, header http.Header, queryString url.Values) (*p
 	asnStr := strconv.FormatUint(uint64(asn), 10)
 
 	resp, err := c.Transport.Fetch(c.URIs, QueryTypeAutnum, asnStr, header, queryString)
+	defer func() {
+		if resp != nil && resp.Body != nil {
+			resp.Body.Close()
+		}
+	}()
+
 	if err != nil {
 		if resp != nil {
 			return nil, resp.Header, err
@@ -132,6 +150,12 @@ func (c *Client) ASN(asn uint32, header http.Header, queryString url.Values) (*p
 // response is also returned to analyze any specific flag
 func (c *Client) Entity(identifier string, header http.Header, queryString url.Values) (*protocol.Entity, http.Header, error) {
 	resp, err := c.Transport.Fetch(c.URIs, QueryTypeEntity, identifier, header, queryString)
+	defer func() {
+		if resp != nil && resp.Body != nil {
+			resp.Body.Close()
+		}
+	}()
+
 	if err != nil {
 		if resp != nil {
 			return nil, resp.Header, err
@@ -159,6 +183,12 @@ func (c *Client) IPNetwork(ipnet *net.IPNet, header http.Header, queryString url
 	}
 
 	resp, err := c.Transport.Fetch(c.URIs, QueryTypeIP, ipnet.String(), header, queryString)
+	defer func() {
+		if resp != nil && resp.Body != nil {
+			resp.Body.Close()
+		}
+	}()
+
 	if err != nil {
 		if resp != nil {
 			return nil, resp.Header, err
@@ -186,6 +216,12 @@ func (c *Client) IP(ip net.IP, header http.Header, queryString url.Values) (*pro
 	}
 
 	resp, err := c.Transport.Fetch(c.URIs, QueryTypeIP, ip.String(), header, queryString)
+	defer func() {
+		if resp != nil && resp.Body != nil {
+			resp.Body.Close()
+		}
+	}()
+
 	if err != nil {
 		if resp != nil {
 			return nil, resp.Header, err

@@ -111,7 +111,8 @@ type fetcherFunc func([]string, QueryType, string, http.Header, url.Values) (*ht
 // Fetch will try to use the addresses from the uris parameter to send
 // requests using the queryType and queryValue parameters. You can optionally
 // set HTTP headers (like X-Forwarded-For) for the RDAP server request. On
-// success will return a HTTP response, otherwise an error will be returned
+// success will return a HTTP response, otherwise an error will be returned.
+// The caller is responsible for closing the response body
 func (f fetcherFunc) Fetch(uris []string, queryType QueryType, queryValue string, header http.Header, queryString url.Values) (*http.Response, error) {
 	return f(uris, queryType, queryValue, header, queryString)
 }
@@ -147,77 +148,76 @@ func NewDefaultFetcher(httpClient httpClient) Fetcher {
 	}
 }
 
-func (d *defaultFetcher) Fetch(uris []string, queryType QueryType, queryValue string, header http.Header, queryString url.Values) (*http.Response, error) {
-	var lastErr error
-	var resp *http.Response
-
+func (d *defaultFetcher) Fetch(uris []string, queryType QueryType, queryValue string, header http.Header, queryString url.Values) (resp *http.Response, err error) {
 	if len(uris) == 0 {
 		return nil, fmt.Errorf("no URIs defined to query")
 	}
 
 	for _, uri := range uris {
-		if !strings.HasPrefix(uri, "http://") && !strings.HasPrefix(uri, "https://") {
-			uri = "http://" + uri
-		}
-
-		if pos := strings.Index(uri, "?"); pos != -1 {
-			uri = uri[:pos]
-		}
-
-		uri = strings.TrimRight(uri, "/")
-		uri = fmt.Sprintf("%s/%s/%s", uri, queryType, queryValue)
-
-		if q := queryString.Encode(); len(q) > 0 {
-			uri += "?" + q
-		}
-
-		req, err := http.NewRequest("GET", uri, nil)
+		resp, err = d.fetchURI(uri, queryType, queryValue, header, queryString)
 		if err != nil {
-			lastErr = err
 			continue
 		}
-
-		if header != nil {
-			req.Header = header
-		}
-
-		req.Header.Set("Accept", "application/rdap+json")
-
-		resp, err = d.httpClient.Do(req)
-		if err != nil {
-			lastErr = err
-			continue
-		}
-
-		if resp.StatusCode == http.StatusNotFound {
-			lastErr = ErrNotFound
-			continue
-		}
-
-		contentType := resp.Header.Get("Content-Type")
-		contentTypeParts := strings.Split(contentType, ";")
-
-		if len(contentTypeParts) == 0 || contentTypeParts[0] != "application/rdap+json" {
-			lastErr = fmt.Errorf("unexpected response: %d %s",
-				resp.StatusCode, http.StatusText(resp.StatusCode))
-			continue
-		}
-
-		if resp.StatusCode != http.StatusOK {
-			var responseErr protocol.Error
-			if err := json.NewDecoder(resp.Body).Decode(&responseErr); err != nil {
-				lastErr = err
-				continue
-			}
-
-			lastErr = responseErr
-			continue
-		}
-
-		return resp, nil
+		return
 	}
 
-	return resp, lastErr
+	return
+}
+
+func (d *defaultFetcher) fetchURI(uri string, queryType QueryType, queryValue string, header http.Header, queryString url.Values) (*http.Response, error) {
+	if !strings.HasPrefix(uri, "http://") && !strings.HasPrefix(uri, "https://") {
+		uri = "http://" + uri
+	}
+
+	if pos := strings.Index(uri, "?"); pos != -1 {
+		uri = uri[:pos]
+	}
+
+	uri = strings.TrimRight(uri, "/")
+	uri = fmt.Sprintf("%s/%s/%s", uri, queryType, queryValue)
+
+	if q := queryString.Encode(); len(q) > 0 {
+		uri += "?" + q
+	}
+
+	req, err := http.NewRequest("GET", uri, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	if header != nil {
+		req.Header = header
+	}
+
+	req.Header.Set("Accept", "application/rdap+json")
+
+	resp, err := d.httpClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	if resp.StatusCode == http.StatusNotFound {
+		return nil, ErrNotFound
+	}
+
+	contentType := resp.Header.Get("Content-Type")
+	contentTypeParts := strings.Split(contentType, ";")
+
+	if len(contentTypeParts) == 0 || contentTypeParts[0] != "application/rdap+json" {
+		return nil, fmt.Errorf("unexpected response: %d %s",
+			resp.StatusCode, http.StatusText(resp.StatusCode))
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		var responseErr protocol.Error
+		if err := json.NewDecoder(resp.Body).Decode(&responseErr); err != nil {
+			return nil, err
+		}
+
+		return nil, responseErr
+	}
+
+	return resp, nil
 }
 
 // NewBootstrapFetcher returns a transport layer that tries to find the
@@ -308,6 +308,11 @@ func bootstrapFetch(httpClient httpClient, uri string, reloadCache bool, cacheDe
 	if err != nil {
 		return nil, false, err
 	}
+	defer func() {
+		if resp.Body != nil {
+			resp.Body.Close()
+		}
+	}()
 
 	cached := false
 	if cacheDetector != nil {
