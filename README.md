@@ -7,10 +7,13 @@ This is a command line RDAP client.
 Install
 -------
 
-First of all, you will need Go installed in your machine. Instructions can be found in the link bellow.
+First of all, you will need **Go** and **git** installed in your machine.
+Instructions for intalling Go can be found in the link bellow.
 
 http://golang.org/doc/install
 
+You must be running Go version 1.5 or above.
+Don't forget to create the $GOPATH environment variable.
 
 Now just retrieve and install the project with the following command:
 ```
