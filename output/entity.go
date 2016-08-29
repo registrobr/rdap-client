@@ -5,7 +5,7 @@ import (
 	"strings"
 	"text/template"
 
-	"github.com/registrobr/rdap-client/Godeps/_workspace/src/github.com/registrobr/rdap/protocol"
+	"github.com/registrobr/rdap/protocol"
 )
 
 type Entity struct {

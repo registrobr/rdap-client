@@ -1,6 +1,7 @@
 {
 	"ImportPath": "github.com/registrobr/rdap-client",
-	"GoVersion": "go1.4.2",
+	"GoVersion": "go1.7",
+	"GodepVersion": "v74",
 	"Packages": [
 		"./..."
 	],
@@ -11,28 +12,41 @@
 		},
 		{
 			"ImportPath": "github.com/codegangsta/cli",
-			"Comment": "1.2.0-95-g9b2bd2b",
-			"Rev": "9b2bd2b3489748d4d0a204fa4eb2ee9e89e0ebc6"
+			"Comment": "v1.16.0-15-g75b97d0",
+			"Rev": "75b97d09d9f5792ff997e249a330a3ca28f8b537"
+		},
+		{
+			"ImportPath": "github.com/google/btree",
+			"Rev": "7d79101e329e5a3adf994758c578dab82b90c017"
 		},
 		{
 			"ImportPath": "github.com/gregjones/httpcache",
-			"Rev": "a2645c9fb8bb4ad1cbad1bef941af9f8a32287de"
+			"Rev": "413781778738c08fdbb98e1dd65f5abffe8832d0"
+		},
+		{
+			"ImportPath": "github.com/gregjones/httpcache/diskcache",
+			"Rev": "413781778738c08fdbb98e1dd65f5abffe8832d0"
 		},
 		{
 			"ImportPath": "github.com/miekg/dns",
-			"Rev": "e6898c8f30b5d002db962043a62db90552e90bf7"
+			"Rev": "db96a2b759cdef4f11a34506a42eb8d1290c598e"
 		},
 		{
-			"ImportPath": "github.com/petar/GoLLRB/llrb",
-			"Rev": "53be0d36a84c2a886ca057d34b6aa4468df9ccb4"
+			"ImportPath": "github.com/miekg/dns/idn",
+			"Rev": "db96a2b759cdef4f11a34506a42eb8d1290c598e"
 		},
 		{
 			"ImportPath": "github.com/peterbourgon/diskv",
-			"Rev": "72aa5da9f7d1125b480b83c6dc5ad09a1f04508c"
+			"Comment": "v2.0.0-2-g5dfcb07",
+			"Rev": "5dfcb07a075adbaaa4094cddfd160b1e1c77a043"
 		},
 		{
 			"ImportPath": "github.com/registrobr/rdap",
-			"Rev": "7ca319db0c94baa7ff22b236042bb42de0ab8cdf"
+			"Rev": "935b53ec1688803bc762fc8c3ad8390e31f95f8f"
+		},
+		{
+			"ImportPath": "github.com/registrobr/rdap/protocol",
+			"Rev": "935b53ec1688803bc762fc8c3ad8390e31f95f8f"
 		}
 	]
 }
