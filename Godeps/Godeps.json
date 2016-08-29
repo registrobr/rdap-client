@@ -42,11 +42,19 @@
 		},
 		{
 			"ImportPath": "github.com/registrobr/rdap",
-			"Rev": "935b53ec1688803bc762fc8c3ad8390e31f95f8f"
+			"Rev": "be455094b27ef6524b3186f13b00aae068dd0583"
 		},
 		{
 			"ImportPath": "github.com/registrobr/rdap/protocol",
-			"Rev": "935b53ec1688803bc762fc8c3ad8390e31f95f8f"
+			"Rev": "be455094b27ef6524b3186f13b00aae068dd0583"
+		},
+		{
+			"ImportPath": "github.com/registrobr/rdap/vendor/github.com/miekg/dns/idn",
+			"Rev": "be455094b27ef6524b3186f13b00aae068dd0583"
+		},
+		{
+			"ImportPath": "github.com/registrobr/rdap/vendor/github.com/miekg/dns",
+			"Rev": "be455094b27ef6524b3186f13b00aae068dd0583"
 		}
 	]
 }

@@ -49,4 +49,5 @@ type Remark struct {
 	Title       string   `json:"title,omitempty"`
 	Type        string   `json:"type,omitempty"`
 	Description []string `json:"description,omitempty"`
+	Links       []Link   `json:"links,omitempty"`
 }
