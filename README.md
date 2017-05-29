@@ -35,7 +35,7 @@ rdap-client 199.71.0.160
 Or if you want to directly query a RDAP server:
 
 ```
-rdap-client -H rdap.beta.registro.br nic.br
+rdap-client -H rdap.registro.br nic.br
 ```
 
 You can check more options with:
