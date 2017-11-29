@@ -57,11 +57,26 @@ func (c *contactInfo) setContact(entity protocol.Entity) {
 					continue
 				}
 
-				for _, v := range addresses {
-					v := v.(string)
+				for _, next := range addresses {
+					switch v := next.(type) {
+					case string:
+						if len(v) > 0 {
+							address = append(address, v)
+						}
 
-					if len(v) > 0 {
-						address = append(address, v)
+					case []interface {}:
+						//according to https://tools.ietf.org/html/rfc7095#section-3.3.1.3
+						//  spec for structured values, an array of strings is allowed here
+						for _, nestedNext := range v {
+							vv, ok := nestedNext.(string);
+							if !ok {
+								continue
+							}
+							if len(vv) > 0 {
+								address = append(address, vv)
+							}
+
+						}
 					}
 				}
 
