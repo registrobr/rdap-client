@@ -1,0 +1,16 @@
+github.com/aryann/difflib v0.0.0-20121123051704-035af7c09b12 h1:/zAyGdEQQlZNcatMQAiFvtdDZkd2xfQBXkYEM8t0Hpw=
+github.com/aryann/difflib v0.0.0-20121123051704-035af7c09b12/go.mod h1:DAHtR1m6lCRdSC2Tm3DSWRPvIPr6xNKyeHdqDQSQT+A=
+github.com/codegangsta/cli v1.19.2-0.20170424213122-ab403a54a148 h1:Wz4C+nhuec7XEEbtATllqv4yRURcFAACuFX7V8eNfBU=
+github.com/codegangsta/cli v1.19.2-0.20170424213122-ab403a54a148/go.mod h1:/qJNoX69yVSKu5o4jLyXAENLRyk1uhi7zkbQ3slBdOA=
+github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
+github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
+github.com/google/btree v0.0.0-20161217183710-316fb6d3f031 h1:yAx4v8FikdsGCBPzIaT2F+0WH0J+wcL7cQD9n3UbyOk=
+github.com/google/btree v0.0.0-20161217183710-316fb6d3f031/go.mod h1:lNA+9X1NB3Zf8V7Ke586lFgjr2dZNuvo3lPJSGZ5JPQ=
+github.com/gregjones/httpcache v0.0.0-20170424210139-0d2297f241a3 h1:NOl+5QpVU0pDwTkYHPouW5gRnh6NMk06/TQYUNdmMIo=
+github.com/gregjones/httpcache v0.0.0-20170424210139-0d2297f241a3/go.mod h1:FecbI9+v66THATjSRHfNgh1IVFe/9kFxbXtjV0ctIMA=
+github.com/miekg/dns v0.0.0-20170426174652-113c7538ea6d h1:3/Z+ecPs8LDwF/4bMkLTd265Xz0+wXEwk3a1cPiRlH8=
+github.com/miekg/dns v0.0.0-20170426174652-113c7538ea6d/go.mod h1:W1PPwlIAgtquWBMBEV9nkV9Cazfe8ScdGz/Lj7v3Nrg=
+github.com/peterbourgon/diskv v2.0.1-0.20160404093648-5dfcb07a075a+incompatible h1:qhD6bS05X4eckpXB/kN+EMpIKzyXIiENfr+8c05QChc=
+github.com/peterbourgon/diskv v2.0.1-0.20160404093648-5dfcb07a075a+incompatible/go.mod h1:uqqh8zWWbv1HBMNONnaR/tNboyR3/BZd58JJSHlUSCU=
+github.com/registrobr/rdap v0.0.0-20160829181932-be455094b27e h1:vHDfsZV0rD8YJ4cyDmxe/N6Q3PmfUhkNvXHN1jSEUg8=
+github.com/registrobr/rdap v0.0.0-20160829181932-be455094b27e/go.mod h1:3uL6rPCG8INLqGp30TNHOiZ/L7IfjtbBgtV65UlCREU=
