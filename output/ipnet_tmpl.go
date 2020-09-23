@@ -3,6 +3,8 @@ package output
 import (
 	"net"
 	"text/template"
+
+	rdap "github.com/registrobr/rdap/protocol"
 )
 
 var ipnetTmpl = `
@@ -28,10 +30,25 @@ country:       {{.IPNetwork.Country}}
 status:        {{.}}
 {{end}}\
 {{range .IPNetwork.ReverseDelegations}}\
-inetrev:       {{inetnum .StartAddress .EndAddress}}
+{{ $startAddress := .StartAddress}}
+{{ $endAddress := .EndAddress }}
+inetrev:       {{inetnum $startAddress $endAddress}}
 {{range .Nameservers}}\
 nserver:       {{.LDHName}}
 {{end}}\
+{{ if hasSecureDns .SecureDNS}}
+{{ range .SecureDNS.DSSet }}
+dsinetrev:     {{inetnum $startAddress $endAddress}}
+dsrecord:      {{.Keytag}}{{.Digest}}
+{{ range .Events }}
+{{ if and (eq .Action "delegation sign check") (gt (lenStatus .Status) 0)}}
+dsstatus:      {{ .Date.Time | formatDate }}{{dsStatusTranslate (index .Status 0)}}
+{{ else if eq .Action "last correct delegation sign check" }}
+dslastok: {{ .Date.Time | formatDate }}
+{{ end }}
+{{ end }}
+{{ end }}
+{{ end }}\
 {{end}}\
 {{if (isDateDefined .CreatedAt)}}\
 created:       {{.CreatedAt | formatDate}}
@@ -55,6 +72,32 @@ var (
 
 			cidr := net.IPNet{IP: start, Mask: mask}
 			return cidr.String()
+		},
+		"lenStatus": func(s []rdap.Status) int {
+			return len(s)
+		},
+		"dsStatusTranslate": func(rs rdap.Status) string {
+			switch rs {
+			case rdap.StatusDSOK:
+				return "OK"
+			case rdap.StatusDSTimeout:
+				return "TIMEOUT"
+			case rdap.StatusDSNoSig:
+				return "NOSIG"
+			case rdap.StatusDSExpiredSig:
+				return "EXPSIG"
+			case rdap.StatusDSInvalidSig:
+				return "SIGERROR"
+			case rdap.StatusDSNotFound:
+				return "NOKEY"
+			case rdap.StatusDSNoSEP:
+				return "NOSEP"
+			}
+
+			return "PLAIN DNS ERROR"
+		},
+		"hasSecureDns": func(secdns *rdap.ReverseDelegationSecureDNS) bool {
+			return secdns != nil
 		},
 	}
 )
