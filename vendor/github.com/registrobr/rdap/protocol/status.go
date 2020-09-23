@@ -116,6 +116,9 @@ const (
 	// StatusDSNoSEP the corresponding public key (DNSKEY) isn't a secure entry
 	// point
 	StatusDSNoSEP Status = "ds nosep"
+
+	// StatusNONE dns error has occurred
+	StatusNone Status = "plain dns error"
 )
 
 // Proposed by NIC.br for domain status

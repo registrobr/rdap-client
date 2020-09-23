@@ -1,7 +1,7 @@
 {
 	"ImportPath": "github.com/registrobr/rdap-client",
 	"GoVersion": "go1.7",
-	"GodepVersion": "v79",
+	"GodepVersion": "v80",
 	"Packages": [
 		"./..."
 	],
@@ -42,11 +42,11 @@
 		},
 		{
 			"ImportPath": "github.com/registrobr/rdap",
-			"Rev": "be455094b27ef6524b3186f13b00aae068dd0583"
+			"Rev": "abed0697a06d1a61977be0b817e258274546b0bd"
 		},
 		{
 			"ImportPath": "github.com/registrobr/rdap/protocol",
-			"Rev": "be455094b27ef6524b3186f13b00aae068dd0583"
+			"Rev": "abed0697a06d1a61977be0b817e258274546b0bd"
 		},
 		{
 			"ImportPath": "github.com/registrobr/rdap/vendor/github.com/miekg/dns/idn",
@@ -54,7 +54,31 @@
 		},
 		{
 			"ImportPath": "github.com/registrobr/rdap/vendor/github.com/miekg/dns",
-			"Rev": "be455094b27ef6524b3186f13b00aae068dd0583"
+			"Rev": "abed0697a06d1a61977be0b817e258274546b0bd"
+		},
+		{
+			"ImportPath": "github.com/registrobr/rdap/vendor/golang.org/x/net/idna",
+			"Rev": "abed0697a06d1a61977be0b817e258274546b0bd"
+		},
+		{
+			"ImportPath": "github.com/registrobr/rdap/vendor/golang.org/x/text/secure/bidirule",
+			"Rev": "abed0697a06d1a61977be0b817e258274546b0bd"
+		},
+		{
+			"ImportPath": "github.com/registrobr/rdap/vendor/golang.org/x/text/unicode/bidi",
+			"Rev": "abed0697a06d1a61977be0b817e258274546b0bd"
+		},
+		{
+			"ImportPath": "github.com/registrobr/rdap/vendor/golang.org/x/text/unicode/norm",
+			"Rev": "abed0697a06d1a61977be0b817e258274546b0bd"
+		},
+		{
+			"ImportPath": "github.com/registrobr/rdap/vendor/golang.org/x/text/transform",
+			"Rev": "abed0697a06d1a61977be0b817e258274546b0bd"
+		},
+		{
+			"ImportPath": "github.com/registrobr/rdap/vendor/github.com/miekg/dns/internal/socket",
+			"Rev": "abed0697a06d1a61977be0b817e258274546b0bd"
 		}
 	]
 }
