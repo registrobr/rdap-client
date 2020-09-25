@@ -2,9 +2,12 @@ package output
 
 import (
 	"net"
+	"regexp"
+	"strings"
 	"text/template"
 
 	rdap "github.com/registrobr/rdap/protocol"
+	"gitlab.in.registro.br/dev/br/core/protocol"
 )
 
 var ipnetTmpl = `
@@ -38,8 +41,8 @@ nserver:       {{.LDHName}}
 {{end}}\
 {{ if hasSecureDns .SecureDNS}}
 {{ range .SecureDNS.DSSet }}
-dsinetrev:     {{inetnum $startAddress $endAddress}}
-dsrecord:      {{.Keytag}}{{.Digest}}
+dsinetrev:     {{reverseAddressToCIDR .Zone}}
+dsrecord:      {{.KeyTag}}{{.Digest}}
 {{ range .Events }}
 {{ if and (eq .Action "delegation sign check") (gt (lenStatus .Status) 0)}}
 dsstatus:      {{ .Date.Time | formatDate }}{{dsStatusTranslate (index .Status 0)}}
@@ -98,6 +101,62 @@ var (
 		},
 		"hasSecureDns": func(secdns *rdap.ReverseDelegationSecureDNS) bool {
 			return secdns != nil
+		},
+		"reverseAddressToCIDR": func(zone string) string {
+			var cidr string
+
+			// First, check if it is an IPv4 or IPv6 reverse address
+			ipv4ReverseAddressRX := regexp.MustCompile(`^[\d.]+in-addr\.arpa\.?$`)
+			ipv6ReverseAddressRX := regexp.MustCompile(`[\da-f.]+ip6\.arpa\.?$`)
+
+			splitZone := strings.Split(zone, ".")
+
+			if ipv4ReverseAddressRX.MatchString(zone) {
+				numOctets := len(splitZone) - 2
+				count := 0
+				for i := len(splitZone) - 1; i >= 0; i-- {
+					if splitZone[i] != "in-addr" && splitZone[i] != "arpa" {
+						cidr += splitZone[i]
+						count++
+
+						if count < numOctets {
+							cidr += "."
+						}
+					}
+				}
+				for i := 0; i < 4-numOctets; i++ {
+					cidr += ".0"
+				}
+				cidr += "/24"
+			} else if ipv6ReverseAddressRX.MatchString(zone) {
+				count, nibble := 0, 0
+				for i := len(splitZone) - 1; i >= 0; i-- {
+					if splitZone[i] != "ip6" && splitZone[i] != "arpa" {
+						cidr += splitZone[i]
+						nibble++
+
+						if nibble == 4 {
+							count++
+							if count < 4 {
+								cidr += ":"
+							}
+							nibble = 0
+						}
+					}
+				}
+				if count < 4 {
+					cidr += ":"
+				}
+				cidr += "/48"
+
+				_, ipnet, err := protocol.ParseCIDR(cidr)
+				if err != nil {
+					return ""
+				}
+
+				cidr = ipnet.String()
+			}
+			return cidr
 		},
 	}
 )
