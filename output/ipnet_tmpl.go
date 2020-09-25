@@ -1,13 +1,14 @@
 package output
 
 import (
+	"fmt"
 	"net"
 	"regexp"
+	"strconv"
 	"strings"
 	"text/template"
 
 	rdap "github.com/registrobr/rdap/protocol"
-	"gitlab.in.registro.br/dev/br/core/protocol"
 )
 
 var ipnetTmpl = `
@@ -149,7 +150,7 @@ var (
 				}
 				cidr += "/48"
 
-				_, ipnet, err := protocol.ParseCIDR(cidr)
+				_, ipnet, err := parseCIDR(cidr)
 				if err != nil {
 					return ""
 				}
@@ -160,3 +161,55 @@ var (
 		},
 	}
 )
+
+func parseCIDR(cidr string) (net.IP, *net.IPNet, error) {
+	// check IPv6
+	if strings.Contains(cidr, ":") {
+		return net.ParseCIDR(cidr)
+	}
+
+	cidrParts := strings.Split(cidr, "/")
+	if len(cidrParts) != 2 {
+		return nil, nil, &net.ParseError{Type: "CIDR address", Text: cidr}
+	}
+
+	prefix, err := strconv.Atoi(cidrParts[1])
+	if err != nil {
+		return nil, nil, &net.ParseError{Type: "CIDR address prefix", Text: cidr}
+	}
+
+	var fillOctets int
+
+	if prefix <= 8 {
+		fillOctets = 3
+	} else if prefix <= 16 {
+		fillOctets = 2
+	} else if prefix <= 24 {
+		fillOctets = 1
+	}
+
+	octets := strings.Split(cidrParts[0], ".")
+
+	for len(octets) < 4 {
+		if fillOctets <= 0 {
+			// inconsistency between missing octets and prefix
+			return nil, nil, &net.ParseError{Type: "CIDR octets", Text: cidr}
+		}
+
+		fillOctets--
+		octets = append(octets, "0")
+	}
+
+	cidr = fmt.Sprintf("%s/%d", strings.Join(octets, "."), prefix)
+
+	ip, ipnet, err := net.ParseCIDR(cidr)
+	if err == nil && cidr != ipnet.String() {
+		// This is not considered an error for net.ParseCIDR(),
+		// but we decided to compare the exact CIDR that comes from
+		// request with the net.ParseCIDR() result. By our own rules
+		// we must return error for this case
+		return net.IP{}, nil, &net.ParseError{Type: "CIDR address", Text: cidr}
+	}
+
+	return ip, ipnet, err
+}
