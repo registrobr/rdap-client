@@ -43,12 +43,12 @@ nserver:       {{.LDHName}}
 {{ if hasSecureDns .SecureDNS}}
 {{ range .SecureDNS.DSSet }}
 dsinetrev:     {{reverseAddressToCIDR .Zone}}
-dsrecord:      {{.KeyTag}}{{.Digest}}
+dsrecord:      {{.KeyTag}} {{.Digest}}
 {{ range .Events }}
 {{ if and (eq .Action "delegation sign check") (gt (lenStatus .Status) 0)}}
-dsstatus:      {{ .Date.Time | formatDate }}{{dsStatusTranslate (index .Status 0)}}
+dsstatus:      {{ .Date | formatDate }}{{dsStatusTranslate (index .Status 0)}}
 {{ else if eq .Action "last correct delegation sign check" }}
-dslastok: {{ .Date.Time | formatDate }}
+dslastok: {{ .Date | formatDate }}
 {{ end }}
 {{ end }}
 {{ end }}
