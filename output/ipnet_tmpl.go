@@ -49,9 +49,9 @@ dsrecord:      {{.KeyTag}} {{.Digest}}
 dsstatus:      {{ .Date | formatDate }}{{dsStatusTranslate (index .Status 0)}}
 {{ else if eq .Action "last correct delegation sign check" }}
 dslastok: {{ .Date | formatDate }}
-{{ end }}
-{{ end }}
-{{ end }}
+{{ end }}\
+{{ end }}\
+{{ end }}\
 {{ end }}\
 {{end}}\
 {{if (isDateDefined .CreatedAt)}}\
