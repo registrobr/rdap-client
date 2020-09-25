@@ -47,7 +47,7 @@ dsrecord:      {{.KeyTag}} {{.Digest}}
 {{ range .Events }}\
 {{ if and (eq .Action "delegation sign check") (gt (lenStatus .Status) 0)}}\
 dsstatus:      {{ .Date | formatDate }} {{dsStatusTranslate (index .Status 0)}}
-{{ else if eq .Action "registration"}}
+{{ else if eq .Action "registration"}}\
 dsstatus:      {{ .Date | formatDate }} OK
 {{ else if eq .Action "last correct delegation sign check" }}\
 dslastok:      {{ .Date | formatDate }}
