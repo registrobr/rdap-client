@@ -40,14 +40,14 @@ inetrev:       {{inetnum $startAddress $endAddress}}
 {{range .Nameservers}}\
 nserver:       {{.LDHName}}
 {{end}}\
-{{ if hasSecureDns .SecureDNS}}
-{{ range .SecureDNS.DSSet }}
+{{ if hasSecureDns .SecureDNS}}\
+{{ range .SecureDNS.DSSet }}\
 dsinetrev:     {{reverseAddressToCIDR .Zone}}
 dsrecord:      {{.KeyTag}} {{.Digest}}
-{{ range .Events }}
-{{ if and (eq .Action "delegation sign check") (gt (lenStatus .Status) 0)}}
+{{ range .Events }}\
+{{ if and (eq .Action "delegation sign check") (gt (lenStatus .Status) 0)}}\
 dsstatus:      {{ .Date | formatDate }}{{dsStatusTranslate (index .Status 0)}}
-{{ else if eq .Action "last correct delegation sign check" }}
+{{ else if eq .Action "last correct delegation sign check" }}\
 dslastok: {{ .Date | formatDate }}
 {{ end }}\
 {{ end }}\
