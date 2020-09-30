@@ -96,7 +96,8 @@ const (
 var (
 	// ErrNotFound is used when the RDAP server doesn't contain any
 	// information of the requested object
-	ErrNotFound = errors.New("not found")
+	ErrNotFound  = errors.New("not found")
+	ErrForbidden = errors.New("forbidden")
 )
 
 // Fetcher represents the network layer responsible for retrieving the
@@ -201,6 +202,8 @@ func (d *defaultFetcher) fetchURI(uri string, queryType QueryType, queryValue st
 		// some special HTTP headers to identify the reason why it does not
 		// exists
 		return resp, ErrNotFound
+	} else if resp.StatusCode == http.StatusForbidden {
+		return resp, ErrForbidden
 	}
 
 	contentType := resp.Header.Get("Content-Type")

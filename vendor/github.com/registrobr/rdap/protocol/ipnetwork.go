@@ -24,11 +24,27 @@ type IPNetwork struct {
 	Port43
 }
 
+type ReverseDS struct {
+	Zone       string  `json:"zone"`
+	KeyTag     int     `json:"keyTag"`
+	Algorithm  int     `json:"algorithm"`
+	Digest     string  `json:"digest"`
+	DigestType int     `json:"digestType"`
+	Events     []Event `json:"events,omitempty"`
+}
+
+type ReverseDelegationSecureDNS struct {
+	ZoneSigned       *bool       `json:"zoneSigned,omitempty"`
+	DelegationSigned bool        `json:"delegationSigned"`
+	DSSet            []ReverseDS `json:"dsData,omitempty"`
+}
+
 // ReverseDelegation is a NIC.br extension to list all the IP network
 // delegations and the corresponding nameservers
 type ReverseDelegation struct {
-	StartAddress string       `json:"startAddress"`
-	EndAddress   string       `json:"endAddress"`
-	Nameservers  []Nameserver `json:"nameservers,omitempty"`
-	Events       []Event      `json:"events"`
+	StartAddress string                      `json:"startAddress"`
+	EndAddress   string                      `json:"endAddress"`
+	Nameservers  []Nameserver                `json:"nameservers,omitempty"`
+	Events       []Event                     `json:"events"`
+	SecureDNS    *ReverseDelegationSecureDNS `json:"secureDNS,omitempty"`
 }

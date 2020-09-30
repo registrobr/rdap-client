@@ -5,14 +5,13 @@ import (
 	"fmt"
 	"net"
 	"net/http"
+	"net/url"
 	"regexp"
 	"strconv"
 	"strings"
 
-	"net/url"
-
-	"github.com/miekg/dns/idn"
 	"github.com/registrobr/rdap/protocol"
+	"golang.org/x/net/idna"
 )
 
 var (
@@ -58,7 +57,10 @@ func NewClient(URIs []string) *Client {
 // the error ErrNotFound will be returned. The HTTP header of the RDAP
 // response is also returned to analyze any specific flag
 func (c *Client) Domain(fqdn string, header http.Header, queryString url.Values) (*protocol.Domain, http.Header, error) {
-	fqdn = idn.ToPunycode(strings.ToLower(fqdn))
+	fqdn, err := idna.ToASCII(strings.ToLower(fqdn))
+	if err != nil {
+		return nil, nil, err
+	}
 
 	resp, err := c.Transport.Fetch(c.URIs, QueryTypeDomain, fqdn, header, queryString)
 	defer func() {
@@ -254,7 +256,8 @@ func (c *Client) Query(object string, header http.Header, queryString url.Values
 		return c.IPNetwork(ipnetwork, header, queryString)
 	}
 
-	if fqdn := idn.ToPunycode(strings.ToLower(object)); fqdnRX.MatchString(fqdn) {
+	fqdn, err := idna.ToASCII(strings.ToLower(object))
+	if err == nil && fqdnRX.MatchString(fqdn) {
 		return c.Domain(fqdn, header, queryString)
 	}
 

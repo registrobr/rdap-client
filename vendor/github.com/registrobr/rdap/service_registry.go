@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/miekg/dns/idn"
+	"golang.org/x/net/idna"
 )
 
 const version = "1.0"
@@ -152,10 +152,12 @@ func (s serviceRegistry) matchIP(ip net.IP) (uris []string, err error) {
 //
 // See http://tools.ietf.org/html/rfc7484#section-4
 func (s serviceRegistry) matchDomain(fqdn string) (uris []string, err error) {
-	var (
-		size      int
-		fqdnParts = strings.Split(idn.ToPunycode(fqdn), ".")
-	)
+	var size int
+
+	if fqdn, err = idna.ToASCII(fqdn); err != nil {
+		return nil, err
+	}
+	fqdnParts := strings.Split(fqdn, ".")
 
 	for _, service := range s.Services {
 	Entries:
