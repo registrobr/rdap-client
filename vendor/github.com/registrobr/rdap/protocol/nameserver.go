@@ -13,6 +13,7 @@ type Nameserver struct {
 	ObjectClassName string       `json:"objectClassName"`
 	Handle          string       `json:"handle,omitempty"`
 	LDHName         string       `json:"ldhName,omitempty"`
+	Lang            string       `json:"lang,omitempty"`
 	UnicodeName     string       `json:"unicodeName,omitempty"`
 	Entities        []Entity     `json:"entities,omitempty"`
 	Status          []Status     `json:"status,omitempty"`

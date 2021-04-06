@@ -1,7 +1,39 @@
 package protocol
 
-// https://tools.ietf.org/html/rfc7483#section-10.2.2
+// Mar/2015 - https://tools.ietf.org/html/rfc7483#section-10.2.2
 const (
+	// Signifies that the data of the object instance has
+	// been found to be accurate.  This type of status is usually
+	// found on entity object instances to note the validity of
+	// identifying contact information.
+	StatusValidated Status = "validated"
+
+	// The registration of the object instance has been
+	// performed by a third party.  This is most commonly applied to
+	// entities.
+	StatusProxy Status = "proxy"
+
+	// The information of the object instance is not
+	// designated for public consumption.  This is most commonly
+	// applied to entities.
+	StatusPrivate Status = "private"
+
+	// Some of the information of the object instance has
+	// been altered for the purposes of not readily revealing the
+	// actual information of the object instance.  This is most
+	// commonly applied to entities.
+	StatusObscured Status = "obscured"
+
+	// The object instance is associated with other object
+	// instances in the registry.  This is most commonly used to
+	// signify that a nameserver is associated with a domain or that
+	// an entity is associated with a network resource or domain.
+	StatusAssociated Status = "associated"
+
+	// Changes to the object instance cannot be made,
+	// including the association of other object instances.
+	StatusLocked Status = "locked"
+
 	// StatusActive the object instance is in use.  For domain names, it
 	// signifies that the domain name is published in DNS.  For network and autnum
 	// registrations, it signifies that they are allocated or assigned for use in
@@ -54,6 +86,128 @@ const (
 	// been made available and has been removed. This is most commonly applied
 	// to entities
 	StatusRemoved Status = "removed"
+)
+
+// The following values appeared at RFC8056 - Jan/2017 - https://tools.ietf.org/html/rfc8056#3.1
+// EPP related constants
+const (
+	// This grace period is provided after the initial
+	// registration of the object.  If the object is deleted by the
+	// client during this period, the server provides a credit to the
+	// client for the cost of the registration.  This maps to the Domain
+	// Registry Grace Period Mapping for the Extensible Provisioning
+	// Protocol (EPP) [RFC3915] 'addPeriod' status.
+	StatusAddPeriod Status = "add period"
+
+	// This grace period is provided after an object
+	// registration period expires and is extended (renewed)
+	// automatically by the server.  If the object is deleted by the
+	// client during this period, the server provides a credit to the
+	// client for the cost of the auto renewal.  This maps to the Domain
+	// Registry Grace Period Mapping for the Extensible Provisioning
+	// Protocol (EPP) [RFC3915] 'autoRenewPeriod' status.
+	StatusAutoRenewPeriod Status = "auto renew period"
+
+	// The client requested that requests to delete the
+	// object MUST be rejected.  This maps to the Extensible Provisioning
+	// Protocol (EPP) Domain Name Mapping [RFC5731], Extensible
+	// Provisioning Protocol (EPP) Host Mapping [RFC5732], and Extensible
+	// Provisioning Protocol (EPP) Contact Mapping [RFC5733]
+	// 'clientDeleteProhibited' status.
+	StatusClientDeleteProhibited Status = "client delete prohibited"
+
+	// The client requested that the DNS delegation
+	// information MUST NOT be published for the object.  This maps to
+	// the Extensible Provisioning Protocol (EPP) Domain Name Mapping
+	// [RFC5731] 'clientHold' status.
+	StatusClientHold Status = "client hold"
+
+	// The client requested that requests to renew the
+	// object MUST be rejected.  This maps to the Extensible Provisioning
+	// Protocol (EPP) Domain Name Mapping [RFC5731]
+	// 'clientRenewProhibited' status.
+	StatusClientRenewProhibited Status = "client renew prohibited"
+
+	// The client requested that requests to transfer the
+	// object MUST be rejected.  This maps to the Extensible Provisioning
+	// Protocol (EPP) Domain Name Mapping [RFC5731] and Extensible
+	// Provisioning Protocol (EPP) Contact Mapping [RFC5733]
+	// 'clientTransferProhibited' status.
+	StatusClientTransferProhibited Status = "client transfer prohibited"
+
+	// The client requested that requests to update the
+	// object (other than to remove this status) MUST be rejected.  This
+	// maps to the Extensible Provisioning Protocol (EPP) Domain Name
+	// Mapping [RFC5731], Extensible Provisioning Protocol (EPP) Host
+	// Mapping [RFC5732], and Extensible Provisioning Protocol (EPP)
+	// Contact Mapping [RFC5733] 'clientUpdateProhibited' status.
+	StatusClientUpdateProhibited Status = "client update prohibited"
+
+	// An object is in the process of being restored after
+	// being in the redemption period state.  This maps to the Domain
+	// Registry Grace Period Mapping for the Extensible Provisioning
+	// Protocol (EPP) [RFC3915] 'pendingRestore' status.
+	StatusPendingRestore Status = "pending restore"
+
+	// A delete has been received, but the object has not
+	// yet been purged because an opportunity exists to restore the
+	// object and abort the deletion process.  This maps to the Domain
+	// Registry Grace Period Mapping for the Extensible Provisioning
+	// Protocol (EPP) [RFC3915] 'redemptionPeriod' status.
+	StatusRedemptionPeriod Status = "redemption period"
+
+	// This grace period is provided after an object
+	// registration period is explicitly extended (renewed) by the
+	// client.  If the object is deleted by the client during this
+	// period, the server provides a credit to the client for the cost of
+	// the renewal.  This maps to the Domain Registry Grace Period
+	// Mapping for the Extensible Provisioning Protocol (EPP) [RFC3915]
+	// 'renewPeriod' status.
+	StatusRenewPeriod Status = "renew period"
+
+	// The server set the status so that requests to delete
+	// the object MUST be rejected.  This maps to the Extensible
+	// Provisioning Protocol (EPP) Domain Name Mapping [RFC5731],
+	// Extensible Provisioning Protocol (EPP) Host Mapping [RFC5732], and
+	// Extensible Provisioning Protocol (EPP) Contact Mapping [RFC5733]
+	// 'serverDeleteProhibited' status.
+	StatusServerDeleteProhibited Status = "server delete prohibited"
+
+	// The server set the status so that requests to renew
+	// the object MUST be rejected.  This maps to the Extensible
+	// Provisioning Protocol (EPP) Domain Name Mapping [RFC5731]
+	// 'serverRenewProhibited' status.
+	StatusServerRenewProhibited Status = "server renew prohibited"
+
+	// The server set the status so that requests to
+	// transfer the object MUST be rejected.  This maps to the Extensible
+	// Provisioning Protocol (EPP) Domain Name Mapping [RFC5731] and
+	// Extensible Provisioning Protocol (EPP) Contact Mapping [RFC5733]
+	// 'serverTransferProhibited' status.
+	StatusServerTransferProhibited Status = "server transfer prohibited"
+
+	// The server set the status so that requests to update
+	// the object (other than to remove this status) MUST be rejected.
+	// This maps to the Extensible Provisioning Protocol (EPP) Domain
+	// Name Mapping [RFC5731], Extensible Provisioning Protocol (EPP)
+	// Host Mapping [RFC5732], and Extensible Provisioning Protocol (EPP)
+	// Contact Mapping [RFC5733] 'serverUpdateProhibited' status.
+	StatusServerUpdateProhibited Status = "server update prohibited"
+
+	// The server set the status so that DNS delegation
+	// information MUST NOT be published for the object.  This maps to
+	// the Extensible Provisioning Protocol (EPP) Domain Name Mapping
+	// [RFC5731] 'serverHold' status.
+	StatusServerHold Status = "server hold"
+
+	// This grace period is provided after the successful
+	// transfer of object registration sponsorship from one client to
+	// another client.  If the object is deleted by the client during
+	// this period, the server provides a credit to the client for the
+	// cost of the transfer.  This maps to the Domain Registry Grace
+	// Period Mapping for the Extensible Provisioning Protocol (EPP)
+	// [RFC3915] 'transferPeriod' status.
+	StatusTransferPeriod Status = "transfer period"
 )
 
 // Proposed by NIC.br for DNS and DNSSEC checks of delegations

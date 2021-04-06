@@ -21,7 +21,7 @@ const (
 
 	// EventActionLastUpdate last date and time the database used by the RDAP
 	// service was updated from the Registry or Registrar database
-	EventActionLastUpdate EventAction = "last update"
+	EventActionLastUpdate EventAction = "last update of RDAP database"
 
 	// EventActionExpiration the object instance has been removed or will be
 	// removed at a predetermined date and time from the registry
@@ -104,7 +104,7 @@ func Date(year int, month time.Month, day, hour, min, sec, nsec int, loc *time.L
 // NewEventDate creates the object with the informed time
 func NewEventDate(t time.Time) EventDate {
 	return EventDate{
-		Time: t,
+		Time: t.Truncate(time.Second),
 	}
 }
 

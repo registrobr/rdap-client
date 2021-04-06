@@ -32,6 +32,7 @@ type Entity struct {
 	DomainCount            int                     `json:"nicbr_domainCount,omitempty"`
 	InetCount              int                     `json:"nicbr_inetCount,omitempty"`
 	AutnumCount            int                     `json:"nicbr_autnumCount,omitempty"`
+	Lang                   string                  `json:"lang,omitempty"`
 	Conformance
 	Port43
 

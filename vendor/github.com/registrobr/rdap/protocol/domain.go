@@ -18,6 +18,7 @@ type Domain struct {
 	Notices         []Notice     `json:"notices,omitempty"`
 	Network         *IPNetwork   `json:"network,omitempty"`
 	Unavailability  string       `json:"-"`
+	Lang            string       `json:"lang,omitempty"`
 	Conformance
 	Port43
 }
