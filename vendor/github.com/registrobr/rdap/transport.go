@@ -191,6 +191,7 @@ func (d *defaultFetcher) fetchURI(uri string, queryType QueryType, queryValue st
 	}
 
 	req.Header.Set("Accept", "application/rdap+json")
+	req.Header.Set("User-Agent", "registrobr-rdap")
 
 	resp, err := d.httpClient.Do(req)
 	if err != nil {
