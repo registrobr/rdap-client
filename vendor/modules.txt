@@ -15,7 +15,7 @@ github.com/gregjones/httpcache/diskcache
 # github.com/peterbourgon/diskv v2.0.1-0.20160404093648-5dfcb07a075a+incompatible
 ## explicit
 github.com/peterbourgon/diskv
-# github.com/registrobr/rdap v1.1.0
+# github.com/registrobr/rdap v1.1.1
 ## explicit
 github.com/registrobr/rdap
 github.com/registrobr/rdap/protocol
