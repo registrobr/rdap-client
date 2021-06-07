@@ -15,8 +15,8 @@ github.com/peterbourgon/diskv v2.0.1-0.20160404093648-5dfcb07a075a+incompatible 
 github.com/peterbourgon/diskv v2.0.1-0.20160404093648-5dfcb07a075a+incompatible/go.mod h1:uqqh8zWWbv1HBMNONnaR/tNboyR3/BZd58JJSHlUSCU=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
-github.com/registrobr/rdap v1.1.1-0.20210604181343-d5554761c5d1 h1:ujgHS7qwm65u7g69Y+73KAnzJQb9piPH0xv7/aRcHQc=
-github.com/registrobr/rdap v1.1.1-0.20210604181343-d5554761c5d1/go.mod h1:Uyljwhj0fsY1dkPnE8A0ZM+yTqNLYlw7Pmpduigrimk=
+github.com/registrobr/rdap v1.1.1 h1:FpNV5v2wQty6jahMg/1QCaJF5gCdMZjnkYEvq0BXHKo=
+github.com/registrobr/rdap v1.1.1/go.mod h1:Uyljwhj0fsY1dkPnE8A0ZM+yTqNLYlw7Pmpduigrimk=
 github.com/russross/blackfriday/v2 v2.0.1 h1:lPqVAte+HuHNfhJ/0LC98ESWRz8afy9tM/0RK8m9o+Q=
 github.com/russross/blackfriday/v2 v2.0.1/go.mod h1:+Rmxgy9KzJVeS9/2gXHxylqXiyQDYRxCVz55jmeOWTM=
 github.com/shurcooL/sanitized_anchor_name v1.0.0 h1:PdmoCO6wvbs+7yrJyMORt4/BmY5IYyJwS/kOiWx8mHo=
