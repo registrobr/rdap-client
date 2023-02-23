@@ -3,8 +3,6 @@
 github.com/aryann/difflib
 # github.com/cpuguy83/go-md2man/v2 v2.0.0-20190314233015-f79a8a8ca69d
 github.com/cpuguy83/go-md2man/v2/md2man
-# github.com/davecgh/go-spew v1.1.1
-## explicit
 # github.com/google/btree v0.0.0-20161217183710-316fb6d3f031
 ## explicit
 github.com/google/btree
@@ -15,7 +13,7 @@ github.com/gregjones/httpcache/diskcache
 # github.com/peterbourgon/diskv v2.0.1-0.20160404093648-5dfcb07a075a+incompatible
 ## explicit
 github.com/peterbourgon/diskv
-# github.com/registrobr/rdap v1.1.1
+# github.com/registrobr/rdap v1.1.2
 ## explicit
 github.com/registrobr/rdap
 github.com/registrobr/rdap/protocol
@@ -26,10 +24,9 @@ github.com/shurcooL/sanitized_anchor_name
 # github.com/urfave/cli v1.22.5
 ## explicit
 github.com/urfave/cli
-# golang.org/x/net v0.0.0-20210329181859-df645c7b52b1
-## explicit
+# golang.org/x/net v0.7.0
 golang.org/x/net/idna
-# golang.org/x/text v0.3.3
+# golang.org/x/text v0.7.0
 golang.org/x/text/secure/bidirule
 golang.org/x/text/transform
 golang.org/x/text/unicode/bidi
