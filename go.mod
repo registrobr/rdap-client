@@ -8,5 +8,5 @@ require (
 	github.com/gregjones/httpcache v0.0.0-20190611155906-901d90724c79
 	github.com/peterbourgon/diskv v2.0.1-0.20160404093648-5dfcb07a075a+incompatible // indirect
 	github.com/registrobr/rdap v1.1.2
-	github.com/urfave/cli v1.22.5
+	github.com/urfave/cli v1.22.12
 )
