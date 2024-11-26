@@ -7,7 +7,7 @@ FROM golang:1.19 as builder
 COPY . /go/src/github.com/registrobr/rdap-client
 WORKDIR /go/src/github.com/registrobr/rdap-client
 RUN mkdir /apps
-RUN go mod vendor && go build -mod=vendor -ldflags="-w -s" -o /apps/rdap-client
+RUN go build -ldflags="-w -s" -o /apps/rdap-client
 
 #
 # ====================
