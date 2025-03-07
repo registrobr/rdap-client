@@ -34,8 +34,8 @@ country:       {{.IPNetwork.Country}}
 status:        {{.}}
 {{end}}\
 {{range .IPNetwork.ReverseDelegations}}\
-{{ $startAddress := .StartAddress}}
-{{ $endAddress := .EndAddress }}
+{{- $startAddress := .StartAddress -}}
+{{- $endAddress := .EndAddress -}}
 inetrev:       {{inetnum $startAddress $endAddress}}
 {{range .Nameservers}}\
 nserver:       {{.LDHName}}
