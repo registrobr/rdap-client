@@ -41,6 +41,7 @@ func (c *contactInfo) setContact(entity protocol.Entity) {
 			case "adr":
 				var address []string
 
+				cc := ""
 				addressLabel, ok := v[1].(map[string]interface{})
 				if ok {
 					if label, ok := addressLabel["label"]; ok {
@@ -50,6 +51,12 @@ func (c *contactInfo) setContact(entity protocol.Entity) {
 							address = append(address, addr)
 						}
 					}
+
+					if c, ok := addressLabel["cc"]; ok {
+						if c, ok := c.(string); ok {
+							cc = c
+						}
+					}
 				}
 
 				addresses, ok := v[3].([]interface{})
@@ -57,18 +64,23 @@ func (c *contactInfo) setContact(entity protocol.Entity) {
 					continue
 				}
 
-				for _, next := range addresses {
+				for offset, next := range addresses {
+					if offset == 6 && cc != "" {
+						address = append(address, cc)
+						continue
+					}
+
 					switch v := next.(type) {
 					case string:
 						if len(v) > 0 {
 							address = append(address, v)
 						}
 
-					case []interface {}:
+					case []interface{}:
 						//according to https://tools.ietf.org/html/rfc7095#section-3.3.1.3
 						//  spec for structured values, an array of strings is allowed here
 						for _, nestedNext := range v {
-							vv, ok := nestedNext.(string);
+							vv, ok := nestedNext.(string)
 							if !ok {
 								continue
 							}
