@@ -46,7 +46,7 @@ func (i *IPNetwork) Print(wr io.Writer) error {
 	t, err := template.New("ipnetwork template").
 		Funcs(genericFuncMap).
 		Funcs(ipnetFuncMap).
-		Parse(strings.Replace(ipnetTmpl, "\\\n", "", -1))
+		Parse(strings.ReplaceAll(ipnetTmpl, "\\\n", ""))
 
 	if err != nil {
 		return err

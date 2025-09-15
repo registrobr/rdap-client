@@ -79,7 +79,7 @@ func (d *Domain) Print(wr io.Writer) error {
 	t, err := template.New("domain template").
 		Funcs(genericFuncMap).
 		Funcs(domainFuncMap).
-		Parse(strings.Replace(domainTmpl, "\\\n", "", -1))
+		Parse(strings.ReplaceAll(domainTmpl, "\\\n", ""))
 
 	if err != nil {
 		return err

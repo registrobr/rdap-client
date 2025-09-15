@@ -62,7 +62,7 @@ func (a *AS) Print(wr io.Writer) error {
 
 	t, err := template.New("as template").
 		Funcs(genericFuncMap).
-		Parse(strings.Replace(asTmpl, "\\\n", "", -1))
+		Parse(strings.ReplaceAll(asTmpl, "\\\n", ""))
 
 	if err != nil {
 		return err

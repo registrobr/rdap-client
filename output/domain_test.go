@@ -27,20 +27,20 @@ func TestDomainPrint(t *testing.T) {
 				{
 					ObjectClassName: "entity",
 					Handle:          "XXXX",
-					VCardArray: []interface{}{
+					VCardArray: []any{
 						"vcard",
-						[]interface{}{
-							[]interface{}{"version", struct{}{}, "text", "4.0"},
-							[]interface{}{"fn", struct{}{}, "text", "Joe User"},
-							[]interface{}{"kind", struct{}{}, "text", "individual"},
-							[]interface{}{"email", struct{ Type string }{Type: "work"}, "text", "joe.user@example.com"},
-							[]interface{}{"lang", struct{ Pref string }{Pref: "1"}, "language-tag", "pt"},
-							[]interface{}{"adr", struct{ Type string }{Type: "work"}, "text",
-								[]interface{}{
+						[]any{
+							[]any{"version", struct{}{}, "text", "4.0"},
+							[]any{"fn", struct{}{}, "text", "Joe User"},
+							[]any{"kind", struct{}{}, "text", "individual"},
+							[]any{"email", struct{ Type string }{Type: "work"}, "text", "joe.user@example.com"},
+							[]any{"lang", struct{ Pref string }{Pref: "1"}, "language-tag", "pt"},
+							[]any{"adr", struct{ Type string }{Type: "work"}, "text",
+								[]any{
 									"Av Naçoes Unidas", "11541", "7 andar", "Sao Paulo", "SP", "04578-000", "BR",
 								},
 							},
-							[]interface{}{"tel", struct{ Type string }{Type: "work"}, "uri", "tel:+55-11-5509-3506;ext=3506"},
+							[]any{"tel", struct{ Type string }{Type: "work"}, "uri", "tel:+55-11-5509-3506;ext=3506"},
 						},
 					},
 					Events: []protocol.Event{
@@ -57,20 +57,20 @@ func TestDomainPrint(t *testing.T) {
 				{
 					ObjectClassName: "entity",
 					Handle:          "YYYY",
-					VCardArray: []interface{}{
+					VCardArray: []any{
 						"vcard",
-						[]interface{}{
-							[]interface{}{"version", struct{}{}, "text", "4.0"},
-							[]interface{}{"fn", struct{}{}, "text", "Joe User 2"},
-							[]interface{}{"kind", struct{}{}, "text", "individual"},
-							[]interface{}{"email", struct{ Type string }{Type: "work"}, "text", "joe.user2@example.com"},
-							[]interface{}{"lang", struct{ Pref string }{Pref: "1"}, "language-tag", "pt"},
-							[]interface{}{"adr", struct{ Type string }{Type: "work"}, "text",
-								[]interface{}{
+						[]any{
+							[]any{"version", struct{}{}, "text", "4.0"},
+							[]any{"fn", struct{}{}, "text", "Joe User 2"},
+							[]any{"kind", struct{}{}, "text", "individual"},
+							[]any{"email", struct{ Type string }{Type: "work"}, "text", "joe.user2@example.com"},
+							[]any{"lang", struct{ Pref string }{Pref: "1"}, "language-tag", "pt"},
+							[]any{"adr", struct{ Type string }{Type: "work"}, "text",
+								[]any{
 									"Av Naçoes Unidas", "11541", "7 andar", "Sao Paulo", "SP", "04578-000", "BR",
 								},
 							},
-							[]interface{}{"tel", struct{ Type string }{Type: "work"}, "uri", "tel:+55-11-5509-3506;ext=3507"},
+							[]any{"tel", struct{ Type string }{Type: "work"}, "uri", "tel:+55-11-5509-3506;ext=3507"},
 						},
 					},
 					Events: []protocol.Event{

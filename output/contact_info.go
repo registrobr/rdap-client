@@ -22,13 +22,13 @@ type contactInfo struct {
 func (c *contactInfo) setContact(entity protocol.Entity) {
 	c.Handle = entity.Handle
 	for _, vCardValues := range entity.VCardArray {
-		vCardValue, ok := vCardValues.([]interface{})
+		vCardValue, ok := vCardValues.([]any)
 		if !ok {
 			continue
 		}
 
 		for _, value := range vCardValue {
-			v, ok := value.([]interface{})
+			v, ok := value.([]any)
 			if !ok {
 				continue
 			}
@@ -41,34 +41,44 @@ func (c *contactInfo) setContact(entity protocol.Entity) {
 			case "adr":
 				var address []string
 
-				addressLabel, ok := v[1].(map[string]interface{})
+				cc := ""
+				addressLabel, ok := v[1].(map[string]any)
 				if ok {
 					if label, ok := addressLabel["label"]; ok {
-						labelStr := strings.Replace(label.(string), "\r", "", -1)
+						labelStr := strings.ReplaceAll(label.(string), "\r", "")
 						labelParts := strings.Split(labelStr, "\n")
-						for _, addr := range labelParts {
-							address = append(address, addr)
+						address = append(address, labelParts...)
+					}
+
+					if c, ok := addressLabel["cc"]; ok {
+						if c, ok := c.(string); ok {
+							cc = c
 						}
 					}
 				}
 
-				addresses, ok := v[3].([]interface{})
+				addresses, ok := v[3].([]any)
 				if !ok {
 					continue
 				}
 
-				for _, next := range addresses {
+				for offset, next := range addresses {
+					if offset == 6 && cc != "" {
+						address = append(address, cc)
+						continue
+					}
+
 					switch v := next.(type) {
 					case string:
 						if len(v) > 0 {
 							address = append(address, v)
 						}
 
-					case []interface {}:
+					case []any:
 						//according to https://tools.ietf.org/html/rfc7095#section-3.3.1.3
 						//  spec for structured values, an array of strings is allowed here
 						for _, nestedNext := range v {
-							vv, ok := nestedNext.(string);
+							vv, ok := nestedNext.(string)
 							if !ok {
 								continue
 							}

@@ -12,12 +12,12 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/urfave/cli"
 	"github.com/gregjones/httpcache"
 	"github.com/gregjones/httpcache/diskcache"
 	"github.com/registrobr/rdap"
 	"github.com/registrobr/rdap-client/output"
 	"github.com/registrobr/rdap/protocol"
+	"github.com/urfave/cli"
 )
 
 const (
@@ -207,7 +207,7 @@ func action(ctx *cli.Context) {
 	}
 
 	var err error
-	var object interface{}
+	var object any
 
 	switch {
 	case forceASN:

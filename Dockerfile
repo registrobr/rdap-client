@@ -3,7 +3,7 @@
 # Build image
 # ===========
 #
-FROM golang:1.19 as builder
+FROM golang:1.25 AS builder
 COPY . /go/src/github.com/registrobr/rdap-client
 WORKDIR /go/src/github.com/registrobr/rdap-client
 RUN mkdir /apps
@@ -26,7 +26,7 @@ ARG BUILD_DATE
 ARG BUILD_VCS_REF
 ARG BUILD_VERSION
 
-ENV API_VERSION ${BUILD_VCS_REF}
+ENV API_VERSION=${BUILD_VCS_REF}
 
 LABEL org.label-schema.build-date=$BUILD_DATE \
       org.label-schema.description="RDAP client" \
