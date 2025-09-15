@@ -40,7 +40,7 @@ func (e *Entity) Print(wr io.Writer) error {
 
 	t, err := template.New("entity template").
 		Funcs(genericFuncMap).
-		Parse(strings.Replace(contactTmpl, "\\\n", "", -1))
+		Parse(strings.ReplaceAll(contactTmpl, "\\\n", ""))
 
 	if err != nil {
 		return err

@@ -7,7 +7,7 @@ import (
 	"github.com/aryann/difflib"
 )
 
-func diff(a, b interface{}) []difflib.DiffRecord {
+func diff(a, b any) []difflib.DiffRecord {
 	return difflib.Diff(strings.Split(fmt.Sprintf("%v", a), "\n"),
 		strings.Split(fmt.Sprintf("%v", b), "\n"))
 }
