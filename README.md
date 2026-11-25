@@ -15,9 +15,9 @@ http://golang.org/doc/install
 You must be running Go version 1.5 or above.
 Don't forget to create the $GOPATH environment variable.
 
-Now just retrieve and install the project with the following command:
+Now just install the project with the following command:
 ```
-go get github.com/registrobr/rdap-client
+go install github.com/registrobr/rdap-client@latest
 ```
 
 Remember to add your **$GOPATH/bin** to your **$PATH** environment.
